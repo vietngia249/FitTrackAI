@@ -1,0 +1,37 @@
+{
+  "name": "fittrack-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Full-stack personal fitness tracking & AI coaching platform",
+  "scripts": {
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:worker": "npm --prefix worker run dev",
+    "build:backend": "npm --prefix backend run build",
+    "build:frontend": "npm --prefix frontend run build",
+    "build:worker": "npm --prefix worker run build",
+    "build": "npm run build:backend && npm run build:frontend",
+    "lint:backend": "npm --prefix backend run lint",
+    "lint:frontend": "npm --prefix frontend run lint",
+    "lint": "npm run lint:backend && npm run lint:frontend",
+    "typecheck:backend": "npm --prefix backend run typecheck",
+    "typecheck:frontend": "npm --prefix frontend run typecheck",
+    "typecheck": "npm run typecheck:backend && npm run typecheck:frontend",
+    "db:up": "docker compose up -d postgres redis",
+    "db:down": "docker compose down",
+    "prisma:generate": "npm --prefix backend run prisma:generate",
+    "prisma:migrate": "npm --prefix backend run prisma:migrate"
+  },
+  "keywords": [
+    "fitness",
+    "ai",
+    "fastify",
+    "react",
+    "vite",
+    "typescript",
+    "prisma",
+    "postgresql"
+  ],
+  "author": "",
+  "license": "MIT"
+}
