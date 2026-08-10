@@ -1,0 +1,19 @@
+// Prisma schema for FitTrack AI
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Minimal model for Phase 0 environment verification
+model SystemHealthCheck {
+  id        String   @id @default(uuid())
+  checkedAt DateTime @default(now()) @map("checked_at")
+  status    String   @default("ok")
+
+  @@map("system_health_checks")
+}
