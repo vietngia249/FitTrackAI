@@ -1,0 +1,72 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "workouts": "Workouts",
+    "nutrition": "Nutrition",
+    "progress": "Progress",
+    "ai_form": "AI Form",
+    "insights": "Insights",
+    "profile": "Profile"
+  },
+  "common": {
+    "app_name": "FitTrack AI",
+    "tagline": "Smart Fitness & AI Form Coaching",
+    "language": "Language",
+    "quick_actions": "Quick Actions",
+    "start_workout": "Start Workout",
+    "log_meal": "Log Meal",
+    "check_form": "Check Form",
+    "view_analytics": "View Analytics",
+    "welcome_back": "Welcome back",
+    "today_overview": "Here is your fitness progression snapshot for today."
+  },
+  "dashboard": {
+    "title": "Fitness Dashboard",
+    "subtitle": "Track your weekly volume, caloric balance, and AI-assisted performance.",
+    "weekly_volume": "Weekly Volume",
+    "calories_today": "Calories Today",
+    "streak": "Workout Streak",
+    "form_score": "Recent Form Score",
+    "days": "days",
+    "recent_activity": "Recent Activity",
+    "no_activity": "No workout recorded today. Ready to crush a session?"
+  },
+  "workouts": {
+    "title": "Workout Management",
+    "subtitle": "Build your routine, log sets in real-time, and track progressive overload.",
+    "new_plan": "Create Plan",
+    "active_session": "Active Session"
+  },
+  "nutrition": {
+    "title": "Nutrition & Macros",
+    "subtitle": "Track daily calories, proteins, carbohydrates, and fats with local caching.",
+    "daily_target": "Daily Target",
+    "log_food": "Search & Add Food"
+  },
+  "progress": {
+    "title": "Body Progress & Trends",
+    "subtitle": "7-day moving weight average, body measurements, and private photos.",
+    "weight_trend": "7-Day Weight Average",
+    "measurements": "Body Measurements"
+  },
+  "ai_form": {
+    "title": "AI Form Analysis",
+    "subtitle": "Client-side computer vision pose estimation for Bicep Curl, Squat, and Push-up.",
+    "select_exercise": "Select Exercise",
+    "start_camera": "Enable Camera & Analyze"
+  },
+  "insights": {
+    "title": "AI Copilot & Recommendations",
+    "subtitle": "Deterministic progression insights and grounded AI recommendations.",
+    "ask_copilot": "Ask FitTrack AI Copilot"
+  },
+  "profile": {
+    "title": "User Profile & Preferences",
+    "subtitle": "Manage units, language, goals, and account data.",
+    "units": "Preferred Units",
+    "metric": "Metric (kg, cm)",
+    "imperial": "Imperial (lb, in)",
+    "export_data": "Export Account Data",
+    "delete_account": "Delete Account"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "nav": {
+    "dashboard": "Tổng quan",
+    "workouts": "Tập luyện",
+    "nutrition": "Dinh dưỡng",
+    "progress": "Tiến trình",
+    "ai_form": "Chấm điểm AI",
+    "insights": "Gợi ý AI",
+    "profile": "Cá nhân"
+  },
+  "common": {
+    "app_name": "FitTrack AI",
+    "tagline": "Huấn luyện viên & Quản lý Thể hình Thông minh",
+    "language": "Ngôn ngữ",
+    "quick_actions": "Thao tác nhanh",
+    "start_workout": "Bắt đầu tập",
+    "log_meal": "Ghi nhận bữa ăn",
+    "check_form": "Chấm tư thế AI",
+    "view_analytics": "Xem thống kê",
+    "welcome_back": "Chào mừng trở lại",
+    "today_overview": "Tổng quan tiến trình tập luyện và dinh dưỡng hôm nay của bạn."
+  },
+  "dashboard": {
+    "title": "Bảng Điều Khiển",
+    "subtitle": "Theo dõi khối lượng tập hàng tuần, cân bằng calo và chấm điểm AI.",
+    "weekly_volume": "Khối lượng tuần",
+    "calories_today": "Calo hôm nay",
+    "streak": "Chuỗi tập liên tiếp",
+    "form_score": "Điểm tư thế gần nhất",
+    "days": "ngày",
+    "recent_activity": "Hoạt động gần đây",
+    "no_activity": "Chưa có buổi tập nào hôm nay. Sẵn sàng bùng nổ chưa?"
+  },
+  "workouts": {
+    "title": "Quản Lý Buổi Tập",
+    "subtitle": "Lên lịch tập luyện, ghi chép từng set theo thời gian thực và theo dõi progressive overload.",
+    "new_plan": "Tạo lịch tập",
+    "active_session": "Buổi tập đang diễn ra"
+  },
+  "nutrition": {
+    "title": "Dinh Dưỡng & Macro",
+    "subtitle": "Theo dõi calo, đạm, tinh bột và chất béo hàng ngày với cơ chế lưu trữ cục bộ.",
+    "daily_target": "Mục tiêu hàng ngày",
+    "log_food": "Tìm kiếm & Thêm món"
+  },
+  "progress": {
+    "title": "Tiến Trình Cơ Thể",
+    "subtitle": "Trung bình cân nặng 7 ngày, số đo các vòng và kho ảnh bảo mật.",
+    "weight_trend": "Xu hướng cân nặng (7 ngày)",
+    "measurements": "Số đo cơ thể"
+  },
+  "ai_form": {
+    "title": "Chấm Điểm Kỹ Thuật AI",
+    "subtitle": "Nhận diện tư thế trực tiếp trên trình duyệt cho Bicep Curl, Squat và Push-up.",
+    "select_exercise": "Chọn bài tập",
+    "start_camera": "Bật Camera & Chấm điểm"
+  },
+  "insights": {
+    "title": "Trợ Lý AI & Gợi Ý",
+    "subtitle": "Quy tắc tiến bộ khoa học và trợ lý huấn luyện AI dựa trên dữ liệu thực tế.",
+    "ask_copilot": "Hỏi FitTrack AI Copilot"
+  },
+  "profile": {
+    "title": "Hồ Sơ & Cài Đặt",
+    "subtitle": "Quản lý đơn vị đo lường, ngôn ngữ, mục tiêu thể hình và dữ liệu cá nhân.",
+    "units": "Đơn vị đo lường",
+    "metric": "Hệ Mét (kg, cm)",
+    "imperial": "Hệ Anh (lb, in)",
+    "export_data": "Xuất toàn bộ dữ liệu",
+    "delete_account": "Xóa tài khoản"
+  }
+}
