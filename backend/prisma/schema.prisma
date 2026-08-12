@@ -9,11 +9,65 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Minimal model for Phase 0 environment verification
+// Minimal model for environment verification
 model SystemHealthCheck {
   id        String   @id @default(uuid())
   checkedAt DateTime @default(now()) @map("checked_at")
   status    String   @default("ok")
 
   @@map("system_health_checks")
+}
+
+// ==========================================
+// Phase 1: Authentication & User Profiles
+// ==========================================
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  displayName  String   @map("display_name")
+  avatarUrl    String?  @map("avatar_url")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  profile      FitnessProfile?
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}
+
+model FitnessProfile {
+  id             String    @id @default(uuid())
+  userId         String    @unique @map("user_id")
+  dateOfBirth    DateTime? @map("date_of_birth")
+  biologicalSex  String?   @map("biological_sex") // "male" | "female" | "other"
+  height         Float?    // stored canonically in cm
+  currentWeight  Float?    @map("current_weight") // stored canonically in kg
+  activityLevel  String?   @map("activity_level") // "sedentary" | "light" | "moderate" | "active" | "very_active"
+  fitnessGoal    String?   @map("fitness_goal") // "muscle_gain" | "fat_loss" | "maintenance" | "strength"
+  targetWeight   Float?    @map("target_weight") // stored canonically in kg
+  preferredUnits String    @default("metric") @map("preferred_units") // "metric" | "imperial"
+  locale         String    @default("en") // "en" | "vi"
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("fitness_profiles")
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String    @map("user_id")
+  tokenHash String    @map("token_hash") // Argon2 / SHA-256 hashed refresh token
+  expiresAt DateTime  @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
+  @@map("refresh_tokens")
 }
