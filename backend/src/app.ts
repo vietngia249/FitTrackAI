@@ -11,8 +11,7 @@ import { authRoutes } from './modules/auth/auth.routes.js';
 
 export function buildApp(): FastifyInstance {
   const app = Fastify({
-    logger: logger as any,
-    disableRequestLogging: false,
+    loggerInstance: logger,
   });
 
   // Core Security & Utility Plugins
