@@ -5,7 +5,9 @@ import sensible from '@fastify/sensible';
 import { logger } from './shared/logger/index.js';
 import { env } from './config/env.js';
 import zodValidatorPlugin from './plugins/zod-validator.js';
+import authPlugin from './plugins/auth.js';
 import { healthRoutes } from './modules/health/health.routes.js';
+import { authRoutes } from './modules/auth/auth.routes.js';
 
 export function buildApp(): FastifyInstance {
   const app = Fastify({
@@ -26,9 +28,11 @@ export function buildApp(): FastifyInstance {
 
   app.register(sensible);
   app.register(zodValidatorPlugin);
+  app.register(authPlugin);
 
   // Register Modules
   app.register(healthRoutes);
+  app.register(authRoutes);
 
   // Root fallback route
   app.get('/', async () => {
