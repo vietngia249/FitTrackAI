@@ -11,9 +11,13 @@ import {
   User
 } from 'lucide-react';
 import { LanguageSwitcher } from '../common/LanguageSwitcher.js';
+import { useAuth } from '../../features/auth/AuthContext.js';
+import { AuthModal } from '../../features/auth/AuthModal.js';
+import { LogIn, LogOut } from 'lucide-react';
 
 export const Layout: React.FC = () => {
   const { t } = useTranslation();
+  const { user, openLoginModal, logout } = useAuth();
 
   const navItems = [
     { to: '/', label: t('nav.dashboard'), icon: LayoutDashboard },
@@ -86,9 +90,31 @@ export const Layout: React.FC = () => {
             <LanguageSwitcher />
 
             <div className="hidden sm:flex items-center gap-2 pl-2 border-l border-slate-800">
-              <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 font-semibold text-xs">
-                JD
-              </div>
+              {user ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-bold text-xs uppercase">
+                    {user.displayName.slice(0, 2)}
+                  </div>
+                  <span className="text-xs font-semibold text-slate-200 hidden lg:inline">
+                    {user.displayName}
+                  </span>
+                  <button
+                    onClick={() => logout()}
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-all"
+                    title="Sign Out"
+                  >
+                    <LogOut className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={openLoginModal}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-black font-bold text-xs shadow transition-all active:scale-95"
+                >
+                  <LogIn className="w-3.5 h-3.5" />
+                  <span>Sign In</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -98,6 +124,9 @@ export const Layout: React.FC = () => {
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 md:pb-8">
         <Outlet />
       </main>
+
+      {/* Global Auth Modal */}
+      <AuthModal />
 
       {/* Mobile Bottom Navigation (Visible on screens < md) */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass-panel border-t border-slate-800/80 px-2 py-2">

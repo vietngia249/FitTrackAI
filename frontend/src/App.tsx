@@ -8,11 +8,13 @@ import { ProgressPage } from './pages/ProgressPage.js';
 import { AiFormPage } from './pages/AiFormPage.js';
 import { InsightsPage } from './pages/InsightsPage.js';
 import { ProfilePage } from './pages/ProfilePage.js';
+import { AuthProvider } from './features/auth/AuthContext.js';
 
 export const App: React.FC = () => {
   return (
-    <BrowserRouter>
-      <Routes>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<DashboardPage />} />
           <Route path="workouts" element={<WorkoutsPage />} />
@@ -24,7 +26,8 @@ export const App: React.FC = () => {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>
-    </BrowserRouter>
+      </BrowserRouter>
+    </AuthProvider>
   );
 };
 
