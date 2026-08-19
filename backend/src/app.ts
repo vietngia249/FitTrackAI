@@ -9,7 +9,7 @@ import authPlugin from './plugins/auth.js';
 import { healthRoutes } from './modules/health/health.routes.js';
 import { authRoutes } from './modules/auth/auth.routes.js';
 
-export function buildApp(): FastifyInstance {
+export function buildApp() {
   const app = Fastify({
     loggerInstance: logger,
   });

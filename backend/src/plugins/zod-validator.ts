@@ -29,11 +29,12 @@ const zodValidatorPlugin: FastifyPluginAsync = async (fastify) => {
       });
     }
 
-    if ('statusCode' in error && error.statusCode) {
-      return reply.status(error.statusCode).send({
-        statusCode: error.statusCode,
-        error: error.name || 'Error',
-        message: error.message,
+    const err = error as any;
+    if (err && typeof err.statusCode === 'number') {
+      return reply.status(err.statusCode).send({
+        statusCode: err.statusCode,
+        error: err.name || 'Error',
+        message: err.message || 'An error occurred',
       });
     }
 
