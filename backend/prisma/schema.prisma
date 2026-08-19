@@ -33,8 +33,40 @@ model User {
 
   profile      FitnessProfile?
   refreshTokens RefreshToken[]
+  exercises    Exercise[]
 
   @@map("users")
+}
+
+// ==========================================
+// Phase 2: Exercise Library
+// ==========================================
+
+model Exercise {
+  id               String    @id @default(uuid())
+  name             String
+  slug             String    @unique
+  category         String    // "strength" | "stretching" | "cardio" | "plyometrics"
+  force            String?   // "push" | "pull" | "static"
+  level            String    // "beginner" | "intermediate" | "expert"
+  mechanic         String?   // "compound" | "isolation"
+  equipment        String?   // "body only" | "barbell" | "dumbbell" | "machine" | "cable"
+  primaryMuscles   String[]  @map("primary_muscles")
+  secondaryMuscles String[]  @map("secondary_muscles")
+  instructions     String[]
+  imageUrls        String[]  @map("image_urls")
+  isCustom         Boolean   @default(false) @map("is_custom")
+  userId           String?   @map("user_id") // null for public seeded exercises
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  user             User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([category])
+  @@index([level])
+  @@index([equipment])
+  @@index([userId])
+  @@map("exercises")
 }
 
 model FitnessProfile {
