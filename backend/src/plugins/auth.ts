@@ -11,6 +11,10 @@ declare module 'fastify' {
       request: FastifyRequest,
       reply: FastifyReply
     ) => Promise<void>;
+    optionalAuthenticate: (
+      request: FastifyRequest,
+      reply: FastifyReply
+    ) => Promise<void>;
   }
 }
 
@@ -48,6 +52,18 @@ const authPlugin: FastifyPluginAsync = async (fastify) => {
           error: 'Unauthorized',
           message: 'Missing or invalid authentication token',
         });
+      }
+    }
+  );
+
+  // Optional Authentication Decorator
+  fastify.decorate(
+    'optionalAuthenticate',
+    async (request: FastifyRequest) => {
+      try {
+        await request.jwtVerify();
+      } catch {
+        // Token missing or invalid, continue as unauthenticated guest
       }
     }
   );

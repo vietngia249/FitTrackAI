@@ -8,6 +8,7 @@ import zodValidatorPlugin from './plugins/zod-validator.js';
 import authPlugin from './plugins/auth.js';
 import { healthRoutes } from './modules/health/health.routes.js';
 import { authRoutes } from './modules/auth/auth.routes.js';
+import { exerciseRoutes } from './modules/exercises/exercises.routes.js';
 
 export function buildApp() {
   const app = Fastify({
@@ -32,6 +33,7 @@ export function buildApp() {
   // Register Modules
   app.register(healthRoutes);
   app.register(authRoutes);
+  app.register(exerciseRoutes, { prefix: '/api/v1/exercises' });
 
   // Root fallback route
   app.get('/', async () => {

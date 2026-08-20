@@ -8,7 +8,11 @@ const envSchema = z.object({
   PORT: z.coerce.number().default(5000),
   HOST: z.string().default('0.0.0.0'),
   CLIENT_URL: z.string().default('http://localhost:5173'),
-  DATABASE_URL: z.string().optional(),
+  DATABASE_URL: z
+    .string()
+    .default(
+      'postgresql://fittrack:fittrack_secret@localhost:5432/fittrack_db?schema=public'
+    ),
   REDIS_URL: z.string().default('redis://localhost:6379'),
   JWT_SECRET: z.string().default('dev-jwt-secret-fit-track-ai-must-change-in-production-min32'),
   JWT_EXPIRES_IN: z.string().default('15m'),
@@ -25,3 +29,7 @@ if (!parsedEnv.success) {
 }
 
 export const env = parsedEnv.data;
+
+if (!process.env.DATABASE_URL) {
+  process.env.DATABASE_URL = env.DATABASE_URL;
+}
