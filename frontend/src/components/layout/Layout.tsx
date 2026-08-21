@@ -8,7 +8,8 @@ import {
   TrendingUp,
   Camera,
   Sparkles,
-  User
+  User,
+  BookOpen
 } from 'lucide-react';
 import { LanguageSwitcher } from '../common/LanguageSwitcher.js';
 import { useAuth } from '../../features/auth/AuthContext.js';
@@ -22,6 +23,7 @@ export const Layout: React.FC = () => {
   const navItems = [
     { to: '/', label: t('nav.dashboard'), icon: LayoutDashboard },
     { to: '/workouts', label: t('nav.workouts'), icon: Dumbbell },
+    { to: '/exercises', label: t('nav.exercises'), icon: BookOpen },
     { to: '/nutrition', label: t('nav.nutrition'), icon: Utensils },
     { to: '/progress', label: t('nav.progress'), icon: TrendingUp },
     { to: '/ai-form', label: t('nav.ai_form'), icon: Camera, badge: 'AI' },
