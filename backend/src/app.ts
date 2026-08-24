@@ -9,6 +9,7 @@ import authPlugin from './plugins/auth.js';
 import { healthRoutes } from './modules/health/health.routes.js';
 import { authRoutes } from './modules/auth/auth.routes.js';
 import { exerciseRoutes } from './modules/exercises/exercises.routes.js';
+import { workoutRoutes } from './modules/workouts/workouts.routes.js';
 
 export function buildApp() {
   const app = Fastify({
@@ -34,6 +35,7 @@ export function buildApp() {
   app.register(healthRoutes);
   app.register(authRoutes);
   app.register(exerciseRoutes, { prefix: '/api/v1/exercises' });
+  app.register(workoutRoutes, { prefix: '/api/v1/workouts' });
 
   // Root fallback route
   app.get('/', async () => {
