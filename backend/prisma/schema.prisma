@@ -36,6 +36,9 @@ model User {
   exercises     Exercise[]
   workoutPlans  WorkoutPlan[]
   workoutSessions WorkoutSession[]
+  customFoods   FoodItem[]
+  meals         Meal[]
+  nutritionGoal DailyNutritionGoal?
 
   @@map("users")
 }
@@ -203,3 +206,89 @@ model RefreshToken {
   @@index([tokenHash])
   @@map("refresh_tokens")
 }
+
+// ==========================================
+// Phase 5: Nutrition & Food Diary
+// ==========================================
+
+model FoodItem {
+  id            String         @id @default(uuid())
+  name          String
+  brand         String?
+  barcode       String?
+  servingSize   Float          @default(100) @map("serving_size") // default 100g
+  servingUnit   String         @default("g") @map("serving_unit")
+  calories      Float          // kcal per servingSize
+  protein       Float          // grams per servingSize
+  carbohydrates Float          // grams per servingSize
+  fat           Float          // grams per servingSize
+  fiber         Float?         @default(0) // grams per servingSize
+  isCustom      Boolean        @default(false) @map("is_custom")
+  userId        String?        @map("user_id") // null for public master foods
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  user          User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mealFoodItems MealFoodItem[]
+
+  @@index([name])
+  @@index([barcode])
+  @@index([userId])
+  @@map("food_items")
+}
+
+model Meal {
+  id         String         @id @default(uuid())
+  userId     String         @map("user_id")
+  mealType   String         @map("meal_type") // "breakfast" | "lunch" | "dinner" | "snack"
+  loggedDate DateTime       @map("logged_date")
+  notes      String?
+  createdAt  DateTime       @default(now()) @map("created_at")
+  updatedAt  DateTime       @updatedAt @map("updated_at")
+
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items      MealFoodItem[]
+
+  @@index([userId])
+  @@index([loggedDate])
+  @@index([mealType])
+  @@map("meals")
+}
+
+model MealFoodItem {
+  id            String    @id @default(uuid())
+  mealId        String    @map("meal_id")
+  foodId        String?   @map("food_id") // nullable if master food deleted
+  name          String    // snapshot of food name
+  servingQty    Float     @default(1) @map("serving_qty")
+  servingUnit   String    @default("g") @map("serving_unit")
+  calories      Float     // snapshot of calculated calories
+  protein       Float     // snapshot of calculated protein (g)
+  carbohydrates Float     // snapshot of calculated carbs (g)
+  fat           Float     // snapshot of calculated fat (g)
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  meal          Meal      @relation(fields: [mealId], references: [id], onDelete: Cascade)
+  food          FoodItem? @relation(fields: [foodId], references: [id], onDelete: SetNull)
+
+  @@index([mealId])
+  @@index([foodId])
+  @@map("meal_food_items")
+}
+
+model DailyNutritionGoal {
+  id            String   @id @default(uuid())
+  userId        String   @unique @map("user_id")
+  calorieTarget Float    @default(2200) @map("calorie_target")
+  proteinTarget Float    @default(160) @map("protein_target") // grams
+  carbsTarget   Float    @default(240) @map("carbs_target")   // grams
+  fatTarget     Float    @default(65) @map("fat_target")     // grams
+  waterTargetMl Float    @default(2500) @map("water_target_ml")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("daily_nutrition_goals")
+}
+
