@@ -11,6 +11,7 @@ import { authRoutes } from './modules/auth/auth.routes.js';
 import { exerciseRoutes } from './modules/exercises/exercises.routes.js';
 import { workoutRoutes } from './modules/workouts/workouts.routes.js';
 import { analyticsRoutes } from './modules/analytics/analytics.routes.js';
+import { nutritionRoutes } from './modules/nutrition/nutrition.routes.js';
 
 export function buildApp() {
   const app = Fastify({
@@ -38,6 +39,7 @@ export function buildApp() {
   app.register(exerciseRoutes, { prefix: '/api/v1/exercises' });
   app.register(workoutRoutes, { prefix: '/api/v1/workouts' });
   app.register(analyticsRoutes, { prefix: '/api/v1/analytics' });
+  app.register(nutritionRoutes, { prefix: '/api/v1/nutrition' });
 
   // Root fallback route
   app.get('/', async () => {
