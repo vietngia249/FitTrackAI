@@ -1,128 +1,297 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus } from 'lucide-react';
+import {
+  Plus,
+  Target,
+  ChevronLeft,
+  ChevronRight,
+  Droplets,
+  Calendar,
+} from 'lucide-react';
+import {
+  DailyNutritionResponse,
+  DailyNutritionGoals,
+  MealType,
+} from '../features/nutrition/nutritionTypes';
+import {
+  getDailyNutritionApi,
+  getNutritionGoalsApi,
+  deleteMealItemApi,
+  DEFAULT_GOALS,
+} from '../features/nutrition/nutritionApi';
+import { MacroCard } from '../features/nutrition/MacroCard';
+import { MealSection } from '../features/nutrition/MealSection';
+import { FoodSearchModal } from '../features/nutrition/FoodSearchModal';
+import { NutritionGoalsModal } from '../features/nutrition/NutritionGoalsModal';
 
 export const NutritionPage: React.FC = () => {
   const { t } = useTranslation();
 
+  // Date management: default to today (YYYY-MM-DD)
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    return new Date().toISOString().split('T')[0];
+  });
+
+  const [nutritionData, setNutritionData] = useState<DailyNutritionResponse>({
+    date: selectedDate,
+    summary: { calories: 0, protein: 0, carbohydrates: 0, fat: 0 },
+    mealsByType: { breakfast: [], lunch: [], dinner: [], snack: [] },
+    allMeals: [],
+  });
+
+  const [goals, setGoals] = useState<DailyNutritionGoals>(DEFAULT_GOALS);
+  const [waterConsumedMl, setWaterConsumedMl] = useState<number>(1250);
+
+  // Modals state
+  const [isLogModalOpen, setIsLogModalOpen] = useState(false);
+  const [activeLogMealType, setActiveLogMealType] = useState<MealType>('breakfast');
+  const [isGoalsModalOpen, setIsGoalsModalOpen] = useState(false);
+
+  const fetchNutrition = useCallback(async () => {
+    const data = await getDailyNutritionApi(selectedDate);
+    setNutritionData(data);
+  }, [selectedDate]);
+
+  useEffect(() => {
+    fetchNutrition();
+  }, [fetchNutrition]);
+
+  useEffect(() => {
+    getNutritionGoalsApi().then(setGoals);
+  }, []);
+
+  const handlePrevDay = () => {
+    const d = new Date(selectedDate);
+    d.setDate(d.getDate() - 1);
+    setSelectedDate(d.toISOString().split('T')[0]);
+  };
+
+  const handleNextDay = () => {
+    const d = new Date(selectedDate);
+    d.setDate(d.getDate() + 1);
+    setSelectedDate(d.toISOString().split('T')[0]);
+  };
+
+  const handleOpenLogModal = (type: MealType = 'breakfast') => {
+    setActiveLogMealType(type);
+    setIsLogModalOpen(true);
+  };
+
+  const handleDeleteItem = async (itemId: string) => {
+    await deleteMealItemApi(itemId);
+    fetchNutrition();
+  };
+
+  const handleAddWater = (amount: number) => {
+    setWaterConsumedMl((prev) => Math.min(prev + amount, 6000));
+  };
+
+  const isToday = selectedDate === new Date().toISOString().split('T')[0];
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="space-y-6 animate-in fade-in duration-300">
+      {/* Header & Date Switcher */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-            {t('nutrition.title')}
+            {t('nutrition.title', 'Nutrition & Food Diary')}
           </h1>
           <p className="text-slate-400 text-sm mt-1">
-            {t('nutrition.subtitle')}
+            {t(
+              'nutrition.subtitle',
+              'Macro snapshotting ensures historical accuracy and reliable tracking.'
+            )}
           </p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-black font-bold text-sm shadow-lg shadow-emerald-500/20 transition-all">
-          <Plus className="w-4 h-4" />
-          <span>{t('nutrition.log_food')}</span>
+
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <button
+            onClick={() => setIsGoalsModalOpen(true)}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 text-slate-200 font-semibold text-xs border border-slate-700/60 shadow transition-all"
+          >
+            <Target className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Set Targets</span>
+          </button>
+
+          <button
+            onClick={() => handleOpenLogModal('breakfast')}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-black font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all"
+          >
+            <Plus className="w-4 h-4" />
+            <span>{t('nutrition.log_food', 'Log Food')}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Date Navigator Bar */}
+      <div className="glass-panel px-4 py-3 rounded-2xl flex items-center justify-between border border-slate-800/80">
+        <button
+          onClick={handlePrevDay}
+          className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
+
+        <div className="flex items-center gap-2">
+          <Calendar className="w-4 h-4 text-emerald-400" />
+          <span className="text-sm font-bold text-white tracking-wide">
+            {isToday
+              ? `Today, ${new Date(selectedDate).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                })}`
+              : new Date(selectedDate).toLocaleDateString('en-US', {
+                  weekday: 'short',
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}
+          </span>
+        </div>
+
+        <button
+          onClick={handleNextDay}
+          className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+        >
+          <ChevronRight className="w-5 h-5" />
         </button>
       </div>
 
-      {/* Daily Macro Progress Summary */}
+      {/* Daily Macro Progress Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Calories */}
-        <div className="glass-panel p-5 rounded-2xl">
-          <span className="text-xs font-semibold uppercase text-slate-400">Calories</span>
-          <div className="mt-2 flex items-baseline gap-1.5">
-            <span className="text-2xl font-extrabold text-white">1,850</span>
-            <span className="text-xs text-slate-400">/ 2,400 kcal</span>
+        <MacroCard
+          label="Calories"
+          consumed={nutritionData.summary.calories}
+          target={goals.calorieTarget}
+          unit="kcal"
+          color="emerald"
+        />
+        <MacroCard
+          label="Protein"
+          consumed={nutritionData.summary.protein}
+          target={goals.proteinTarget}
+          unit="g"
+          color="cyan"
+        />
+        <MacroCard
+          label="Carbohydrates"
+          consumed={nutritionData.summary.carbohydrates}
+          target={goals.carbsTarget}
+          unit="g"
+          color="amber"
+        />
+        <MacroCard
+          label="Fat"
+          consumed={nutritionData.summary.fat}
+          target={goals.fatTarget}
+          unit="g"
+          color="rose"
+        />
+      </div>
+
+      {/* Water Intake Tracker */}
+      <div className="glass-panel p-5 rounded-2xl border border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-xl bg-sky-500/10 text-sky-400">
+            <Droplets className="w-5 h-5" />
           </div>
-          <div className="mt-3 w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-            <div className="bg-emerald-400 h-full rounded-full" style={{ width: '77%' }} />
+          <div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-lg font-bold text-white">Hydration</span>
+              <span className="text-xs text-slate-400 font-mono">
+                {waterConsumedMl} / {goals.waterTargetMl} ml (
+                {Math.round((waterConsumedMl / goals.waterTargetMl) * 100)}%)
+              </span>
+            </div>
+            <div className="w-48 sm:w-64 bg-slate-800/80 rounded-full h-1.5 mt-2 overflow-hidden">
+              <div
+                className="bg-sky-400 h-full rounded-full transition-all duration-300"
+                style={{
+                  width: `${Math.min(
+                    Math.round((waterConsumedMl / goals.waterTargetMl) * 100),
+                    100
+                  )}%`,
+                }}
+              />
+            </div>
           </div>
-          <span className="text-[11px] text-slate-400 mt-1.5 block">550 kcal remaining</span>
         </div>
 
-        {/* Protein */}
-        <div className="glass-panel p-5 rounded-2xl">
-          <span className="text-xs font-semibold uppercase text-slate-400">Protein</span>
-          <div className="mt-2 flex items-baseline gap-1.5">
-            <span className="text-2xl font-extrabold text-white">142</span>
-            <span className="text-xs text-slate-400">/ 175 g</span>
-          </div>
-          <div className="mt-3 w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-            <div className="bg-cyan-400 h-full rounded-full" style={{ width: '81%' }} />
-          </div>
-          <span className="text-[11px] text-slate-400 mt-1.5 block">33 g remaining</span>
-        </div>
-
-        {/* Carbs */}
-        <div className="glass-panel p-5 rounded-2xl">
-          <span className="text-xs font-semibold uppercase text-slate-400">Carbohydrates</span>
-          <div className="mt-2 flex items-baseline gap-1.5">
-            <span className="text-2xl font-extrabold text-white">210</span>
-            <span className="text-xs text-slate-400">/ 270 g</span>
-          </div>
-          <div className="mt-3 w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-            <div className="bg-amber-400 h-full rounded-full" style={{ width: '78%' }} />
-          </div>
-          <span className="text-[11px] text-slate-400 mt-1.5 block">60 g remaining</span>
-        </div>
-
-        {/* Fat */}
-        <div className="glass-panel p-5 rounded-2xl">
-          <span className="text-xs font-semibold uppercase text-slate-400">Fat</span>
-          <div className="mt-2 flex items-baseline gap-1.5">
-            <span className="text-2xl font-extrabold text-white">52</span>
-            <span className="text-xs text-slate-400">/ 65 g</span>
-          </div>
-          <div className="mt-3 w-full bg-slate-800 rounded-full h-2 overflow-hidden">
-            <div className="bg-rose-400 h-full rounded-full" style={{ width: '80%' }} />
-          </div>
-          <span className="text-[11px] text-slate-400 mt-1.5 block">13 g remaining</span>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => handleAddWater(250)}
+            className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 font-semibold text-xs border border-slate-700/60 transition-colors"
+          >
+            +250 ml
+          </button>
+          <button
+            onClick={() => handleAddWater(500)}
+            className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 font-semibold text-xs border border-slate-700/60 transition-colors"
+          >
+            +500 ml
+          </button>
+          <button
+            onClick={() => setWaterConsumedMl(0)}
+            className="px-2.5 py-1.5 rounded-xl text-slate-500 hover:text-slate-300 text-xs transition-colors"
+          >
+            Reset
+          </button>
         </div>
       </div>
 
       {/* Meals Log with Macro Snapshots */}
       <div className="space-y-4">
-        <h2 className="font-bold text-lg text-white">Today's Meals</h2>
-
-        {/* Breakfast */}
-        <div className="glass-panel p-5 rounded-2xl space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="font-bold text-white text-base">Breakfast</h3>
-            <span className="text-xs text-slate-400 font-mono">620 kcal • P: 48g • C: 65g • F: 18g</span>
-          </div>
-          <div className="divide-y divide-slate-800/60 text-sm">
-            <div className="py-2 flex items-center justify-between">
-              <div>
-                <p className="font-medium text-slate-200">Rolled Oats with Whey & Berries</p>
-                <p className="text-xs text-slate-400">1 bowl (120g) • Open Food Facts Verified</p>
-              </div>
-              <span className="text-xs text-slate-300 font-mono">450 kcal</span>
-            </div>
-            <div className="py-2 flex items-center justify-between">
-              <div>
-                <p className="font-medium text-slate-200">Boiled Eggs</p>
-                <p className="text-xs text-slate-400">2 large eggs</p>
-              </div>
-              <span className="text-xs text-slate-300 font-mono">170 kcal</span>
-            </div>
-          </div>
+        <div className="flex items-center justify-between">
+          <h2 className="font-bold text-lg text-white">Meals & Food Items</h2>
+          <span className="text-xs text-slate-400 font-mono">
+            Total {nutritionData.allMeals.reduce((acc, m) => acc + (m.items?.length || 0), 0)} items logged
+          </span>
         </div>
 
-        {/* Lunch */}
-        <div className="glass-panel p-5 rounded-2xl space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="font-bold text-white text-base">Lunch</h3>
-            <span className="text-xs text-slate-400 font-mono">750 kcal • P: 64g • C: 82g • F: 20g</span>
-          </div>
-          <div className="divide-y divide-slate-800/60 text-sm">
-            <div className="py-2 flex items-center justify-between">
-              <div>
-                <p className="font-medium text-slate-200">Grilled Chicken Breast & Jasmine Rice</p>
-                <p className="text-xs text-slate-400">220g Chicken, 200g Rice, Steamed Broccoli</p>
-              </div>
-              <span className="text-xs text-slate-300 font-mono">750 kcal</span>
-            </div>
-          </div>
+        <div className="space-y-4">
+          <MealSection
+            mealType="breakfast"
+            meals={nutritionData.mealsByType.breakfast || []}
+            onOpenLogModal={handleOpenLogModal}
+            onDeleteItem={handleDeleteItem}
+          />
+          <MealSection
+            mealType="lunch"
+            meals={nutritionData.mealsByType.lunch || []}
+            onOpenLogModal={handleOpenLogModal}
+            onDeleteItem={handleDeleteItem}
+          />
+          <MealSection
+            mealType="dinner"
+            meals={nutritionData.mealsByType.dinner || []}
+            onOpenLogModal={handleOpenLogModal}
+            onDeleteItem={handleDeleteItem}
+          />
+          <MealSection
+            mealType="snack"
+            meals={nutritionData.mealsByType.snack || []}
+            onOpenLogModal={handleOpenLogModal}
+            onDeleteItem={handleDeleteItem}
+          />
         </div>
       </div>
+
+      {/* Food Search & Log Modal */}
+      <FoodSearchModal
+        isOpen={isLogModalOpen}
+        initialMealType={activeLogMealType}
+        selectedDate={selectedDate}
+        onClose={() => setIsLogModalOpen(false)}
+        onMealLogged={fetchNutrition}
+      />
+
+      {/* Nutrition Goals Calibration Modal */}
+      <NutritionGoalsModal
+        isOpen={isGoalsModalOpen}
+        currentGoals={goals}
+        onClose={() => setIsGoalsModalOpen(false)}
+        onGoalsUpdated={setGoals}
+      />
     </div>
   );
 };
