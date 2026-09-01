@@ -39,6 +39,9 @@ model User {
   customFoods   FoodItem[]
   meals         Meal[]
   nutritionGoal DailyNutritionGoal?
+  weightLogs    BodyWeightLog[]
+  measurements  BodyMeasurement[]
+  progressPhotos ProgressPhoto[]
 
   @@map("users")
 }
@@ -291,4 +294,64 @@ model DailyNutritionGoal {
 
   @@map("daily_nutrition_goals")
 }
+
+// ==========================================
+// Phase 6: Body Progress & Private Media
+// ==========================================
+
+model BodyWeightLog {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  weightKg   Float    @map("weight_kg") // Canonical metric
+  loggedDate DateTime @map("logged_date")
+  notes      String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([loggedDate])
+  @@map("body_weight_logs")
+}
+
+model BodyMeasurement {
+  id            String   @id @default(uuid())
+  userId        String   @map("user_id")
+  loggedDate    DateTime @map("logged_date")
+  neckCm        Float?   @map("neck_cm")
+  chestCm       Float?   @map("chest_cm")
+  waistCm       Float?   @map("waist_cm")
+  hipsCm        Float?   @map("hips_cm")
+  bicepsLeftCm  Float?   @map("biceps_left_cm")
+  bicepsRightCm Float?   @map("biceps_right_cm")
+  thighLeftCm   Float?   @map("thigh_left_cm")
+  thighRightCm  Float?   @map("thigh_right_cm")
+  calvesCm      Float?   @map("calves_cm")
+  notes         String?
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([loggedDate])
+  @@map("body_measurements")
+}
+
+model ProgressPhoto {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  photoType  String   @map("photo_type") // "front" | "side" | "back"
+  loggedDate DateTime @map("logged_date")
+  storageKey String   @map("storage_key") // Cloudflare R2 / local storage key
+  notes      String?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([loggedDate])
+  @@index([photoType])
+  @@map("progress_photos")
+}
+
 
