@@ -14,6 +14,7 @@ import {
 import { LanguageSwitcher } from '../common/LanguageSwitcher.js';
 import { useAuth } from '../../features/auth/AuthContext.js';
 import { AuthModal } from '../../features/auth/AuthModal.js';
+import { AiCopilotDrawer } from '../../features/copilot/AiCopilotDrawer.js';
 import { LogIn, LogOut } from 'lucide-react';
 
 export const Layout: React.FC = () => {
@@ -129,6 +130,9 @@ export const Layout: React.FC = () => {
 
       {/* Global Auth Modal */}
       <AuthModal />
+
+      {/* Global AI Copilot Floating Assistant */}
+      <AiCopilotDrawer />
 
       {/* Mobile Bottom Navigation (Visible on screens < md) */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass-panel border-t border-slate-800/80 px-2 py-2">
