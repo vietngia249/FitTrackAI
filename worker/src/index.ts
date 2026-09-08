@@ -1,11 +1,22 @@
 import dotenv from 'dotenv';
+import { BackgroundWorker } from './worker.js';
 
 dotenv.config();
 
-console.log('👷 FitTrack AI Worker initialized.');
-console.log('⏳ Waiting for background job queues (Redis / BullMQ)...');
+console.log('👷 FitTrack AI Worker process starting...');
 
-// Keep process alive for future background queues
-setInterval(() => {
-  // Heartbeat
-}, 60000);
+const worker = new BackgroundWorker();
+worker.start(60000);
+
+// Graceful shutdown handling
+process.on('SIGINT', () => {
+  console.log('\n[Worker] Caught SIGINT signal. Shutting down gracefully...');
+  worker.stop();
+  process.exit(0);
+});
+
+process.on('SIGTERM', () => {
+  console.log('\n[Worker] Caught SIGTERM signal. Shutting down gracefully...');
+  worker.stop();
+  process.exit(0);
+});
