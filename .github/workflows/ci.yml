@@ -41,6 +41,11 @@ jobs:
           cd backend
           npm run build
 
+      - name: Test Backend
+        run: |
+          cd backend
+          npm test
+
   frontend-ci:
     name: Frontend Lint, Typecheck & Build
     runs-on: ubuntu-latest
@@ -69,3 +74,33 @@ jobs:
         run: |
           cd frontend
           npm run build
+
+  worker-ci:
+    name: Background Worker Typecheck & Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: worker/package-lock.json
+
+      - name: Install worker dependencies
+        run: |
+          cd worker
+          npm ci
+
+      - name: Typecheck Worker
+        run: |
+          cd worker
+          npm run typecheck
+
+      - name: Build Worker
+        run: |
+          cd worker
+          npm run build
+
