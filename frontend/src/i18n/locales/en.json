@@ -54,12 +54,29 @@
     "title": "AI Form Analysis",
     "subtitle": "Client-side computer vision pose estimation for Bicep Curl, Squat, and Push-up.",
     "select_exercise": "Select Exercise",
-    "start_camera": "Enable Camera & Analyze"
+    "start_camera": "Enable Camera & Analyze",
+    "reps": "Reps",
+    "score": "Form Score",
+    "simulation_mode": "Kinematic Demo",
+    "camera_mode": "Webcam Stream"
   },
   "insights": {
-    "title": "AI Copilot & Recommendations",
-    "subtitle": "Deterministic progression insights and grounded AI recommendations.",
-    "ask_copilot": "Ask FitTrack AI Copilot"
+    "title": "AI Insights & Copilot",
+    "subtitle": "Deterministic progressive overload calculations combined with grounded fitness AI coaching.",
+    "ask_copilot": "Ask FitTrack AI Copilot",
+    "daily_budget": "Daily Budget",
+    "overload_advisor": "Progressive Overload Advisor",
+    "deload_alert": "Deload Advised",
+    "load_optimal": "Load Phase Active"
+  },
+  "copilot": {
+    "title": "FitTrack AI Copilot",
+    "subtitle": "Contextual Fitness & Diet Coach",
+    "grounded_badge": "GROUNDED",
+    "safety_disclaimer": "Grounded in your real training metrics. Refuses medical diagnosis.",
+    "suggested_questions": "Suggested Questions",
+    "input_placeholder": "Ask your coach about sets, 1RM, macros...",
+    "limit_reached": "Daily limit reached (resets midnight)"
   },
   "profile": {
     "title": "User Profile & Preferences",
