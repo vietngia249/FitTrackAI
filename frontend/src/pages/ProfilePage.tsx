@@ -1,10 +1,75 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Settings, Download, Trash2, Shield } from 'lucide-react';
+import { Settings, Download, Trash2, Shield, LogIn } from 'lucide-react';
+import { useAuth } from '../features/auth/AuthContext';
 
 export const ProfilePage: React.FC = () => {
   const { t, i18n } = useTranslation();
-  const [preferredUnits, setPreferredUnits] = useState<'metric' | 'imperial'>('metric');
+  const { user, openLoginModal } = useAuth();
+
+  const [preferredUnits, setPreferredUnits] = useState<'metric' | 'imperial'>(
+    user?.profile?.preferredUnits ?? 'metric'
+  );
+
+  // Derive initials for avatar
+  const initials = user?.displayName
+    ? user.displayName
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2)
+    : '?';
+
+  const fitnessGoalLabel: Record<string, string> = {
+    muscle_gain: 'Muscle Gain',
+    fat_loss: 'Fat Loss',
+    maintenance: 'Maintenance',
+    strength: 'Strength',
+  };
+
+  const handleExportData = () => {
+    if (!user) return;
+    const dataStr = JSON.stringify({ user }, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `fittrack-export-${user.id.slice(0, 8)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDeleteAccount = () => {
+    const confirmed = window.confirm(
+      'Are you sure you want to permanently delete your account and all associated data? This action cannot be undone.'
+    );
+    if (confirmed) {
+      // TODO: Call DELETE /api/v1/auth/account endpoint
+      alert('Account deletion request submitted. You will receive a confirmation email.');
+    }
+  };
+
+  // Not logged in — prompt to sign in
+  if (!user) {
+    return (
+      <div className="max-w-3xl mx-auto flex flex-col items-center justify-center py-24 space-y-5">
+        <div className="w-16 h-16 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400">
+          <LogIn className="w-8 h-8" />
+        </div>
+        <div className="text-center">
+          <h2 className="text-xl font-bold text-white mb-1">Sign in to view your profile</h2>
+          <p className="text-sm text-slate-400">Create an account to save your workouts and preferences.</p>
+        </div>
+        <button
+          onClick={openLoginModal}
+          className="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-black font-bold text-sm transition-all"
+        >
+          Sign In / Register
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -20,19 +85,36 @@ export const ProfilePage: React.FC = () => {
 
       {/* User Info Card */}
       <div className="glass-panel p-6 rounded-2xl flex items-center gap-4">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-400 p-0.5 shadow-lg">
-          <div className="w-full h-full bg-slate-900 rounded-[14px] flex items-center justify-center text-xl font-bold text-emerald-400">
-            JD
-          </div>
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-400 p-0.5 shadow-lg shrink-0">
+          {user.avatarUrl ? (
+            <img
+              src={user.avatarUrl}
+              alt={user.displayName}
+              className="w-full h-full rounded-[14px] object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-slate-900 rounded-[14px] flex items-center justify-center text-xl font-bold text-emerald-400">
+              {initials}
+            </div>
+          )}
         </div>
         <div>
-          <h2 className="text-lg font-bold text-white">John Doe</h2>
-          <p className="text-xs text-slate-400">athlete@fittrack.ai</p>
-          <div className="mt-2 flex items-center gap-2">
-            <span className="px-2 py-0.5 text-[11px] rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold">
-              Hypertrophy Focus
+          <h2 className="text-lg font-bold text-white">{user.displayName}</h2>
+          <p className="text-xs text-slate-400">{user.email}</p>
+          <div className="mt-2 flex items-center gap-2 flex-wrap">
+            {user.profile?.fitnessGoal && (
+              <span className="px-2 py-0.5 text-[11px] rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold">
+                {fitnessGoalLabel[user.profile.fitnessGoal] ?? user.profile.fitnessGoal}
+              </span>
+            )}
+            {user.profile?.height && user.profile?.currentWeight && (
+              <span className="text-xs text-slate-400 font-mono">
+                {user.profile.height} cm • {user.profile.currentWeight} kg
+              </span>
+            )}
+            <span className="text-xs text-slate-500 font-mono">
+              Member since {new Date(user.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
             </span>
-            <span className="text-xs text-slate-400 font-mono">178 cm • 75.4 kg</span>
           </div>
         </div>
       </div>
@@ -120,11 +202,17 @@ export const ProfilePage: React.FC = () => {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 pt-2">
-          <button className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition-all">
+          <button
+            onClick={handleExportData}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition-all"
+          >
             <Download className="w-3.5 h-3.5 text-emerald-400" />
             <span>{t('profile.export_data')} (JSON)</span>
           </button>
-          <button className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-semibold transition-all">
+          <button
+            onClick={handleDeleteAccount}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-semibold transition-all"
+          >
             <Trash2 className="w-3.5 h-3.5" />
             <span>{t('profile.delete_account')}</span>
           </button>

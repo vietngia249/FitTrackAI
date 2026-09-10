@@ -178,7 +178,7 @@ export const InsightsPage: React.FC = () => {
               disabled={chatLoading}
               className="text-xs px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition-all text-left"
             >
-              "{prompt}"
+              {prompt}
             </button>
           ))}
         </div>
