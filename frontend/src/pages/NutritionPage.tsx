@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Plus,
@@ -40,7 +40,13 @@ export const NutritionPage: React.FC = () => {
   });
 
   const [goals, setGoals] = useState<DailyNutritionGoals>(DEFAULT_GOALS);
-  const [waterConsumedMl, setWaterConsumedMl] = useState<number>(1250);
+  const WATER_KEY = (date: string) => `fittrack_water_${date}`;
+  const [waterConsumedMl, setWaterConsumedMl] = useState<number>(() => {
+    const today = new Date().toISOString().split('T')[0];
+    const stored = localStorage.getItem(`fittrack_water_${today}`);
+    return stored ? Number(stored) : 0;
+  });
+  const isFirstRender = useRef(true);
 
   // Modals state
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
@@ -55,6 +61,21 @@ export const NutritionPage: React.FC = () => {
   useEffect(() => {
     fetchNutrition();
   }, [fetchNutrition]);
+
+  // Load water from localStorage when date changes
+  useEffect(() => {
+    const stored = localStorage.getItem(WATER_KEY(selectedDate));
+    setWaterConsumedMl(stored ? Number(stored) : 0);
+  }, [selectedDate]);
+
+  // Persist water intake on every change (skip initial mount)
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    localStorage.setItem(WATER_KEY(selectedDate), String(waterConsumedMl));
+  }, [waterConsumedMl, selectedDate]);
 
   useEffect(() => {
     getNutritionGoalsApi().then(setGoals);
