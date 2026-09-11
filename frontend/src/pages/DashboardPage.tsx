@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Activity,
@@ -10,12 +10,44 @@ import {
   Camera,
   ArrowUpRight,
   Calendar,
-  Clock
+  Clock,
+  Loader2,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { fetchAnalyticsOverview } from '../features/analytics/analyticsApi';
+import { getDailyNutritionApi, getNutritionGoalsApi, DEFAULT_GOALS } from '../features/nutrition/nutritionApi';
+import { AnalyticsOverview } from '../features/analytics/analyticsTypes';
+import { DailyNutritionGoals } from '../features/nutrition/nutritionTypes';
+import { useAuth } from '../features/auth/AuthContext';
 
 export const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
+  const { accessToken } = useAuth();
+
+  const [overview, setOverview] = useState<AnalyticsOverview | null>(null);
+  const [caloriesConsumed, setCaloriesConsumed] = useState<number | null>(null);
+  const [goals, setGoals] = useState<DailyNutritionGoals>(DEFAULT_GOALS);
+  const [loadingKpis, setLoadingKpis] = useState(true);
+
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
+    Promise.all([
+      fetchAnalyticsOverview(accessToken),
+      getDailyNutritionApi(today),
+      getNutritionGoalsApi(),
+    ])
+      .then(([ov, nutrition, g]) => {
+        setOverview(ov);
+        setCaloriesConsumed(nutrition.summary.calories);
+        setGoals(g);
+      })
+      .finally(() => setLoadingKpis(false));
+  }, [accessToken]);
+
+  const caloriePercent =
+    caloriesConsumed !== null
+      ? Math.min(Math.round((caloriesConsumed / goals.calorieTarget) * 100), 100)
+      : null;
 
   return (
     <div className="space-y-6">
@@ -76,13 +108,22 @@ export const DashboardPage: React.FC = () => {
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-white">14,250</span>
-            <span className="text-xs font-medium text-slate-400">kg</span>
+            {loadingKpis ? (
+              <Loader2 className="w-5 h-5 text-slate-500 animate-spin" />
+            ) : (
+              <>
+                <span className="text-3xl font-extrabold text-white">
+                  {overview ? overview.weeklyVolumeKg.toLocaleString() : '—'}
+                </span>
+                <span className="text-xs font-medium text-slate-400">kg</span>
+              </>
+            )}
           </div>
-          <div className="mt-2 flex items-center text-xs text-emerald-400 font-medium">
-            <ArrowUpRight className="w-3.5 h-3.5 mr-0.5" />
-            <span>+8.4% vs last week</span>
-          </div>
+          {overview && (
+            <div className="mt-2 flex items-center text-xs text-slate-400 font-medium">
+              <span>{overview.totalCompletedSessions} sessions logged</span>
+            </div>
+          )}
         </div>
 
         {/* Calories Today */}
@@ -96,12 +137,27 @@ export const DashboardPage: React.FC = () => {
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-white">1,850</span>
-            <span className="text-xs font-medium text-slate-400">/ 2,400 kcal</span>
+            {loadingKpis ? (
+              <Loader2 className="w-5 h-5 text-slate-500 animate-spin" />
+            ) : (
+              <>
+                <span className="text-3xl font-extrabold text-white">
+                  {caloriesConsumed !== null ? caloriesConsumed.toLocaleString() : '0'}
+                </span>
+                <span className="text-xs font-medium text-slate-400">
+                  / {goals.calorieTarget.toLocaleString()} kcal
+                </span>
+              </>
+            )}
           </div>
-          <div className="mt-2 w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
-            <div className="bg-amber-400 h-full rounded-full" style={{ width: '77%' }} />
-          </div>
+          {caloriePercent !== null && (
+            <div className="mt-2 w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+              <div
+                className="bg-amber-400 h-full rounded-full transition-all duration-700"
+                style={{ width: `${caloriePercent}%` }}
+              />
+            </div>
+          )}
         </div>
 
         {/* Workout Streak */}
@@ -115,15 +171,23 @@ export const DashboardPage: React.FC = () => {
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-white">5</span>
-            <span className="text-xs font-medium text-slate-400">{t('dashboard.days')}</span>
+            {loadingKpis ? (
+              <Loader2 className="w-5 h-5 text-slate-500 animate-spin" />
+            ) : (
+              <>
+                <span className="text-3xl font-extrabold text-white">
+                  {overview?.streakDays ?? 0}
+                </span>
+                <span className="text-xs font-medium text-slate-400">{t('dashboard.days')}</span>
+              </>
+            )}
           </div>
           <div className="mt-2 flex items-center text-xs text-slate-400">
-            <span>Best streak: 14 days</span>
+            <span>{overview ? `${overview.totalCompletedSessions} total sessions` : 'Start your streak!'}</span>
           </div>
         </div>
 
-        {/* Recent Form Score */}
+        {/* Form Score — static badge until AI form backend is built */}
         <div className="glass-panel glass-panel-hover p-5 rounded-2xl">
           <div className="flex items-center justify-between">
             <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">
@@ -134,11 +198,12 @@ export const DashboardPage: React.FC = () => {
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-white">92</span>
-            <span className="text-xs font-medium text-slate-400">/ 100</span>
+            <span className="text-3xl font-extrabold text-white">—</span>
           </div>
-          <div className="mt-2 flex items-center text-xs text-cyan-400 font-medium">
-            <span>Barbell Squat (Depth 95%)</span>
+          <div className="mt-2 flex items-center text-xs text-slate-400 font-medium">
+            <Link to="/ai-form" className="text-teal-400 hover:underline">
+              Run AI Form Analysis →
+            </Link>
           </div>
         </div>
       </div>
@@ -201,14 +266,16 @@ export const DashboardPage: React.FC = () => {
             </div>
             <h3 className="font-bold text-white text-base">Progressive Overload Trigger</h3>
             <p className="text-sm text-slate-300 mt-2 leading-relaxed">
-              Your estimated 1RM on Bench Press reached 105 kg last session. You are ready to increment working weight by +2.5 kg today.
+              {overview
+                ? `You've logged ${overview.totalCompletedSessions} sessions totaling ${overview.weeklyVolumeKg.toLocaleString()} kg volume this week. Keep your progressive overload consistent!`
+                : 'Start logging workouts to receive personalized overload recommendations.'}
             </p>
           </div>
 
           <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
             <span className="flex items-center gap-1">
               <Clock className="w-3.5 h-3.5" />
-              Generated 2 hrs ago
+              Live data
             </span>
             <Link to="/insights" className="text-emerald-400 font-medium hover:underline">
               View all insights
