@@ -35,7 +35,7 @@ export const AiCopilotDrawer: React.FC<AiCopilotDrawerProps> = ({
     {
       id: 'welcome-1',
       sender: 'assistant',
-      text: "Hello! I'm your FitTrack AI Grounded Copilot. I analyze your logged workouts, 1RM trajectory, nutrition snapshots, and recovery data to give you personalized coaching advice. What would you like to optimize today?",
+      text: "Hello! I'm your FitTrack Gemini AI Coach. I analyze your logged workouts, 1RM trajectory, nutrition snapshots, and recovery data to give you personalized coaching advice. What would you like to optimize today?",
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
@@ -119,7 +119,7 @@ export const AiCopilotDrawer: React.FC<AiCopilotDrawerProps> = ({
             <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-white ring-2 ring-emerald-400"></span>
           </div>
           <span className="text-xs tracking-wide uppercase font-extrabold hidden sm:inline">
-            AI Copilot
+            Gemini AI
           </span>
           <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-black/20 font-mono">
             {budgetRemaining}
@@ -148,7 +148,7 @@ export const AiCopilotDrawer: React.FC<AiCopilotDrawerProps> = ({
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="text-sm font-bold text-white">FitTrack AI Copilot</h3>
+                    <h3 className="text-sm font-bold text-white">FitTrack Gemini AI Coach</h3>
                     <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                       GROUNDED
                     </span>

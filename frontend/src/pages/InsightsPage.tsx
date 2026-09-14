@@ -84,7 +84,7 @@ export const InsightsPage: React.FC = () => {
       const errMsg: ChatMessage = {
         id: `err-${Date.now()}`,
         sender: 'assistant',
-        text: 'Unable to connect to AI Copilot service. Please verify your connection.',
+        text: 'Unable to connect to Gemini AI service. Please verify your connection.',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       setChatHistory((prev) => [...prev, errMsg]);
@@ -104,7 +104,7 @@ export const InsightsPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
-            <span>{t('insights.title', 'AI Insights & Copilot')}</span>
+            <span>{t('insights.title', 'AI Insights & Gemini')}</span>
             <span className="px-2 py-0.5 text-xs font-bold rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
               PHASE 8
             </span>
@@ -143,7 +143,7 @@ export const InsightsPage: React.FC = () => {
         onAskCopilot={handleAskAdvisor}
       />
 
-      {/* Layer 2: Grounded AI Copilot Interactive Chat */}
+      {/* Layer 2: Grounded Gemini AI Interactive Chat */}
       <div className="glass-panel p-6 rounded-2xl space-y-4 border border-slate-800">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2.5">
@@ -151,7 +151,7 @@ export const InsightsPage: React.FC = () => {
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-lg text-white">Interactive Fitness Copilot</h3>
+              <h3 className="font-bold text-lg text-white">Interactive Gemini AI Coach</h3>
               <p className="text-xs text-slate-400">
                 Contextual queries answered strictly using your verified workout, nutrition & 1RM
                 records

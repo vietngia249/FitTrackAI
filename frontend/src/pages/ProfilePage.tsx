@@ -163,7 +163,7 @@ export const ProfilePage: React.FC = () => {
           <div>
             <p className="text-sm font-medium text-slate-200">{t('common.language')}</p>
             <p className="text-xs text-slate-400">
-              Switch UI and AI Copilot response language
+              Switch UI and Gemini AI response language
             </p>
           </div>
           <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">

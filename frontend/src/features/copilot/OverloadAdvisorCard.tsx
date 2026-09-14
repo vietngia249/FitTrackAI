@@ -128,7 +128,7 @@ export const OverloadAdvisorCard: React.FC<OverloadAdvisorCardProps> = ({
                 className="w-full mt-2 py-1.5 px-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-[11px] font-medium text-slate-300 hover:text-white flex items-center justify-center gap-1.5 transition-all"
               >
                 <Sparkles className="w-3 h-3 text-teal-400" />
-                <span>Ask Copilot Strategy</span>
+                <span>Ask Gemini Strategy</span>
               </button>
             )}
           </div>

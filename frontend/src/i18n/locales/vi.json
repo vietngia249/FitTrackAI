@@ -61,21 +61,21 @@
     "camera_mode": "Camera trực tiếp"
   },
   "insights": {
-    "title": "Trợ Lý AI & Gợi Ý",
-    "subtitle": "Quy tắc tiến bộ khoa học và trợ lý huấn luyện AI dựa trên dữ liệu thực tế.",
-    "ask_copilot": "Hỏi FitTrack AI Copilot",
+    "title": "Trợ Lý Gemini AI & Gợi Ý",
+    "subtitle": "Quy tắc tiến bộ khoa học và trợ lý huấn luyện Gemini AI dựa trên dữ liệu thực tế.",
+    "ask_copilot": "Hỏi Huấn Luyện Viên Gemini AI",
     "daily_budget": "Ngân sách hôm nay",
     "overload_advisor": "Cố vấn Tăng tiến Mức tạ",
     "deload_alert": "Cần tuần xả cơ (Deload)",
     "load_optimal": "Giai đoạn tải tạ tối ưu"
   },
   "copilot": {
-    "title": "FitTrack AI Copilot",
-    "subtitle": "Trợ Lý Huấn Luyện Dinh Dưỡng & Thể Hình",
+    "title": "FitTrack Gemini AI Coach",
+    "subtitle": "Trợ Lý Huấn Luyện Dinh Dưỡng & Thể Hình Gemini",
     "grounded_badge": "DỮ LIỆU THỰC",
     "safety_disclaimer": "Dựa trên số liệu tập luyện thực tế của bạn. Không chẩn đoán y khoa.",
     "suggested_questions": "Câu hỏi gợi ý",
-    "input_placeholder": "Hỏi trợ lý về set tập, 1RM, macro...",
+    "input_placeholder": "Hỏi Gemini về set tập, 1RM, macro...",
     "limit_reached": "Đã đạt giới hạn hôm nay (đặt lại lúc nửa đêm)"
   },
   "profile": {

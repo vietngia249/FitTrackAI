@@ -131,7 +131,7 @@ export const Layout: React.FC = () => {
       {/* Global Auth Modal */}
       <AuthModal />
 
-      {/* Global AI Copilot Floating Assistant */}
+      {/* Global Gemini AI Floating Assistant */}
       <AiCopilotDrawer />
 
       {/* Mobile Bottom Navigation (Visible on screens < md) */}

@@ -61,21 +61,21 @@
     "camera_mode": "Webcam Stream"
   },
   "insights": {
-    "title": "AI Insights & Copilot",
-    "subtitle": "Deterministic progressive overload calculations combined with grounded fitness AI coaching.",
-    "ask_copilot": "Ask FitTrack AI Copilot",
+    "title": "AI Insights & Gemini",
+    "subtitle": "Deterministic progressive overload calculations combined with grounded Gemini AI coaching.",
+    "ask_copilot": "Ask FitTrack Gemini Coach",
     "daily_budget": "Daily Budget",
     "overload_advisor": "Progressive Overload Advisor",
     "deload_alert": "Deload Advised",
     "load_optimal": "Load Phase Active"
   },
   "copilot": {
-    "title": "FitTrack AI Copilot",
-    "subtitle": "Contextual Fitness & Diet Coach",
+    "title": "FitTrack Gemini AI Coach",
+    "subtitle": "Contextual Fitness & Diet Coach powered by Gemini",
     "grounded_badge": "GROUNDED",
     "safety_disclaimer": "Grounded in your real training metrics. Refuses medical diagnosis.",
     "suggested_questions": "Suggested Questions",
-    "input_placeholder": "Ask your coach about sets, 1RM, macros...",
+    "input_placeholder": "Ask Gemini about sets, 1RM, macros...",
     "limit_reached": "Daily limit reached (resets midnight)"
   },
   "profile": {
