@@ -16,6 +16,27 @@ describe('AI Copilot & Recommendation Engine Module', () => {
     assert.equal(response.statusCode, 401);
   });
 
+  it('GET /api/v1/gemini/recommendations rejects unauthenticated request with 401', async () => {
+    const response = await app.inject({
+      method: 'GET',
+      url: '/api/v1/gemini/recommendations',
+    });
+
+    assert.equal(response.statusCode, 401);
+  });
+
+  it('POST /api/v1/gemini/chat rejects unauthenticated request with 401', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/gemini/chat',
+      payload: {
+        message: 'How is my volume progressing?',
+      },
+    });
+
+    assert.equal(response.statusCode, 401);
+  });
+
   it('POST /api/v1/copilot/chat rejects unauthenticated request with 401', async () => {
     const response = await app.inject({
       method: 'POST',

@@ -1,7 +1,7 @@
 import { CopilotRecommendationsResponse } from './copilotTypes';
 
-const API_BASE = '/api/v1/copilot';
-const REC_CACHE_KEY = 'fittrack_copilot_recommendations';
+const API_BASE = '/api/v1/gemini';
+const REC_CACHE_KEY = 'fittrack_gemini_recommendations';
 
 function getAuthHeader(): Record<string, string> {
   const token = localStorage.getItem('fittrack_access_token');

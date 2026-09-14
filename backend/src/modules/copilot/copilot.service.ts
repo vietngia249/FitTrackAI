@@ -217,7 +217,7 @@ export class CopilotService {
     if (!allowed) {
       return {
         reply:
-          'You have reached your daily limit of 15 AI Copilot queries. This guardrail ensures high-quality advice and prevents information overload. Your limit resets at midnight!',
+          'You have reached your daily limit of 15 Gemini AI queries. This guardrail ensures high-quality advice and prevents information overload. Your limit resets at midnight!',
         budgetRemaining: 0,
       };
     }
@@ -253,7 +253,7 @@ export class CopilotService {
       recentSessionCount = recentSessions.length;
       weeklyVolumeKg = recentSessions.reduce((acc, s) => acc + s.totalVolumeKg, 0);
     } catch {
-      // Fallback to defaults
+      this.profileCache.set(userId, { goal: userGoal, weight: currentWeight });
     }
 
     // Grounded expert responses
@@ -337,7 +337,7 @@ export class CopilotService {
     // Default grounded coaching response
     return {
       reply:
-        `I am your FitTrack AI Fitness Copilot. I analyze your logged workouts, 1RM progression curves, and nutrition macro snapshots to give grounded, evidence-based recommendations.\n\n` +
+        `I am your FitTrack Gemini AI Coach. I analyze your logged workouts, 1RM progression curves, and nutrition macro snapshots to give grounded, evidence-based recommendations.\n\n` +
         `Try asking me:\n` +
         `• *"How is my weekly volume progressing?"*\n` +
         `• *"What weight should I use next session?"*\n` +

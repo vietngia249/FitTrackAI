@@ -19,6 +19,8 @@ const envSchema = z.object({
   REFRESH_TOKEN_SECRET: z.string().default('dev-refresh-secret-fit-track-ai-must-change-in-production-min32'),
   REFRESH_TOKEN_EXPIRES_IN: z.string().default('7d'),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GEMINI_API_KEY: z.string().optional(),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
