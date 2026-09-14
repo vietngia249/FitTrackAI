@@ -300,10 +300,26 @@ export async function startSessionApi(
 export async function completeSessionApi(
   sessionId: string,
   payload: { durationSeconds: number; notes?: string; status?: 'completed' | 'cancelled' },
-  token?: string | null
+  token?: string | null,
+  activeSession?: WorkoutSession | null
 ): Promise<WorkoutSession> {
   if (token) {
     try {
+      // Build exercises payload from the active session's set data
+      const exercisesPayload = (activeSession?.exercises ?? []).map((ex) => ({
+        exerciseId: ex.exerciseId,
+        order: ex.order,
+        notes: ex.notes ?? undefined,
+        sets: ex.sets.map((s) => ({
+          setNumber: s.setNumber,
+          setType: s.setType,
+          weightKg: s.weightKg,
+          reps: s.reps,
+          rpe: s.rpe ?? undefined,
+          isCompleted: s.isCompleted,
+        })),
+      }));
+
       const res = await fetch(`${API_BASE}/sessions/${sessionId}/complete`, {
         method: 'POST',
         headers: {
@@ -311,19 +327,19 @@ export async function completeSessionApi(
           Authorization: `Bearer ${token}`,
         },
         credentials: 'include',
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ ...payload, exercises: exercisesPayload }),
       });
 
       if (res.ok) {
         return res.json();
       }
     } catch {
-      // Fallback
+      // Fallback to local
     }
   }
 
   // Complete in local storage
-  const active = getLocalActiveSession();
+  const active = activeSession ?? getLocalActiveSession();
   const completed: WorkoutSession = {
     ...(active || {
       id: sessionId,

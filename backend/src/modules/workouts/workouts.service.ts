@@ -262,9 +262,71 @@ export class WorkoutsService {
       return null;
     }
 
-    // Metric canonical volume computation: sum(weightKg * reps)
+    // If the frontend provided exercises+sets (e.g. locally tracked session),
+    // upsert them into the DB so analytics can read real data.
+    if (input.exercises && input.exercises.length > 0) {
+      for (const exInput of input.exercises) {
+        let sessionExercise = session.exercises.find(
+          (e) => e.exerciseId === exInput.exerciseId
+        );
+
+        if (!sessionExercise) {
+          sessionExercise = await this.db.sessionExercise.create({
+            data: {
+              sessionId,
+              exerciseId: exInput.exerciseId,
+              order: exInput.order ?? 0,
+              notes: exInput.notes ?? null,
+              sets: { create: [] },
+            },
+            include: { sets: true },
+          });
+        }
+
+        for (const setInput of exInput.sets) {
+          const existingSet = sessionExercise.sets.find(
+            (s) => s.setNumber === setInput.setNumber
+          );
+
+          if (existingSet) {
+            await this.db.exerciseSet.update({
+              where: { id: existingSet.id },
+              data: {
+                setType: setInput.setType,
+                weightKg: setInput.weightKg,
+                reps: setInput.reps,
+                rpe: setInput.rpe ?? null,
+                isCompleted: setInput.isCompleted,
+                completedAt: setInput.isCompleted ? new Date() : null,
+              },
+            });
+          } else {
+            await this.db.exerciseSet.create({
+              data: {
+                sessionExerciseId: sessionExercise.id,
+                setNumber: setInput.setNumber,
+                setType: setInput.setType,
+                weightKg: setInput.weightKg,
+                reps: setInput.reps,
+                rpe: setInput.rpe ?? null,
+                isCompleted: setInput.isCompleted,
+                completedAt: setInput.isCompleted ? new Date() : null,
+              },
+            });
+          }
+        }
+      }
+    }
+
+    // Re-fetch with all upserted sets for canonical volume computation
+    const refreshed = await this.db.workoutSession.findFirst({
+      where: { id: sessionId },
+      include: { exercises: { include: { sets: true } } },
+    });
+
+    // Metric canonical volume: sum(weightKg * reps) for all completed sets
     let calculatedVolume = 0;
-    for (const ex of session.exercises) {
+    for (const ex of (refreshed?.exercises ?? session.exercises)) {
       for (const set of ex.sets) {
         if (set.isCompleted && set.weightKg > 0 && set.reps > 0) {
           calculatedVolume += set.weightKg * set.reps;

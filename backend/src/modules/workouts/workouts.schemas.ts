@@ -64,13 +64,32 @@ export const UpdateSessionSetSchema = z.object({
 
 export type UpdateSessionSetInput = z.infer<typeof UpdateSessionSetSchema>;
 
+export const CompleteExerciseSetSchema = z.object({
+  exerciseId: z.string().min(1),
+  order: z.number().int().min(0).default(0),
+  notes: z.string().optional(),
+  sets: z.array(
+    z.object({
+      setNumber: z.number().int().min(1),
+      setType: z.enum(['warmup', 'normal', 'drop', 'failure']).default('normal'),
+      weightKg: z.number().min(0).max(1000),
+      reps: z.number().int().min(0).max(200),
+      rpe: z.number().min(1).max(10).nullable().optional(),
+      isCompleted: z.boolean().default(false),
+    })
+  ).default([]),
+});
+
 export const CompleteSessionSchema = z.object({
   durationSeconds: z.number().int().min(0).optional(),
   notes: z.string().optional(),
   status: z.enum(['completed', 'cancelled']).default('completed'),
+  // Optional: full exercise+set data for sessions tracked locally
+  exercises: z.array(CompleteExerciseSetSchema).optional(),
 });
 
 export type CompleteSessionInput = z.infer<typeof CompleteSessionSchema>;
+export type CompleteExerciseSetInput = z.infer<typeof CompleteExerciseSetSchema>;
 
 export const WorkoutParamSchema = z.object({
   id: z.string().min(1),

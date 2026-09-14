@@ -196,7 +196,8 @@ export const ActiveWorkoutSession: React.FC<ActiveWorkoutSessionProps> = ({
         durationSeconds: elapsedSeconds,
         status: 'completed',
       },
-      accessToken
+      accessToken,
+      session  // pass full session so backend receives exercises+sets
     );
     onFinish(completed);
   };
