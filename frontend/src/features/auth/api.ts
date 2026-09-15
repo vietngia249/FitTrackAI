@@ -78,3 +78,19 @@ export async function apiGetMe(accessToken: string): Promise<User> {
   }
   return json.data.user;
 }
+
+export async function apiGoogleAuth(idToken: string): Promise<AuthResponseData> {
+  const res = await fetch(`${API_BASE}/google`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ idToken }),
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || 'Google authentication failed');
+  }
+  return json.data;
+}
+

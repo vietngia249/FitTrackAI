@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, AuthResponseData } from './types.js';
-import { apiLogin, apiRegister, apiRefreshToken, apiLogout } from './api.js';
+import { apiLogin, apiRegister, apiRefreshToken, apiLogout, apiGoogleAuth } from './api.js';
 
 interface AuthContextType {
   user: User | null;
@@ -20,6 +20,7 @@ interface AuthContextType {
     preferredUnits?: string;
     locale?: string;
   }) => Promise<void>;
+  loginWithGoogle: (idToken: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -92,6 +93,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     closeAuthModal();
   };
 
+  const loginWithGoogle = async (idToken: string) => {
+    const res = await apiGoogleAuth(idToken);
+    setUser(res.user);
+    setAccessToken(res.accessToken);
+    closeAuthModal();
+  };
+
   const logout = async () => {
     try {
       await apiLogout();
@@ -114,6 +122,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         closeAuthModal,
         login,
         register,
+        loginWithGoogle,
         logout,
       }}
     >
