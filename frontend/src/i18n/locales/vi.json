@@ -84,6 +84,11 @@
     "units": "Đơn vị đo lường",
     "metric": "Hệ Mét (kg, cm)",
     "imperial": "Hệ Anh (lb, in)",
+    "theme_title": "Giao diện & Chế độ màu",
+    "theme_desc": "Tùy chỉnh giao diện Sáng, Tối hoặc tự động theo Hệ thống",
+    "theme_dark": "Tối",
+    "theme_light": "Sáng",
+    "theme_system": "Hệ thống",
     "export_data": "Xuất toàn bộ dữ liệu",
     "delete_account": "Xóa tài khoản"
   }

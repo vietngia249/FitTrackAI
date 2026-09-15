@@ -8,7 +8,7 @@
   }
 }
 
-/* Custom Glassmorphism & Micro-styling */
+/* Custom Glassmorphism & Micro-styling (Dark Mode Default) */
 .glass-panel {
   background: rgba(18, 24, 38, 0.75);
   backdrop-filter: blur(16px);
@@ -33,7 +33,7 @@
   -webkit-text-fill-color: transparent;
 }
 
-/* Custom Scrollbars */
+/* Custom Scrollbars (Dark Mode) */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -50,4 +50,214 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: #334155;
+}
+
+/* ==========================================================================
+   Light Mode Design System (html.light or html[data-theme='light'])
+   ========================================================================== */
+
+html.light,
+html[data-theme='light'] {
+  color-scheme: light;
+}
+
+html.light body,
+html[data-theme='light'] body {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+/* Glass Panels in Light Mode */
+html.light .glass-panel,
+html[data-theme='light'] .glass-panel {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+}
+
+html.light .glass-panel-hover:hover,
+html[data-theme='light'] .glass-panel-hover:hover {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(34, 197, 94, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 0 20px -5px rgba(34, 197, 94, 0.15);
+}
+
+/* Deep Dark Hex Overrides */
+html.light .bg-\[\#0a0d14\],
+html.light .bg-\[\#0b0f19\],
+html.light .bg-\[\#0d121d\],
+html.light .bg-\[\#0e131f\],
+html.light .bg-\[\#111622\],
+html.light .bg-\[\#121824\],
+html[data-theme='light'] .bg-\[\#0a0d14\],
+html[data-theme='light'] .bg-\[\#0b0f19\],
+html[data-theme='light'] .bg-\[\#0d121d\],
+html[data-theme='light'] .bg-\[\#0e131f\],
+html[data-theme='light'] .bg-\[\#111622\],
+html[data-theme='light'] .bg-\[\#121824\] {
+  background-color: #ffffff;
+}
+
+/* Dark Slate Backgrounds -> Light Surfaces */
+html.light .bg-slate-900,
+html.light .bg-slate-950,
+html[data-theme='light'] .bg-slate-900,
+html[data-theme='light'] .bg-slate-950 {
+  background-color: #f1f5f9;
+}
+
+html.light .bg-slate-900\/40,
+html.light .bg-slate-900\/50,
+html.light .bg-slate-900\/60,
+html.light .bg-slate-900\/80,
+html.light .bg-slate-950\/70,
+html.light .bg-slate-950\/80,
+html[data-theme='light'] .bg-slate-900\/40,
+html[data-theme='light'] .bg-slate-900\/50,
+html[data-theme='light'] .bg-slate-900\/60,
+html[data-theme='light'] .bg-slate-900\/80,
+html[data-theme='light'] .bg-slate-950\/70,
+html[data-theme='light'] .bg-slate-950\/80 {
+  background-color: rgba(241, 245, 249, 0.85);
+}
+
+html.light .bg-slate-800,
+html[data-theme='light'] .bg-slate-800 {
+  background-color: #e2e8f0;
+}
+
+html.light .bg-slate-800\/50,
+html.light .bg-slate-800\/80,
+html.light .bg-slate-800\/90,
+html[data-theme='light'] .bg-slate-800\/50,
+html[data-theme='light'] .bg-slate-800\/80,
+html[data-theme='light'] .bg-slate-800\/90 {
+  background-color: rgba(226, 232, 240, 0.85);
+}
+
+/* Borders in Light Mode */
+html.light .border-slate-800,
+html.light .border-slate-800\/80,
+html.light .border-slate-700,
+html.light .border-slate-700\/70,
+html.light .border-slate-700\/80,
+html[data-theme='light'] .border-slate-800,
+html[data-theme='light'] .border-slate-800\/80,
+html[data-theme='light'] .border-slate-700,
+html[data-theme='light'] .border-slate-700\/70,
+html[data-theme='light'] .border-slate-700\/80 {
+  border-color: #e2e8f0;
+}
+
+/* Typography in Light Mode */
+html.light .text-white,
+html[data-theme='light'] .text-white {
+  color: #0f172a;
+}
+
+html.light .text-slate-100,
+html[data-theme='light'] .text-slate-100 {
+  color: #1e293b;
+}
+
+html.light .text-slate-200,
+html[data-theme='light'] .text-slate-200 {
+  color: #334155;
+}
+
+html.light .text-slate-300,
+html[data-theme='light'] .text-slate-300 {
+  color: #475569;
+}
+
+html.light .text-slate-400,
+html[data-theme='light'] .text-slate-400 {
+  color: #64748b;
+}
+
+/* Keep white text on colored accent elements & primary buttons */
+html.light [class*="bg-emerald-"] .text-white,
+html.light [class*="bg-rose-"] .text-white,
+html.light [class*="bg-teal-"] .text-white,
+html.light [class*="bg-blue-"] .text-white,
+html.light [class*="bg-amber-"] .text-white,
+html.light button[class*="bg-emerald-"],
+html.light button[class*="bg-rose-"],
+html.light button[class*="bg-teal-"],
+html.light button[class*="bg-blue-"],
+html.light .keep-white,
+html[data-theme='light'] [class*="bg-emerald-"] .text-white,
+html[data-theme='light'] [class*="bg-rose-"] .text-white,
+html[data-theme='light'] [class*="bg-teal-"] .text-white,
+html[data-theme='light'] [class*="bg-blue-"] .text-white,
+html[data-theme='light'] [class*="bg-amber-"] .text-white,
+html[data-theme='light'] button[class*="bg-emerald-"],
+html[data-theme='light'] button[class*="bg-rose-"],
+html[data-theme='light'] button[class*="bg-teal-"],
+html[data-theme='light'] button[class*="bg-blue-"],
+html[data-theme='light'] .keep-white {
+  color: #ffffff !important;
+}
+
+/* Form inputs & interactive controls in Light Mode */
+html.light input:not([type="checkbox"]):not([type="radio"]),
+html.light select,
+html.light textarea,
+html[data-theme='light'] input:not([type="checkbox"]):not([type="radio"]),
+html[data-theme='light'] select,
+html[data-theme='light'] textarea {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder,
+html[data-theme='light'] input::placeholder,
+html[data-theme='light'] textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+html.light select option,
+html[data-theme='light'] select option {
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
+/* Recharts Styling in Light Mode */
+html.light .recharts-cartesian-grid line,
+html[data-theme='light'] .recharts-cartesian-grid line {
+  stroke: #e2e8f0 !important;
+}
+
+html.light .recharts-text,
+html[data-theme='light'] .recharts-text {
+  fill: #64748b !important;
+}
+
+html.light .recharts-default-tooltip,
+html[data-theme='light'] .recharts-default-tooltip {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Light Mode Scrollbars */
+html.light ::-webkit-scrollbar-track,
+html[data-theme='light'] ::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+html.light ::-webkit-scrollbar-thumb,
+html[data-theme='light'] ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+
+html.light ::-webkit-scrollbar-thumb:hover,
+html[data-theme='light'] ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }

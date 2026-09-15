@@ -12,6 +12,7 @@ import {
   BookOpen
 } from 'lucide-react';
 import { LanguageSwitcher } from '../common/LanguageSwitcher.js';
+import { ThemeToggle } from '../common/ThemeToggle.js';
 import { useAuth } from '../../features/auth/AuthContext.js';
 import { AuthModal } from '../../features/auth/AuthModal.js';
 import { AiCopilotDrawer } from '../../features/copilot/AiCopilotDrawer.js';
@@ -33,15 +34,15 @@ export const Layout: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0a0d14] text-slate-100">
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 dark:bg-[#0a0d14] dark:text-slate-100 transition-colors duration-200">
       {/* Desktop & Tablet Top Navbar */}
-      <header className="sticky top-0 z-50 glass-panel border-b border-slate-800/80">
+      <header className="sticky top-0 z-50 glass-panel border-b border-slate-200/80 dark:border-slate-800/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           {/* Logo & Brand */}
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 p-0.5 shadow-lg shadow-emerald-500/20 flex items-center justify-center">
-              <div className="w-full h-full bg-[#0a0d14] rounded-[10px] flex items-center justify-center">
-                <Dumbbell className="w-5 h-5 text-emerald-400" />
+              <div className="w-full h-full bg-white dark:bg-[#0a0d14] rounded-[10px] flex items-center justify-center">
+                <Dumbbell className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
               </div>
             </div>
             <div className="flex flex-col">
@@ -71,15 +72,15 @@ export const Layout: React.FC = () => {
                   className={({ isActive }) =>
                     `flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                       isActive
-                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 shadow-sm'
-                        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                        ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 shadow-sm'
+                        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50'
                     }`
                   }
                 >
                   <Icon className="w-4 h-4" />
                   <span>{item.label}</span>
                   {item.badge && (
-                    <span className="text-[10px] font-bold px-1 rounded bg-teal-500/20 text-teal-300 border border-teal-500/30">
+                    <span className="text-[10px] font-bold px-1 rounded bg-teal-500/20 text-teal-600 dark:text-teal-300 border border-teal-500/30">
                       {item.badge}
                     </span>
                   )}
@@ -88,22 +89,23 @@ export const Layout: React.FC = () => {
             })}
           </nav>
 
-          {/* Right Header Actions: Language & User */}
-          <div className="flex items-center gap-3">
+          {/* Right Header Actions: Language, Theme & User */}
+          <div className="flex items-center gap-2 sm:gap-2.5">
             <LanguageSwitcher />
+            <ThemeToggle />
 
-            <div className="hidden sm:flex items-center gap-2 pl-2 border-l border-slate-800">
+            <div className="hidden sm:flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-slate-800">
               {user ? (
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 font-bold text-xs uppercase">
+                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold text-xs uppercase">
                     {user.displayName.slice(0, 2)}
                   </div>
-                  <span className="text-xs font-semibold text-slate-200 hidden lg:inline">
+                  <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 hidden lg:inline">
                     {user.displayName}
                   </span>
                   <button
                     onClick={() => logout()}
-                    className="p-1.5 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-slate-800 transition-all"
+                    className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-all"
                     title="Sign Out"
                   >
                     <LogOut className="w-4 h-4" />
@@ -135,7 +137,7 @@ export const Layout: React.FC = () => {
       <AiCopilotDrawer />
 
       {/* Mobile Bottom Navigation (Visible on screens < md) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass-panel border-t border-slate-800/80 px-2 py-2">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 glass-panel border-t border-slate-200/80 dark:border-slate-800/80 px-2 py-2">
         <div className="grid grid-cols-6 gap-1 items-center">
           {navItems.slice(0, 6).map((item) => {
             const Icon = item.icon;
@@ -147,8 +149,8 @@ export const Layout: React.FC = () => {
                 className={({ isActive }) =>
                   `flex flex-col items-center justify-center py-1.5 px-1 rounded-lg text-[10px] font-medium transition-all ${
                     isActive
-                      ? 'text-emerald-400 font-semibold bg-emerald-500/10'
-                      : 'text-slate-400 hover:text-slate-200'
+                      ? 'text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-500/10'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                   }`
                 }
               >

@@ -10,26 +10,29 @@ import { AiFormPage } from './pages/AiFormPage.js';
 import { InsightsPage } from './pages/InsightsPage.js';
 import { ProfilePage } from './pages/ProfilePage.js';
 import { AuthProvider } from './features/auth/AuthContext.js';
+import { ThemeProvider } from './context/ThemeContext.js';
 
 export const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<DashboardPage />} />
-          <Route path="workouts" element={<WorkoutsPage />} />
-          <Route path="exercises" element={<ExercisesPage />} />
-          <Route path="nutrition" element={<NutritionPage />} />
-          <Route path="progress" element={<ProgressPage />} />
-          <Route path="ai-form" element={<AiFormPage />} />
-          <Route path="insights" element={<InsightsPage />} />
-          <Route path="profile" element={<ProfilePage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Route>
-      </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<DashboardPage />} />
+              <Route path="workouts" element={<WorkoutsPage />} />
+              <Route path="exercises" element={<ExercisesPage />} />
+              <Route path="nutrition" element={<NutritionPage />} />
+              <Route path="progress" element={<ProgressPage />} />
+              <Route path="ai-form" element={<AiFormPage />} />
+              <Route path="insights" element={<InsightsPage />} />
+              <Route path="profile" element={<ProfilePage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </ThemeProvider>
   );
 };
 

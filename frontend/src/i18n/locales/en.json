@@ -84,6 +84,11 @@
     "units": "Preferred Units",
     "metric": "Metric (kg, cm)",
     "imperial": "Imperial (lb, in)",
+    "theme_title": "Appearance & Theme",
+    "theme_desc": "Switch between dark, light, or follow system theme",
+    "theme_dark": "Dark",
+    "theme_light": "Light",
+    "theme_system": "System",
     "export_data": "Export Account Data",
     "delete_account": "Delete Account"
   }
