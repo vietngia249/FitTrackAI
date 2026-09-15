@@ -73,4 +73,27 @@ describe('Auth API Routes & Guardrails', () => {
 
     assert.equal(response.statusCode, 401);
   });
+
+  it('POST /api/v1/auth/google should reject missing idToken with 400 Bad Request', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/auth/google',
+      payload: {},
+    });
+
+    assert.equal(response.statusCode, 400);
+  });
+
+  it('POST /api/v1/auth/google should reject invalid or expired idToken with 401 Unauthorized', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/auth/google',
+      payload: {
+        idToken: 'invalid-fake-google-id-token',
+      },
+    });
+
+    assert.equal(response.statusCode, 401);
+  });
 });
+

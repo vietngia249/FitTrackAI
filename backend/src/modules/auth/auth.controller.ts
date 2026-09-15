@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { authService } from './auth.service.js';
-import { LoginInput, RegisterInput } from './auth.schemas.js';
+import { LoginInput, RegisterInput, GoogleAuthInput } from './auth.schemas.js';
 import { env } from '../../config/env.js';
 import { AppError } from '../../shared/errors/app-error.js';
 
@@ -78,6 +78,31 @@ export class AuthController {
     return reply.status(200).send({
       statusCode: 200,
       message: 'Login successful',
+      data: {
+        user,
+        accessToken,
+      },
+    });
+  }
+
+  async googleAuth(
+    request: FastifyRequest<{ Body: GoogleAuthInput }>,
+    reply: FastifyReply
+  ) {
+    const { user, rawRefreshToken } = await authService.loginWithGoogle(
+      request.body.idToken
+    );
+
+    const accessToken = request.server.jwt.sign(
+      { id: user.id, email: user.email },
+      { expiresIn: env.JWT_EXPIRES_IN }
+    );
+
+    this.setRefreshCookie(reply, rawRefreshToken);
+
+    return reply.status(200).send({
+      statusCode: 200,
+      message: 'Google authentication successful',
       data: {
         user,
         accessToken,

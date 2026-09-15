@@ -8,6 +8,8 @@ import {
 } from '../../shared/utils/security.js';
 import { LoginInput, RegisterInput } from './auth.schemas.js';
 import { UserWithProfile } from './auth.types.js';
+import { OAuth2Client } from 'google-auth-library';
+import { env } from '../../config/env.js';
 
 export class AuthService {
   /**
@@ -169,6 +171,102 @@ export class AuthService {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { passwordHash: _, ...safeUser } = user;
     return safeUser;
+  }
+
+  /**
+   * Authenticate or register a user using a verified Google ID token
+   */
+  async loginWithGoogle(
+    idToken: string
+  ): Promise<{ user: UserWithProfile; rawRefreshToken: string }> {
+    let email: string | undefined;
+    let displayName: string | undefined;
+    let avatarUrl: string | undefined;
+
+    try {
+      if (env.GOOGLE_CLIENT_ID) {
+        const client = new OAuth2Client(env.GOOGLE_CLIENT_ID);
+        const ticket = await client.verifyIdToken({
+          idToken,
+          audience: env.GOOGLE_CLIENT_ID,
+        });
+        const payload = ticket.getPayload();
+        if (!payload || !payload.email) {
+          throw AppError.unauthorized('Invalid Google token payload');
+        }
+        email = payload.email.toLowerCase();
+        displayName = payload.name || payload.given_name || email.split('@')[0];
+        avatarUrl = payload.picture;
+      } else {
+        // Fallback: Verify via Google's tokeninfo API
+        const response = await fetch(
+          `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`
+        );
+        if (!response.ok) {
+          throw AppError.unauthorized('Failed to verify Google token');
+        }
+        const data = (await response.json()) as {
+          email?: string;
+          name?: string;
+          picture?: string;
+          error_description?: string;
+        };
+        if (!data.email) {
+          throw AppError.unauthorized(data.error_description || 'Invalid Google token');
+        }
+        email = data.email.toLowerCase();
+        displayName = data.name || email.split('@')[0];
+        avatarUrl = data.picture;
+      }
+    } catch (err) {
+      if (err instanceof AppError) throw err;
+      throw AppError.unauthorized('Google authentication failed: ' + (err as Error).message);
+    }
+
+    if (!email) {
+      throw AppError.unauthorized('Unable to obtain email from Google token');
+    }
+
+    // Find or create user
+    let user = await prisma.user.findUnique({
+      where: { email },
+      include: { profile: true },
+    });
+
+    if (!user) {
+      user = await prisma.user.create({
+        data: {
+          email,
+          passwordHash: `OAUTH_GOOGLE_${generateRandomToken(24)}`,
+          displayName: displayName || email.split('@')[0],
+          avatarUrl: avatarUrl || null,
+          profile: {
+            create: {
+              fitnessGoal: 'general_fitness',
+              preferredUnits: 'metric',
+              locale: 'en',
+            },
+          },
+        },
+        include: { profile: true },
+      });
+    }
+
+    const rawRefreshToken = generateRandomToken(32);
+    const tokenHash = hashToken(rawRefreshToken);
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+    await prisma.refreshToken.create({
+      data: {
+        userId: user.id,
+        tokenHash,
+        expiresAt,
+      },
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { passwordHash: _, ...safeUser } = user;
+    return { user: safeUser, rawRefreshToken };
   }
 }
 
