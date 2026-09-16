@@ -33,11 +33,11 @@ export const AiCopilotDrawer: React.FC<AiCopilotDrawerProps> = ({
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [budgetRemaining, setBudgetRemaining] = useState<number>(15);
-  const [messages, setMessages] = useState<ChatMessage[]>([
+  const [messages, setMessages] = useState<ChatMessage[]>(() => [
     {
       id: 'welcome-1',
       sender: 'assistant',
-      text: "Hello! I'm your FitTrack Gemini AI Coach. I analyze your logged workouts, 1RM trajectory, nutrition snapshots, and recovery data to give you personalized coaching advice. What would you like to optimize today?",
+      text: t('copilot.welcome_message', "Hello! I'm your FitTrack Gemini AI Coach. I analyze your logged workouts, 1RM trajectory, nutrition snapshots, and recovery data to give you personalized coaching advice. What would you like to optimize today?"),
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
@@ -56,10 +56,10 @@ export const AiCopilotDrawer: React.FC<AiCopilotDrawerProps> = ({
   }, [messages, loading]);
 
   const quickPrompts = [
-    'Am I hitting enough chest volume?',
-    'Why is progressive overload recommended today?',
-    'Review my protein and calorie goals',
-    'Should I schedule a deload week?',
+    t('copilot.prompt_chest', 'Am I hitting enough chest volume?'),
+    t('copilot.prompt_overload', 'Why is progressive overload recommended today?'),
+    t('copilot.prompt_nutrition', 'Review my protein and calorie goals'),
+    t('copilot.prompt_deload', 'Should I schedule a deload week?'),
   ];
 
   const handleSend = async (queryText?: string) => {
@@ -165,7 +165,7 @@ export const AiCopilotDrawer: React.FC<AiCopilotDrawerProps> = ({
 
               <div className="flex items-center gap-2">
                 <div className="text-[11px] px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-mono">
-                  <span className="text-emerald-600 dark:text-emerald-400 font-bold">{budgetRemaining}</span>/15 calls
+                  <span className="text-emerald-600 dark:text-emerald-400 font-bold">{budgetRemaining}</span>/15 {t('insights.queries_left', 'queries left')}
                 </div>
                 <button
                   onClick={handleClose}
