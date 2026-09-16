@@ -9,6 +9,7 @@ import {
   AreaChart,
 } from 'recharts';
 import { TrendingUp } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { fetchExerciseAnalytics } from './analyticsApi';
 import { ExerciseAnalyticsResponse } from './analyticsTypes';
 import { useAuth } from '../auth/AuthContext';
@@ -19,14 +20,15 @@ interface OneRepMaxProgressionChartProps {
 
 const COMMON_LIFTS = [
   { id: 'barbell-bench-press', name: 'Barbell Bench Press' },
-  { id: 'barbell-deadlift', name: 'Barbell Deadlift' },
-  { id: 'bodyweight-squat', name: 'Barbell Squat' },
-  { id: 'dumbbell-shoulder-press', name: 'Dumbbell Shoulder Press' },
+  { id: 'barbell-back-squat', name: 'Barbell Back Squat' },
+  { id: 'barbell-deadlift', name: 'Barbell Conventional Deadlift' },
+  { id: 'overhead-press', name: 'Overhead Press' },
 ];
 
 export const OneRepMaxProgressionChart: React.FC<OneRepMaxProgressionChartProps> = ({
   initialExerciseId = 'barbell-bench-press',
 }) => {
+  const { t } = useTranslation();
   const { accessToken } = useAuth();
   const [selectedId, setSelectedId] = useState(initialExerciseId);
   const [data, setData] = useState<ExerciseAnalyticsResponse | null>(null);
@@ -38,16 +40,16 @@ export const OneRepMaxProgressionChart: React.FC<OneRepMaxProgressionChartProps>
   if (!data) return null;
 
   return (
-    <div className="bg-[#0e131f]/90 border border-slate-800/80 rounded-3xl p-5 sm:p-6 shadow-xl space-y-6">
+    <div className="bg-white dark:bg-[#0e131f]/90 border border-slate-200/80 dark:border-slate-800/80 rounded-3xl p-5 sm:p-6 shadow-sm dark:shadow-xl space-y-6">
       {/* Header & Exercise Selector */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-400 mb-1">
+          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-1">
             <TrendingUp className="w-4 h-4" />
             <span>Progressive Overload & 1RM Trend</span>
           </div>
-          <h3 className="text-xl font-black text-white">Estimated 1RM Progression</h3>
-          <p className="text-xs text-slate-400">
+          <h3 className="text-xl font-black text-slate-900 dark:text-white">Estimated 1RM Progression</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             Calculated via validated Epley formula: w × (1 + r / 30)
           </p>
         </div>
@@ -55,7 +57,7 @@ export const OneRepMaxProgressionChart: React.FC<OneRepMaxProgressionChartProps>
         <select
           value={selectedId}
           onChange={(e) => setSelectedId(e.target.value)}
-          className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-200 focus:border-emerald-500 outline-none"
+          className="px-3.5 py-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-800 dark:text-slate-200 focus:border-emerald-500 outline-none shadow-sm"
         >
           {COMMON_LIFTS.map((lift) => (
             <option key={lift.id} value={lift.id}>
@@ -67,30 +69,30 @@ export const OneRepMaxProgressionChart: React.FC<OneRepMaxProgressionChartProps>
 
       {/* PR Badges Row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-3 bg-slate-900/60 rounded-2xl border border-slate-800 flex flex-col">
+        <div className="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col">
           <span className="text-[10px] uppercase font-bold text-slate-400">Peak 1RM</span>
-          <span className="text-xl font-black text-emerald-400 mt-1">
+          <span className="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
             {data.prs.maxEstimated1RM} kg
           </span>
         </div>
 
-        <div className="p-3 bg-slate-900/60 rounded-2xl border border-slate-800 flex flex-col">
-          <span className="text-[10px] uppercase font-bold text-slate-400">Heaviest Lift</span>
-          <span className="text-xl font-black text-white mt-1">
+        <div className="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col">
+          <span className="text-[10px] uppercase font-bold text-slate-400">{t('analytics.heaviest_lift')}</span>
+          <span className="text-xl font-black text-slate-900 dark:text-white mt-1">
             {data.prs.maxWeightKg} kg
           </span>
         </div>
 
-        <div className="p-3 bg-slate-900/60 rounded-2xl border border-slate-800 flex flex-col">
-          <span className="text-[10px] uppercase font-bold text-slate-400">Best Set Reps</span>
-          <span className="text-xl font-black text-white mt-1">
+        <div className="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col">
+          <span className="text-[10px] uppercase font-bold text-slate-400">{t('analytics.best_set_reps')}</span>
+          <span className="text-xl font-black text-slate-900 dark:text-white mt-1">
             {data.prs.bestRepsAtMaxWeight} reps
           </span>
         </div>
 
-        <div className="p-3 bg-slate-900/60 rounded-2xl border border-slate-800 flex flex-col">
-          <span className="text-[10px] uppercase font-bold text-slate-400">Best Set Vol</span>
-          <span className="text-xl font-black text-amber-400 mt-1">
+        <div className="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col">
+          <span className="text-[10px] uppercase font-bold text-slate-400">{t('analytics.best_set_vol')}</span>
+          <span className="text-xl font-black text-amber-600 dark:text-amber-400 mt-1">
             {data.prs.maxSetVolumeKg} kg
           </span>
         </div>

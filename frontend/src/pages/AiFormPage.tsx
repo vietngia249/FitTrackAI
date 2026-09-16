@@ -259,16 +259,16 @@ export const AiFormPage: React.FC = () => {
               <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mb-3">
                 <Camera className="w-8 h-8 text-emerald-400" />
               </div>
-              <h3 className="text-white font-bold text-lg">AI Pose Engine Ready</h3>
+              <h3 className="text-white font-bold text-lg">{t('ai_form.engine_ready')}</h3>
               <p className="text-slate-400 text-xs max-w-sm mt-1">
                 Real-time joint trigonometry and rep state tracking.
               </p>
               <button
                 onClick={toggleRunning}
-                className="mt-4 flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-black font-bold text-sm shadow-lg shadow-emerald-500/30 transition-all cursor-pointer"
+                className="mt-4 flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm shadow-lg shadow-emerald-500/30 transition-all cursor-pointer keep-white active:scale-95"
               >
                 <Play className="w-4 h-4 fill-current" />
-                <span>Start Real-time Analysis</span>
+                <span>{t('ai_form.start_analysis')}</span>
               </button>
             </div>
           )}
@@ -370,12 +370,12 @@ export const AiFormPage: React.FC = () => {
 
             <div>
               <div className="flex justify-between text-xs font-medium mb-1">
-                <span className="text-slate-300">Joint Alignment</span>
-                <span className="text-cyan-400 font-mono font-bold">
+                <span className="text-slate-700 dark:text-slate-300">{t('ai_form.joint_alignment')}</span>
+                <span className="text-cyan-600 dark:text-cyan-400 font-mono font-bold">
                   {evaluation.subScores.alignment}/100
                 </span>
               </div>
-              <div className="w-full bg-slate-800/80 rounded-full h-1.5">
+              <div className="w-full bg-slate-200 dark:bg-slate-800/80 rounded-full h-1.5">
                 <div
                   className="bg-cyan-400 h-full rounded-full transition-all duration-300"
                   style={{ width: `${evaluation.subScores.alignment}%` }}
@@ -385,12 +385,12 @@ export const AiFormPage: React.FC = () => {
 
             <div>
               <div className="flex justify-between text-xs font-medium mb-1">
-                <span className="text-slate-300">Torso Stability</span>
-                <span className="text-amber-400 font-mono font-bold">
+                <span className="text-slate-700 dark:text-slate-300">{t('ai_form.torso_stability')}</span>
+                <span className="text-amber-600 dark:text-amber-400 font-mono font-bold">
                   {evaluation.subScores.stability}/100
                 </span>
               </div>
-              <div className="w-full bg-slate-800/80 rounded-full h-1.5">
+              <div className="w-full bg-slate-200 dark:bg-slate-800/80 rounded-full h-1.5">
                 <div
                   className="bg-amber-400 h-full rounded-full transition-all duration-300"
                   style={{ width: `${evaluation.subScores.stability}%` }}
@@ -414,21 +414,21 @@ export const AiFormPage: React.FC = () => {
           <div className="flex items-center gap-2 pt-2">
             <button
               onClick={toggleRunning}
-              className={`flex-1 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow transition-all cursor-pointer ${
+              className={`flex-1 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1.5 shadow transition-all cursor-pointer keep-white ${
                 isRunning
-                  ? 'bg-amber-500 hover:bg-amber-600 text-black shadow-amber-500/20'
-                  : 'bg-emerald-500 hover:bg-emerald-600 text-black shadow-emerald-500/20'
+                  ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-amber-500/20'
+                  : 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-500/20'
               }`}
             >
               {isRunning ? (
                 <>
                   <Pause className="w-3.5 h-3.5 fill-current" />
-                  <span>Pause Analysis</span>
+                  <span>{t('ai_form.pause_analysis')}</span>
                 </>
               ) : (
                 <>
                   <Play className="w-3.5 h-3.5 fill-current" />
-                  <span>Start Analysis</span>
+                  <span>{t('ai_form.start_analysis')}</span>
                 </>
               )}
             </button>
@@ -436,7 +436,7 @@ export const AiFormPage: React.FC = () => {
             <button
               onClick={handleReset}
               title="Reset session"
-              className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition cursor-pointer"
+              className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/60 transition cursor-pointer"
             >
               <RotateCcw className="w-4 h-4" />
             </button>
