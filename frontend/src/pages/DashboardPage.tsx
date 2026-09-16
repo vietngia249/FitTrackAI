@@ -16,17 +16,20 @@ import {
 import { Link } from 'react-router-dom';
 import { fetchAnalyticsOverview } from '../features/analytics/analyticsApi';
 import { getDailyNutritionApi, getNutritionGoalsApi, DEFAULT_GOALS } from '../features/nutrition/nutritionApi';
+import { fetchPlans } from '../features/workouts/workoutApi';
 import { AnalyticsOverview } from '../features/analytics/analyticsTypes';
 import { DailyNutritionGoals } from '../features/nutrition/nutritionTypes';
+import { WorkoutPlan } from '../features/workouts/workoutTypes';
 import { useAuth } from '../features/auth/AuthContext';
 
 export const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
-  const { accessToken } = useAuth();
+  const { user, accessToken } = useAuth();
 
   const [overview, setOverview] = useState<AnalyticsOverview | null>(null);
   const [caloriesConsumed, setCaloriesConsumed] = useState<number | null>(null);
   const [goals, setGoals] = useState<DailyNutritionGoals>(DEFAULT_GOALS);
+  const [plans, setPlans] = useState<WorkoutPlan[]>([]);
   const [loadingKpis, setLoadingKpis] = useState(true);
 
   useEffect(() => {
@@ -35,11 +38,13 @@ export const DashboardPage: React.FC = () => {
       fetchAnalyticsOverview(accessToken),
       getDailyNutritionApi(today),
       getNutritionGoalsApi(),
+      fetchPlans(accessToken),
     ])
-      .then(([ov, nutrition, g]) => {
+      .then(([ov, nutrition, g, p]) => {
         setOverview(ov);
         setCaloriesConsumed(nutrition.summary.calories);
         setGoals(g);
+        setPlans(p);
       })
       .finally(() => setLoadingKpis(false));
   }, [accessToken]);
@@ -48,6 +53,8 @@ export const DashboardPage: React.FC = () => {
     caloriesConsumed !== null
       ? Math.min(Math.round((caloriesConsumed / goals.calorieTarget) * 100), 100)
       : null;
+
+  const currentPlan = plans.length > 0 ? plans[0] : null;
 
   return (
     <div className="space-y-6">
@@ -61,7 +68,7 @@ export const DashboardPage: React.FC = () => {
               <span>FitTrack AI v1.0</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              {t('common.welcome_back')}, <span className="gradient-text">Athlete</span>
+              {t('common.welcome_back')}, <span className="gradient-text">{user?.displayName || 'Athlete'}</span>
             </h1>
             <p className="text-slate-400 text-sm mt-1">
               {t('common.today_overview')}
@@ -120,8 +127,8 @@ export const DashboardPage: React.FC = () => {
             )}
           </div>
           {overview && (
-            <div className="mt-2 flex items-center text-xs text-slate-400 font-medium">
-              <span>{overview.totalCompletedSessions} sessions logged</span>
+            <div className="mt-2 flex items-center text-xs text-slate-500 dark:text-slate-400 font-medium">
+              <span>{overview.totalCompletedSessions} {t('dashboard.sessions_logged', 'sessions logged')}</span>
             </div>
           )}
         </div>
@@ -129,10 +136,10 @@ export const DashboardPage: React.FC = () => {
         {/* Calories Today */}
         <div className="glass-panel glass-panel-hover p-5 rounded-2xl">
           <div className="flex items-center justify-between">
-            <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">
+            <span className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
               {t('dashboard.calories_today')}
             </span>
-            <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400">
+            <div className="p-2 rounded-xl bg-amber-500/10 text-amber-500 dark:text-amber-400">
               <Flame className="w-4 h-4" />
             </div>
           </div>
@@ -141,19 +148,19 @@ export const DashboardPage: React.FC = () => {
               <Loader2 className="w-5 h-5 text-slate-500 animate-spin" />
             ) : (
               <>
-                <span className="text-3xl font-extrabold text-white">
+                <span className="text-3xl font-extrabold text-slate-900 dark:text-white">
                   {caloriesConsumed !== null ? caloriesConsumed.toLocaleString() : '0'}
                 </span>
-                <span className="text-xs font-medium text-slate-400">
+                <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
                   / {goals.calorieTarget.toLocaleString()} kcal
                 </span>
               </>
             )}
           </div>
           {caloriePercent !== null && (
-            <div className="mt-2 w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+            <div className="mt-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
               <div
-                className="bg-amber-400 h-full rounded-full transition-all duration-700"
+                className="bg-amber-500 dark:bg-amber-400 h-full rounded-full transition-all duration-700"
                 style={{ width: `${caloriePercent}%` }}
               />
             </div>
@@ -163,10 +170,10 @@ export const DashboardPage: React.FC = () => {
         {/* Workout Streak */}
         <div className="glass-panel glass-panel-hover p-5 rounded-2xl">
           <div className="flex items-center justify-between">
-            <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">
+            <span className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
               {t('dashboard.streak')}
             </span>
-            <div className="p-2 rounded-xl bg-rose-500/10 text-rose-400">
+            <div className="p-2 rounded-xl bg-rose-500/10 text-rose-500 dark:text-rose-400">
               <Zap className="w-4 h-4" />
             </div>
           </div>
@@ -175,34 +182,34 @@ export const DashboardPage: React.FC = () => {
               <Loader2 className="w-5 h-5 text-slate-500 animate-spin" />
             ) : (
               <>
-                <span className="text-3xl font-extrabold text-white">
+                <span className="text-3xl font-extrabold text-slate-900 dark:text-white">
                   {overview?.streakDays ?? 0}
                 </span>
-                <span className="text-xs font-medium text-slate-400">{t('dashboard.days')}</span>
+                <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{t('dashboard.days')}</span>
               </>
             )}
           </div>
-          <div className="mt-2 flex items-center text-xs text-slate-400">
-            <span>{overview ? `${overview.totalCompletedSessions} total sessions` : 'Start your streak!'}</span>
+          <div className="mt-2 flex items-center text-xs text-slate-500 dark:text-slate-400">
+            <span>{overview ? `${overview.totalCompletedSessions} ${t('dashboard.total_sessions', 'total sessions')}` : t('dashboard.start_streak', 'Start your streak!')}</span>
           </div>
         </div>
 
         {/* Form Score — static badge until AI form backend is built */}
         <div className="glass-panel glass-panel-hover p-5 rounded-2xl">
           <div className="flex items-center justify-between">
-            <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">
+            <span className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
               {t('dashboard.form_score')}
             </span>
-            <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400">
+            <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">
               <Award className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-white">—</span>
+            <span className="text-3xl font-extrabold text-slate-900 dark:text-white">—</span>
           </div>
-          <div className="mt-2 flex items-center text-xs text-slate-400 font-medium">
-            <Link to="/ai-form" className="text-teal-400 hover:underline">
-              Run AI Form Analysis →
+          <div className="mt-2 flex items-center text-xs text-slate-500 dark:text-slate-400 font-medium">
+            <Link to="/ai-form" className="text-teal-600 dark:text-teal-400 hover:underline">
+              {t('dashboard.run_ai_form', 'Run AI Form Analysis →')}
             </Link>
           </div>
         </div>
@@ -214,44 +221,55 @@ export const DashboardPage: React.FC = () => {
         <div className="lg:col-span-2 glass-panel p-6 rounded-2xl space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-emerald-400" />
-              <h2 className="font-bold text-lg text-white">Today's Focus: Push Session A</h2>
+              <Calendar className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <h2 className="font-bold text-lg text-slate-900 dark:text-white">
+                {currentPlan ? `${t('dashboard.focus_today', "Today's Focus")}: ${currentPlan.name}` : `${t('dashboard.focus_today', "Today's Focus")}: Push Session A`}
+              </h2>
             </div>
-            <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-semibold">
-              Planned
+            <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 font-semibold">
+              {t('dashboard.planned', 'Planned')}
             </span>
           </div>
 
-          <div className="divide-y divide-slate-800/80">
-            <div className="py-3 flex items-center justify-between">
-              <div>
-                <p className="font-medium text-slate-200">Barbell Bench Press</p>
-                <p className="text-xs text-slate-400">4 sets × 6-8 reps • 85 kg target</p>
-              </div>
-              <span className="text-xs text-slate-500 font-mono">Rest 180s</span>
-            </div>
-            <div className="py-3 flex items-center justify-between">
-              <div>
-                <p className="font-medium text-slate-200">Incline Dumbbell Press</p>
-                <p className="text-xs text-slate-400">3 sets × 8-10 reps • 30 kg target</p>
-              </div>
-              <span className="text-xs text-slate-500 font-mono">Rest 120s</span>
-            </div>
-            <div className="py-3 flex items-center justify-between">
-              <div>
-                <p className="font-medium text-slate-200">Dips / Triceps Extension</p>
-                <p className="text-xs text-slate-400">3 sets × 12 reps • RPE 8.5</p>
-              </div>
-              <span className="text-xs text-slate-500 font-mono">Rest 90s</span>
-            </div>
+          <div className="divide-y divide-slate-200 dark:divide-slate-800/80">
+            {currentPlan && currentPlan.exercises.length > 0 ? (
+              currentPlan.exercises.slice(0, 3).map((pe, idx) => (
+                <div key={pe.id || idx} className="py-3 flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-slate-800 dark:text-slate-200">{pe.exercise?.name || 'Exercise'}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      {pe.targetSets} sets × {pe.targetReps} reps {pe.notes ? `• ${pe.notes}` : ''}
+                    </p>
+                  </div>
+                  <span className="text-xs text-slate-400 dark:text-slate-500 font-mono">{t('dashboard.rest', 'Rest')} {pe.restSeconds}s</span>
+                </div>
+              ))
+            ) : (
+              <>
+                <div className="py-3 flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-slate-800 dark:text-slate-200">Barbell Bench Press</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">4 sets × 6-8 reps • 85 kg target</p>
+                  </div>
+                  <span className="text-xs text-slate-400 dark:text-slate-500 font-mono">{t('dashboard.rest', 'Rest')} 180s</span>
+                </div>
+                <div className="py-3 flex items-center justify-between">
+                  <div>
+                    <p className="font-medium text-slate-800 dark:text-slate-200">Incline Dumbbell Press</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">3 sets × 8-10 reps • 30 kg target</p>
+                  </div>
+                  <span className="text-xs text-slate-400 dark:text-slate-500 font-mono">{t('dashboard.rest', 'Rest')} 120s</span>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="pt-2">
             <Link
               to="/workouts"
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-semibold text-sm transition-all"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-700 dark:text-emerald-400 font-semibold text-sm transition-all"
             >
-              <span>Launch Live Workout Tracker</span>
+              <span>{t('dashboard.launch_tracker', 'Launch Live Workout Tracker')}</span>
               <ArrowUpRight className="w-4 h-4" />
             </Link>
           </div>
@@ -260,25 +278,29 @@ export const DashboardPage: React.FC = () => {
         {/* AI Insight Snapshot */}
         <div className="glass-panel p-6 rounded-2xl flex flex-col justify-between">
           <div>
-            <div className="flex items-center gap-2 text-cyan-400 mb-2">
+            <div className="flex items-center gap-2 text-cyan-600 dark:text-cyan-400 mb-2">
               <Zap className="w-4 h-4" />
-              <span className="text-xs font-bold uppercase tracking-wider">AI Coaching Note</span>
+              <span className="text-xs font-bold uppercase tracking-wider">{t('dashboard.ai_coaching_note', 'AI Coaching Note')}</span>
             </div>
-            <h3 className="font-bold text-white text-base">Progressive Overload Trigger</h3>
-            <p className="text-sm text-slate-300 mt-2 leading-relaxed">
+            <h3 className="font-bold text-slate-900 dark:text-white text-base">{t('dashboard.progressive_overload_trigger', 'Progressive Overload Trigger')}</h3>
+            <p className="text-sm text-slate-600 dark:text-slate-300 mt-2 leading-relaxed">
               {overview
-                ? `You've logged ${overview.totalCompletedSessions} sessions totaling ${overview.weeklyVolumeKg.toLocaleString()} kg volume this week. Keep your progressive overload consistent!`
-                : 'Start logging workouts to receive personalized overload recommendations.'}
+                ? t('dashboard.overload_note_desc', {
+                    count: overview.totalCompletedSessions,
+                    volume: overview.weeklyVolumeKg.toLocaleString(),
+                    defaultValue: `You've logged ${overview.totalCompletedSessions} sessions totaling ${overview.weeklyVolumeKg.toLocaleString()} kg volume this week. Keep your progressive overload consistent!`,
+                  })
+                : t('dashboard.overload_empty_desc', 'Start logging workouts to receive personalized overload recommendations.')}
             </p>
           </div>
 
-          <div className="mt-6 pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+          <div className="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
             <span className="flex items-center gap-1">
               <Clock className="w-3.5 h-3.5" />
-              Live data
+              {t('dashboard.live_data', 'Live data')}
             </span>
-            <Link to="/insights" className="text-emerald-400 font-medium hover:underline">
-              View all insights
+            <Link to="/insights" className="text-emerald-600 dark:text-emerald-400 font-medium hover:underline">
+              {t('dashboard.view_all_insights', 'View all insights')}
             </Link>
           </div>
         </div>
