@@ -6,7 +6,7 @@ import {
   generateRandomToken,
   hashToken,
 } from '../../shared/utils/security.js';
-import { LoginInput, RegisterInput } from './auth.schemas.js';
+import { LoginInput, RegisterInput, UpdateProfileInput } from './auth.schemas.js';
 import { UserWithProfile } from './auth.types.js';
 import { OAuth2Client } from 'google-auth-library';
 import { env } from '../../config/env.js';
@@ -171,6 +171,64 @@ export class AuthService {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { passwordHash: _, ...safeUser } = user;
     return safeUser;
+  }
+
+  /**
+   * Update user profile & fitness biometrics
+   */
+  async updateUserProfile(
+    userId: string,
+    input: UpdateProfileInput
+  ): Promise<UserWithProfile> {
+    const { displayName, ...profileData } = input;
+
+    if (displayName) {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { displayName },
+      });
+    }
+
+    let dobDate: Date | null | undefined = undefined;
+    if (profileData.dateOfBirth !== undefined) {
+      dobDate = profileData.dateOfBirth ? new Date(profileData.dateOfBirth) : null;
+    }
+
+    const profileUpdateData: any = {};
+    if (dobDate !== undefined) profileUpdateData.dateOfBirth = dobDate;
+    if (profileData.biologicalSex !== undefined) profileUpdateData.biologicalSex = profileData.biologicalSex;
+    if (profileData.height !== undefined) profileUpdateData.height = profileData.height;
+    if (profileData.currentWeight !== undefined) profileUpdateData.currentWeight = profileData.currentWeight;
+    if (profileData.targetWeight !== undefined) profileUpdateData.targetWeight = profileData.targetWeight;
+    if (profileData.activityLevel !== undefined) profileUpdateData.activityLevel = profileData.activityLevel;
+    if (profileData.fitnessGoal !== undefined) profileUpdateData.fitnessGoal = profileData.fitnessGoal;
+    if (profileData.preferredUnits !== undefined) profileUpdateData.preferredUnits = profileData.preferredUnits;
+    if (profileData.locale !== undefined) profileUpdateData.locale = profileData.locale;
+
+    await prisma.fitnessProfile.upsert({
+      where: { userId },
+      create: {
+        userId,
+        ...profileUpdateData,
+      },
+      update: profileUpdateData,
+    });
+
+    if (profileData.currentWeight && profileData.currentWeight > 0) {
+      try {
+        await prisma.bodyWeightLog.create({
+          data: {
+            userId,
+            weightKg: profileData.currentWeight,
+            loggedDate: new Date(),
+          },
+        });
+      } catch {
+        // Ignore duplicate log
+      }
+    }
+
+    return this.getUserProfile(userId);
   }
 
   /**

@@ -39,3 +39,23 @@ export const googleAuthSchema = z.object({
 
 export type GoogleAuthInput = z.infer<typeof googleAuthSchema>;
 
+export const updateProfileSchema = z.object({
+  displayName: z.string().trim().min(2).max(50).optional(),
+  dateOfBirth: z.string().nullable().optional(),
+  biologicalSex: z.enum(['male', 'female', 'other']).nullable().optional(),
+  height: z.number().min(50).max(300).nullable().optional(),
+  currentWeight: z.number().min(20).max(500).nullable().optional(),
+  targetWeight: z.number().min(20).max(500).nullable().optional(),
+  activityLevel: z
+    .enum(['sedentary', 'light', 'moderate', 'active', 'very_active'])
+    .nullable()
+    .optional(),
+  fitnessGoal: z
+    .enum(['muscle_gain', 'fat_loss', 'maintenance', 'strength'])
+    .nullable()
+    .optional(),
+  preferredUnits: z.enum(['metric', 'imperial']).optional(),
+  locale: z.enum(['en', 'vi']).optional(),
+});
+
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;

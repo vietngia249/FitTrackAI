@@ -94,3 +94,35 @@ export async function apiGoogleAuth(idToken: string): Promise<AuthResponseData> 
   return json.data;
 }
 
+export async function apiUpdateProfile(
+  accessToken: string,
+  data: {
+    displayName?: string;
+    dateOfBirth?: string | null;
+    biologicalSex?: 'male' | 'female' | 'other' | null;
+    height?: number | null;
+    currentWeight?: number | null;
+    targetWeight?: number | null;
+    activityLevel?: 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active' | null;
+    fitnessGoal?: 'muscle_gain' | 'fat_loss' | 'maintenance' | 'strength' | null;
+    preferredUnits?: 'metric' | 'imperial';
+    locale?: 'en' | 'vi';
+  }
+): Promise<User> {
+  const res = await fetch(`${API_BASE}/profile`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+    credentials: 'include',
+    body: JSON.stringify(data),
+  });
+
+  const json = await res.json();
+  if (!res.ok) {
+    throw new Error(json.message || 'Failed to update profile');
+  }
+  return json.data.user;
+}
+

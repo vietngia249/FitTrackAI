@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { authService } from './auth.service.js';
-import { LoginInput, RegisterInput, GoogleAuthInput } from './auth.schemas.js';
+import { LoginInput, RegisterInput, GoogleAuthInput, UpdateProfileInput, updateProfileSchema } from './auth.schemas.js';
 import { env } from '../../config/env.js';
 import { AppError } from '../../shared/errors/app-error.js';
 
@@ -163,6 +163,20 @@ export class AuthController {
 
     return reply.status(200).send({
       statusCode: 200,
+      data: {
+        user,
+      },
+    });
+  }
+
+  async updateProfile(request: FastifyRequest, reply: FastifyReply) {
+    const userId = request.user.id;
+    const body = updateProfileSchema.parse(request.body);
+    const user = await authService.updateUserProfile(userId, body);
+
+    return reply.status(200).send({
+      statusCode: 200,
+      message: 'Profile updated successfully',
       data: {
         user,
       },

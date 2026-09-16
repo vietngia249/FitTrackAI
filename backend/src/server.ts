@@ -19,4 +19,5 @@ async function startServer() {
   }
 }
 
+// FitTrack AI Server entry point
 startServer();

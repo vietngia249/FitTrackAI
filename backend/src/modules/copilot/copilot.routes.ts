@@ -5,9 +5,17 @@ import {
 } from './copilot.controller.js';
 
 export const copilotRoutes: FastifyPluginAsync = async (fastify) => {
-  // All AI Copilot endpoints require authentication
-  fastify.addHook('preHandler', fastify.authenticate);
+  // Chat supports both authenticated users and guests
+  fastify.post(
+    '/chat',
+    { preHandler: [fastify.optionalAuthenticate] },
+    copilotChatHandler
+  );
 
-  fastify.post('/chat', copilotChatHandler);
-  fastify.get('/recommendations', getCopilotRecommendationsHandler);
+  // Personalized progressive overload recommendations require login
+  fastify.get(
+    '/recommendations',
+    { preHandler: [fastify.authenticate] },
+    getCopilotRecommendationsHandler
+  );
 };

@@ -44,12 +44,20 @@ export async function authRoutes(fastify: FastifyInstance) {
     authController.logout.bind(authController)
   );
 
-  // Protected Auth Route
+  // Protected Auth Routes
   fastify.get(
     '/api/v1/auth/me',
     {
       preHandler: [fastify.authenticate],
     },
     authController.getMe.bind(authController)
+  );
+
+  fastify.put(
+    '/api/v1/auth/profile',
+    {
+      preHandler: [fastify.authenticate],
+    },
+    authController.updateProfile.bind(authController)
   );
 }

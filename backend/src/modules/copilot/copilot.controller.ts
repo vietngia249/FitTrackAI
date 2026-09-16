@@ -8,7 +8,8 @@ export async function copilotChatHandler(
   request: FastifyRequest,
   reply: FastifyReply
 ) {
-  const user = request.user as { id: string };
+  const user = request.user as { id?: string } | undefined;
+  const userId = user?.id || `guest-${(request.ip || 'local').replace(/[^a-zA-Z0-9]/g, '_')}`;
   const parseResult = CopilotChatSchema.safeParse(request.body);
 
   if (!parseResult.success) {
@@ -20,7 +21,7 @@ export async function copilotChatHandler(
     });
   }
 
-  const result = await copilotService.chat(user.id, parseResult.data.message);
+  const result = await copilotService.chat(userId, parseResult.data.message);
   return reply.send(result);
 }
 

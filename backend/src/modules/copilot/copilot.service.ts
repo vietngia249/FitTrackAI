@@ -1,4 +1,6 @@
 import { prisma } from '../../infrastructure/database/prisma.js';
+import { env } from '../../config/env.js';
+import { logger } from '../../shared/logger/index.js';
 import {
   CopilotRecommendationsResponse,
   ProgressiveOverloadTip,
@@ -19,7 +21,7 @@ function epley1RM(weightKg: number, reps: number): number {
 export class CopilotService {
   private dailyUsage = new Map<string, DailyUsageRecord>();
   private profileCache = new Map<string, { goal: string; weight: number }>();
-  private readonly DAILY_QUERY_LIMIT = 15;
+  private readonly DAILY_QUERY_LIMIT = env.LLM_DAILY_CALL_BUDGET;
 
   /**
    * Check and increment daily query limit per user.
@@ -216,32 +218,39 @@ export class CopilotService {
 
     if (!allowed) {
       return {
-        reply:
-          'You have reached your daily limit of 15 Gemini AI queries. This guardrail ensures high-quality advice and prevents information overload. Your limit resets at midnight!',
+        reply: `You have reached your daily limit of ${this.DAILY_QUERY_LIMIT} Gemini AI queries. This guardrail ensures high-quality advice and prevents information overload. Your limit resets at midnight!`,
         budgetRemaining: 0,
       };
     }
 
     const queryLower = userMessage.toLowerCase().trim();
 
-    // Context retrieval with in-memory caching
+    // Context retrieval: fetch user's full fitness profile and training history
     let userGoal = 'muscle_gain';
     let currentWeight = 76.0;
     let weeklyVolumeKg = 0;
     let recentSessionCount = 0;
+    let profileData: any = null;
+    let age: number | null = null;
+    let bmiStr = 'N/A';
 
     try {
-      const cachedProfile = this.profileCache.get(userId);
-      if (cachedProfile) {
-        userGoal = cachedProfile.goal;
-        currentWeight = cachedProfile.weight;
-      } else {
-        const profile = await prisma.fitnessProfile.findUnique({ where: { userId } });
-        if (profile) {
-          if (profile.fitnessGoal) userGoal = profile.fitnessGoal;
-          if (profile.currentWeight) currentWeight = profile.currentWeight;
+      const profile = await prisma.fitnessProfile.findUnique({ where: { userId } });
+      if (profile) {
+        profileData = profile;
+        if (profile.fitnessGoal) userGoal = profile.fitnessGoal;
+        if (profile.currentWeight) currentWeight = profile.currentWeight;
+
+        if (profile.dateOfBirth) {
+          const diffMs = Date.now() - new Date(profile.dateOfBirth).getTime();
+          age = Math.floor(diffMs / (365.25 * 24 * 60 * 60 * 1000));
         }
-        this.profileCache.set(userId, { goal: userGoal, weight: currentWeight });
+
+        if (profile.height && profile.currentWeight) {
+          const hM = profile.height / 100;
+          const bmiVal = (profile.currentWeight / (hM * hM)).toFixed(1);
+          bmiStr = `${bmiVal} kg/m²`;
+        }
       }
 
       // Fetch real weekly volume
@@ -253,7 +262,101 @@ export class CopilotService {
       recentSessionCount = recentSessions.length;
       weeklyVolumeKg = recentSessions.reduce((acc, s) => acc + s.totalVolumeKg, 0);
     } catch {
-      this.profileCache.set(userId, { goal: userGoal, weight: currentWeight });
+      // Continue with defaults if db query encounters error
+    }
+
+    // Medical / injury guardrail
+    if (
+      queryLower.includes('hurt') ||
+      queryLower.includes('injury') ||
+      queryLower.includes('pain') ||
+      queryLower.includes('medical') ||
+      queryLower.includes('doctor')
+    ) {
+      return {
+        reply:
+          'I cannot provide medical diagnoses or injury rehabilitation advice. If you experience sharp joint pain, swelling, or persistent discomfort, please discontinue the exercise immediately and consult a qualified healthcare provider or physical therapist.',
+        budgetRemaining: remaining,
+      };
+    }
+
+    // Call real Google Gemini API using env variables
+    const apiKey = env.GEMINI_API_KEY || env.LLM_API_KEY;
+    if (apiKey) {
+      try {
+        const systemPrompt = `You are FitTrack AI Coach, an elite certified strength & conditioning coach and sports nutritionist.
+Current User Profile & Biometrics:
+- Biological Sex: ${profileData?.biologicalSex || 'Not specified'}
+- Age: ${age !== null ? `${age} years old` : 'Not specified'}
+- Height: ${profileData?.height ? `${profileData.height} cm` : 'Not specified'}
+- Current Weight: ${currentWeight} kg
+- Target Weight: ${profileData?.targetWeight ? `${profileData.targetWeight} kg` : 'Not specified'}
+- BMI: ${bmiStr}
+- Activity Level: ${profileData?.activityLevel ? profileData.activityLevel.replace('_', ' ') : 'Not specified'}
+- Primary Fitness Goal: ${userGoal.replace('_', ' ')}
+- This Week's Training: ${weeklyVolumeKg.toLocaleString()} kg total volume across ${recentSessionCount} completed sessions.
+
+Guidelines:
+- Leverage the user's specific biometrics (age, sex, height, weight, BMI, activity level, and goal) to calculate personalized energy expenditure, macronutrient targets, and training volume/intensity recommendations.
+- If the user writes in Vietnamese, answer in friendly, professional, motivating Vietnamese with clean markdown formatting.
+- If the user writes in English, answer in clear, motivating English.
+- Be direct, specific, and actionable. Avoid generic disclaimers unless dealing with acute injury.`;
+
+        const candidateModels = [
+          env.LLM_MODEL || 'gemini-flash-lite-latest',
+          'gemini-flash-lite-latest',
+          'gemini-3.5-flash-lite',
+          'gemini-3.5-flash',
+          'gemini-3.6-flash',
+        ];
+        const uniqueModels = Array.from(new Set(candidateModels));
+
+        for (const modelName of uniqueModels) {
+          try {
+            const geminiRes = await fetch(
+              `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`,
+              {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  system_instruction: {
+                    parts: [{ text: systemPrompt }],
+                  },
+                  contents: [
+                    {
+                      role: 'user',
+                      parts: [{ text: userMessage }],
+                    },
+                  ],
+                  generationConfig: {
+                    temperature: 0.7,
+                    maxOutputTokens: 1000,
+                  },
+                }),
+              }
+            );
+
+            if (geminiRes.ok) {
+              const geminiJson = (await geminiRes.json()) as any;
+              const candidateText =
+                geminiJson?.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (candidateText) {
+                return {
+                  reply: candidateText.trim(),
+                  budgetRemaining: remaining,
+                };
+              }
+            } else {
+              const errText = await geminiRes.text();
+              logger.warn({ model: modelName, errText }, 'Gemini API call returned non-200, attempting fallback model');
+            }
+          } catch (modelErr) {
+            logger.warn({ model: modelName, err: modelErr }, 'Gemini model request failed');
+          }
+        }
+      } catch (err) {
+        logger.warn({ err }, 'All Gemini API models failed, falling back to local coach rules');
+      }
     }
 
     // Grounded expert responses
