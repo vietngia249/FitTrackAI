@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Ruler, Plus, X, Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { BodyMeasurement } from './bodyTypes';
 import { fetchMeasurementsApi, logMeasurementApi } from './bodyApi';
 
 export const BodyMeasurementsSection: React.FC = () => {
+  const { t } = useTranslation();
   const [measurements, setMeasurements] = useState<BodyMeasurement[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -59,54 +61,54 @@ export const BodyMeasurementsSection: React.FC = () => {
   const cards = [
     {
       label: 'Chest',
-      value: latest?.chestCm ? `${latest.chestCm} cm` : '—',
+      value: latest?.chestCm ? `${latest.chestCm} cm` : '--',
       diff: getDiff(latest?.chestCm, previous?.chestCm),
     },
     {
       label: 'Waist',
-      value: latest?.waistCm ? `${latest.waistCm} cm` : '—',
+      value: latest?.waistCm ? `${latest.waistCm} cm` : '--',
       diff: getDiff(latest?.waistCm, previous?.waistCm),
     },
     {
-      label: 'Arms (Right)',
-      value: latest?.bicepsRightCm ? `${latest.bicepsRightCm} cm` : '—',
+      label: 'Arms / Biceps',
+      value: latest?.bicepsRightCm ? `${latest.bicepsRightCm} cm` : '--',
       diff: getDiff(latest?.bicepsRightCm, previous?.bicepsRightCm),
     },
     {
-      label: 'Thighs (Right)',
-      value: latest?.thighRightCm ? `${latest.thighRightCm} cm` : '—',
-      diff: getDiff(latest?.thighRightCm, previous?.thighRightCm),
-    },
-    {
       label: 'Hips',
-      value: latest?.hipsCm ? `${latest.hipsCm} cm` : '—',
+      value: latest?.hipsCm ? `${latest.hipsCm} cm` : '--',
       diff: getDiff(latest?.hipsCm, previous?.hipsCm),
     },
     {
+      label: 'Thighs',
+      value: latest?.thighRightCm ? `${latest.thighRightCm} cm` : '--',
+      diff: getDiff(latest?.thighRightCm, previous?.thighRightCm),
+    },
+    {
       label: 'Calves',
-      value: latest?.calvesCm ? `${latest.calvesCm} cm` : '—',
+      value: latest?.calvesCm ? `${latest.calvesCm} cm` : '--',
       diff: getDiff(latest?.calvesCm, previous?.calvesCm),
     },
   ];
 
   return (
-    <div className="bg-[#0e131f]/90 border border-slate-800/80 rounded-3xl p-6 shadow-xl space-y-4">
+    <div className="bg-white dark:bg-[#0e131f]/90 border border-slate-200/80 dark:border-slate-800/80 rounded-3xl p-6 shadow-sm dark:shadow-xl space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-teal-500/10 text-teal-400 border border-teal-500/20">
+          <div className="p-2.5 rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20">
             <Ruler className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-bold text-base text-white">Circumference Measurements</h3>
-            <p className="text-xs text-slate-400">Canonical metric tape tracking (cm)</p>
+            <h3 className="font-bold text-base text-slate-900 dark:text-white">{t('progress.circumference_title')}</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400">{t('progress.circumference_subtitle')}</p>
           </div>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
-          className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
+          className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
         >
-          <Plus className="w-3.5 h-3.5 text-teal-400" />
-          <span>Update</span>
+          <Plus className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+          <span>{t('common.update')}</span>
         </button>
       </div>
 
@@ -114,19 +116,19 @@ export const BodyMeasurementsSection: React.FC = () => {
         {cards.map((c) => (
           <div
             key={c.label}
-            className="p-3.5 bg-slate-900/60 rounded-2xl border border-slate-800/80 hover:border-slate-700 transition-colors"
+            className="p-3.5 bg-slate-50 dark:bg-slate-900/60 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
           >
             <span className="text-[10px] uppercase font-bold text-slate-400 block">
               {c.label}
             </span>
-            <p className="text-base font-black text-white mt-1 font-mono">{c.value}</p>
+            <p className="text-base font-black text-slate-900 dark:text-white mt-1 font-mono">{c.value}</p>
             {c.diff && (
               <span
                 className={`text-[11px] font-semibold block mt-0.5 ${
                   c.diff.startsWith('+')
-                    ? 'text-teal-400'
+                    ? 'text-teal-600 dark:text-teal-400'
                     : c.diff.startsWith('-')
-                    ? 'text-emerald-400'
+                    ? 'text-emerald-600 dark:text-emerald-400'
                     : 'text-slate-400'
                 }`}
               >
@@ -139,21 +141,21 @@ export const BodyMeasurementsSection: React.FC = () => {
 
       {/* Update Measurements Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden">
-            <div className="p-5 border-b border-slate-800 flex items-center justify-between">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden">
+            <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-teal-500/10 text-teal-400">
+                <div className="p-2 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400">
                   <Ruler className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-white">Log Tape Measurements</h2>
-                  <p className="text-xs text-slate-400">All measurements stored canonically in cm</p>
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">{t('progress.circumference_title')}</h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{t('progress.circumference_subtitle')}</p>
                 </div>
               </div>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                className="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -162,13 +164,12 @@ export const BodyMeasurementsSection: React.FC = () => {
             <form onSubmit={handleSave} className="p-5 space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Chest (cm)</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Chest (cm)</label>
                   <input
                     type="number"
                     step="0.1"
                     value={chestCm}
                     onChange={(e) => setChestCm(Number(e.target.value))}
-                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-teal-500"
                   />
                 </div>
                 <div>

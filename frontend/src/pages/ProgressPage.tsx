@@ -49,50 +49,50 @@ export const ProgressPage: React.FC = () => {
       {/* KPI Stats Row */}
       {overview && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-[#0e131f]/90 border border-slate-800/80 rounded-2xl p-5 shadow-lg flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
+          <div className="bg-white dark:bg-[#0e131f]/90 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm dark:shadow-lg flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
               <Flame className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-[11px] text-slate-400 uppercase font-bold">Weekly Volume</span>
-              <h4 className="text-xl font-black text-white mt-0.5">
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 uppercase font-bold">{t('progress.weekly_vol')}</span>
+              <h4 className="text-xl font-black text-slate-900 dark:text-white mt-0.5">
                 {overview.weeklyVolumeKg.toLocaleString()} <span className="text-xs font-normal text-slate-400">kg</span>
               </h4>
             </div>
           </div>
 
-          <div className="bg-[#0e131f]/90 border border-slate-800/80 rounded-2xl p-5 shadow-lg flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/20 flex items-center justify-center shrink-0">
+          <div className="bg-white dark:bg-[#0e131f]/90 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm dark:shadow-lg flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20 flex items-center justify-center shrink-0">
               <Calendar className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-[11px] text-slate-400 uppercase font-bold">Monthly Volume</span>
-              <h4 className="text-xl font-black text-white mt-0.5">
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 uppercase font-bold">{t('progress.monthly_vol')}</span>
+              <h4 className="text-xl font-black text-slate-900 dark:text-white mt-0.5">
                 {(overview.monthlyVolumeKg / 1000).toFixed(1)}k <span className="text-xs font-normal text-slate-400">kg</span>
               </h4>
             </div>
           </div>
 
-          <div className="bg-[#0e131f]/90 border border-slate-800/80 rounded-2xl p-5 shadow-lg flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center shrink-0">
+          <div className="bg-white dark:bg-[#0e131f]/90 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm dark:shadow-lg flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 flex items-center justify-center shrink-0">
               <Layers className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-[11px] text-slate-400 uppercase font-bold">Completed Workouts</span>
-              <h4 className="text-xl font-black text-white mt-0.5">
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 uppercase font-bold">{t('progress.completed_workouts')}</span>
+              <h4 className="text-xl font-black text-slate-900 dark:text-white mt-0.5">
                 {overview.totalCompletedSessions} <span className="text-xs font-normal text-slate-400">sessions</span>
               </h4>
             </div>
           </div>
 
-          <div className="bg-[#0e131f]/90 border border-slate-800/80 rounded-2xl p-5 shadow-lg flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center shrink-0">
+          <div className="bg-white dark:bg-[#0e131f]/90 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl p-5 shadow-sm dark:shadow-lg flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 flex items-center justify-center shrink-0">
               <Trophy className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-[11px] text-slate-400 uppercase font-bold">Active Streak</span>
-              <h4 className="text-xl font-black text-white mt-0.5">
-                {overview.streakDays} <span className="text-xs font-normal text-slate-400">days</span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 uppercase font-bold">{t('progress.active_streak')}</span>
+              <h4 className="text-xl font-black text-slate-900 dark:text-white mt-0.5">
+                {overview.streakDays} <span className="text-xs font-normal text-slate-400">{t('dashboard.days')}</span>
               </h4>
             </div>
           </div>

@@ -10,11 +10,13 @@ import {
   CartesianGrid,
 } from 'recharts';
 import { Scale, Plus, TrendingDown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { WeightHistoryResponse } from './bodyTypes';
 import { fetchWeightHistoryApi } from './bodyApi';
 import { LogWeightModal } from './LogWeightModal';
 
 export const WeightTrendChart: React.FC = () => {
+  const { t } = useTranslation();
   const [data, setData] = useState<WeightHistoryResponse | null>(null);
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
 
@@ -34,16 +36,16 @@ export const WeightTrendChart: React.FC = () => {
   const maxWeight = Math.ceil(Math.max(...weights) + 1);
 
   return (
-    <div className="bg-[#0e131f]/90 border border-slate-800/80 rounded-3xl p-6 shadow-xl space-y-5">
+    <div className="bg-white dark:bg-[#0e131f]/90 border border-slate-200/80 dark:border-slate-800/80 rounded-3xl p-6 shadow-sm dark:shadow-xl space-y-5">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <div className="p-2.5 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
             <Scale className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-bold text-base text-white">Body Weight & 7-Day Trend</h3>
-            <p className="text-xs text-slate-400">
+            <h3 className="font-bold text-base text-slate-900 dark:text-white">Body Weight & 7-Day Trend</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Filtered 7-day moving average eliminates water retention noise
             </p>
           </div>
@@ -52,12 +54,12 @@ export const WeightTrendChart: React.FC = () => {
         <div className="flex items-center gap-4">
           <div className="text-right">
             <div className="flex items-baseline justify-end gap-1">
-              <span className="text-2xl font-black text-white font-mono">
+              <span className="text-2xl font-black text-slate-900 dark:text-white font-mono">
                 {data.stats.currentSevenDayAvgKg}
               </span>
               <span className="text-xs text-slate-400">kg 7d-avg</span>
             </div>
-            <div className="flex items-center justify-end gap-1 text-[11px] font-semibold text-emerald-400">
+            <div className="flex items-center justify-end gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
               <TrendingDown className="w-3 h-3" />
               <span>{data.stats.totalChangeKg} kg overall</span>
             </div>
@@ -65,10 +67,10 @@ export const WeightTrendChart: React.FC = () => {
 
           <button
             onClick={() => setIsLogModalOpen(true)}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-black text-xs font-bold shadow-lg shadow-emerald-500/20 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold shadow-lg shadow-emerald-500/20 transition-all cursor-pointer keep-white active:scale-95"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Log Weight</span>
+            <span>{t('progress.log_weight')}</span>
           </button>
         </div>
       </div>

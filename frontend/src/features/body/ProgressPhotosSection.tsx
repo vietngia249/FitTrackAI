@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Camera, Plus, X, Lock, Image as ImageIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { ProgressPhoto, PhotoType } from './bodyTypes';
 import { fetchPhotosApi, logPhotoApi } from './bodyApi';
 
 export const ProgressPhotosSection: React.FC = () => {
+  const { t } = useTranslation();
   const [photos, setPhotos] = useState<ProgressPhoto[]>([]);
   const [selectedType, setSelectedType] = useState<PhotoType | 'all'>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -40,12 +42,13 @@ export const ProgressPhotosSection: React.FC = () => {
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!previewDataUrl) return;
+
     setIsSubmitting(true);
     try {
       await logPhotoApi({
         photoType: uploadType,
         loggedDate: uploadDate,
-        storageKey: previewDataUrl, // in-client data URL or R2 key
+        photoUrl: previewDataUrl,
         notes: uploadNotes.trim() || undefined,
       });
       loadPhotos();
@@ -58,38 +61,38 @@ export const ProgressPhotosSection: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#0e131f]/90 border border-slate-800/80 rounded-3xl p-6 shadow-xl space-y-5">
+    <div className="bg-white dark:bg-[#0e131f]/90 border border-slate-200/80 dark:border-slate-800/80 rounded-3xl p-6 shadow-sm dark:shadow-xl space-y-5">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+          <div className="p-2.5 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20">
             <Camera className="w-5 h-5" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="font-bold text-base text-white">Private Progress Photos</h3>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
+              <h3 className="font-bold text-base text-slate-900 dark:text-white">{t('progress.private_photos_title')}</h3>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
                 <Lock className="w-2.5 h-2.5" />
                 <span>Private & Encrypted</span>
               </span>
             </div>
-            <p className="text-xs text-slate-400">
-              Visual transformation timeline across Front, Side, and Back poses
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              {t('progress.private_photos_subtitle')}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           {/* Pose Filter Tabs */}
-          <div className="flex rounded-xl bg-slate-900 p-1 border border-slate-800 text-xs font-semibold">
+          <div className="flex rounded-xl bg-slate-100 dark:bg-slate-900 p-1 border border-slate-200 dark:border-slate-800 text-xs font-semibold">
             {(['all', 'front', 'side', 'back'] as const).map((type) => (
               <button
                 key={type}
                 onClick={() => setSelectedType(type)}
                 className={`px-3 py-1 rounded-lg capitalize transition-all ${
                   selectedType === type
-                    ? 'bg-slate-800 text-white shadow'
-                    : 'text-slate-400 hover:text-white'
+                    ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 {type}
@@ -99,18 +102,18 @@ export const ProgressPhotosSection: React.FC = () => {
 
           <button
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-bold shadow-lg shadow-indigo-500/20 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-bold shadow-lg shadow-indigo-500/20 transition-all cursor-pointer keep-white active:scale-95"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>Add Photo</span>
+            <span>{t('progress.add_photo')}</span>
           </button>
         </div>
       </div>
 
       {/* Photos Grid */}
       {photos.length === 0 ? (
-        <div className="py-12 text-center rounded-2xl border border-dashed border-slate-800/80 space-y-3">
-          <div className="w-12 h-12 mx-auto rounded-2xl bg-slate-800/60 flex items-center justify-center text-slate-500">
+        <div className="py-12 text-center rounded-2xl border border-dashed border-slate-200 dark:border-slate-800/80 space-y-3">
+          <div className="w-12 h-12 mx-auto rounded-2xl bg-slate-100 dark:bg-slate-800/60 flex items-center justify-center text-slate-400">
             <ImageIcon className="w-6 h-6" />
           </div>
           <div>

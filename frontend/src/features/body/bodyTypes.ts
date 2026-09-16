@@ -40,7 +40,8 @@ export interface ProgressPhoto {
   id: string;
   photoType: PhotoType;
   loggedDate: string;
-  storageKey: string;
+  storageKey?: string;
+  photoUrl?: string;
   notes?: string | null;
   createdAt?: string;
 }
@@ -68,6 +69,7 @@ export interface LogMeasurementPayload {
 export interface LogPhotoPayload {
   photoType: PhotoType;
   loggedDate: string;
-  storageKey: string;
+  storageKey?: string;
+  photoUrl?: string;
   notes?: string | null;
 }
