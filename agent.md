@@ -61,5 +61,5 @@ Follow Conventional Commits:
 | Sidebar Collapse i18n Keys | Completed | `987010a` | Add sidebar collapse and expand translation keys |
 | Collapsible Burger Sidebar | Completed | `6f3b962` | Implement burger toggle, mini rail (w-20), hover overlay expand (w-64) and tooltips |
 | Dashboard Exercise Translations | Completed | `23b18fd` | Refine light mode contrast and translate default exercise items |
-
-
+| Feature Workouts Refinements | Completed | `773e02d` | Refine light mode styling and table header translations in active session and workouts page |
+| Feature Copilot Localization | Completed | `a8bfbbf` | Bind localized initial message and quick prompts in AI copilot drawer |
