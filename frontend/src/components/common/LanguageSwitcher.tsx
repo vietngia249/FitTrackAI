@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Globe } from 'lucide-react';
 
 export const LanguageSwitcher: React.FC = () => {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const toggleLanguage = () => {
     const nextLang = i18n.language.startsWith('vi') ? 'en' : 'vi';
@@ -15,10 +15,10 @@ export const LanguageSwitcher: React.FC = () => {
   return (
     <button
       onClick={toggleLanguage}
-      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-800/80 border border-slate-700/80 hover:border-emerald-500/50 hover:bg-slate-700/60 transition-all text-slate-200 active:scale-95"
-      title="Switch Language / Chuyển đổi ngôn ngữ"
+      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700/80 hover:border-emerald-500/50 hover:bg-slate-50 dark:hover:bg-slate-700/60 transition-all text-slate-700 dark:text-slate-200 active:scale-95 shadow-sm"
+      title={t('common.switch_language')}
     >
-      <Globe className="w-3.5 h-3.5 text-emerald-400" />
+      <Globe className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
       <span>{isVi ? 'VI 🇻🇳' : 'EN 🇺🇸'}</span>
     </button>
   );
