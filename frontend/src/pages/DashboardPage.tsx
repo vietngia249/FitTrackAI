@@ -67,10 +67,10 @@ export const DashboardPage: React.FC = () => {
               <SparkleIcon className="w-3.5 h-3.5" />
               <span>FitTrack AI v1.0</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               {t('common.welcome_back')}, <span className="gradient-text">{user?.displayName || 'Athlete'}</span>
             </h1>
-            <p className="text-slate-400 text-sm mt-1">
+            <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">
               {t('common.today_overview')}
             </p>
           </div>
@@ -79,21 +79,21 @@ export const DashboardPage: React.FC = () => {
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <Link
               to="/workouts"
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-black font-bold text-sm shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-sm shadow-lg shadow-emerald-500/20 transition-all active:scale-95 cursor-pointer"
             >
               <Play className="w-4 h-4 fill-current" />
               <span>{t('common.start_workout')}</span>
             </Link>
             <Link
               to="/nutrition"
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700/80 text-slate-200 border border-slate-700 font-semibold text-sm transition-all active:scale-95"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-semibold text-sm transition-all active:scale-95 cursor-pointer"
             >
-              <PlusCircle className="w-4 h-4 text-emerald-400" />
+              <PlusCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               <span>{t('common.log_meal')}</span>
             </Link>
             <Link
               to="/ai-form"
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 border border-teal-500/40 font-semibold text-sm transition-all active:scale-95"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-500/10 hover:bg-teal-500/20 text-teal-700 dark:text-teal-300 border border-teal-500/30 font-semibold text-sm transition-all active:scale-95 cursor-pointer"
             >
               <Camera className="w-4 h-4" />
               <span>{t('common.check_form')}</span>
@@ -107,10 +107,10 @@ export const DashboardPage: React.FC = () => {
         {/* Weekly Volume */}
         <div className="glass-panel glass-panel-hover p-5 rounded-2xl">
           <div className="flex items-center justify-between">
-            <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">
+            <span className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
               {t('dashboard.weekly_volume')}
             </span>
-            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
+            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
               <Activity className="w-4 h-4" />
             </div>
           </div>
@@ -119,10 +119,10 @@ export const DashboardPage: React.FC = () => {
               <Loader2 className="w-5 h-5 text-slate-500 animate-spin" />
             ) : (
               <>
-                <span className="text-3xl font-extrabold text-white">
+                <span className="text-3xl font-extrabold text-slate-900 dark:text-white">
                   {overview ? overview.weeklyVolumeKg.toLocaleString() : '—'}
                 </span>
-                <span className="text-xs font-medium text-slate-400">kg</span>
+                <span className="text-xs font-medium text-slate-500 dark:text-slate-400">kg</span>
               </>
             )}
           </div>
@@ -248,14 +248,14 @@ export const DashboardPage: React.FC = () => {
               <>
                 <div className="py-3 flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-slate-800 dark:text-slate-200">Barbell Bench Press</p>
+                    <p className="font-medium text-slate-800 dark:text-slate-200">{t('dashboard.bench_press', 'Barbell Bench Press')}</p>
                     <p className="text-xs text-slate-500 dark:text-slate-400">4 sets × 6-8 reps • 85 kg target</p>
                   </div>
                   <span className="text-xs text-slate-400 dark:text-slate-500 font-mono">{t('dashboard.rest', 'Rest')} 180s</span>
                 </div>
                 <div className="py-3 flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-slate-800 dark:text-slate-200">Incline Dumbbell Press</p>
+                    <p className="font-medium text-slate-800 dark:text-slate-200">{t('dashboard.incline_press', 'Incline Dumbbell Press')}</p>
                     <p className="text-xs text-slate-500 dark:text-slate-400">3 sets × 8-10 reps • 30 kg target</p>
                   </div>
                   <span className="text-xs text-slate-400 dark:text-slate-500 font-mono">{t('dashboard.rest', 'Rest')} 120s</span>
