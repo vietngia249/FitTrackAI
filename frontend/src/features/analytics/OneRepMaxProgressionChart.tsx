@@ -46,11 +46,11 @@ export const OneRepMaxProgressionChart: React.FC<OneRepMaxProgressionChartProps>
         <div>
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 mb-1">
             <TrendingUp className="w-4 h-4" />
-            <span>Progressive Overload & 1RM Trend</span>
+            <span>{t('analytics.progressive_overload_trend', 'Progressive Overload & 1RM Trend')}</span>
           </div>
-          <h3 className="text-xl font-black text-slate-900 dark:text-white">Estimated 1RM Progression</h3>
+          <h3 className="text-xl font-black text-slate-900 dark:text-white">{t('analytics.est_1rm_progression', 'Estimated 1RM Progression')}</h3>
           <p className="text-xs text-slate-500 dark:text-slate-400">
-            Calculated via validated Epley formula: w × (1 + r / 30)
+            {t('analytics.epley_formula_note', 'Calculated via validated Epley formula: w × (1 + r / 30)')}
           </p>
         </div>
 
@@ -70,7 +70,7 @@ export const OneRepMaxProgressionChart: React.FC<OneRepMaxProgressionChartProps>
       {/* PR Badges Row */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-800 flex flex-col">
-          <span className="text-[10px] uppercase font-bold text-slate-400">Peak 1RM</span>
+          <span className="text-[10px] uppercase font-bold text-slate-400">{t('analytics.peak_1rm', 'Peak 1RM')}</span>
           <span className="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-1">
             {data.prs.maxEstimated1RM} kg
           </span>

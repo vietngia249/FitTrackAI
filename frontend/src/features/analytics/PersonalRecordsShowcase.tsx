@@ -22,7 +22,7 @@ export const PersonalRecordsShowcase: React.FC = () => {
             <Trophy className="w-4 h-4" />
             <span>{t('analytics.hall_of_fame')}</span>
           </div>
-          <h3 className="text-xl font-black text-slate-900 dark:text-white">All-Time Personal Records</h3>
+          <h3 className="text-xl font-black text-slate-900 dark:text-white">{t('analytics.all_time_pr', 'All-Time Personal Records')}</h3>
           <p className="text-xs text-slate-500 dark:text-slate-400">{t('analytics.peak_strength')}</p>
         </div>
       </div>
@@ -37,7 +37,7 @@ export const PersonalRecordsShowcase: React.FC = () => {
               <div className="flex items-center justify-between gap-2 mb-2">
                 <span className="px-2.5 py-0.5 text-[10px] font-extrabold rounded-md bg-amber-500/15 text-amber-600 dark:text-amber-300 border border-amber-500/30 uppercase tracking-wider flex items-center gap-1">
                   <Award className="w-3 h-3 text-amber-500 dark:text-amber-400" />
-                  PR Record
+                  {t('analytics.pr_record', 'PR Record')}
                 </span>
                 <span className="text-xs text-slate-500 dark:text-slate-400 capitalize">
                   {rec.primaryMuscle}
@@ -51,19 +51,19 @@ export const PersonalRecordsShowcase: React.FC = () => {
               <div className="grid grid-cols-2 gap-2.5 p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/60 mb-2">
                 <div>
                   <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold flex items-center gap-1">
-                    <Dumbbell className="w-3 h-3 text-emerald-500 dark:text-emerald-400" /> Max Lift
+                    <Dumbbell className="w-3 h-3 text-emerald-500 dark:text-emerald-400" /> {t('analytics.max_lift', 'Max Lift')}
                   </span>
                   <p className="text-base font-black text-slate-900 dark:text-white mt-0.5">
                     {rec.prs.maxWeightKg} kg
                   </p>
                   <span className="text-[10px] text-slate-500 dark:text-slate-400">
-                    for {rec.prs.bestRepsAtMaxWeight} reps
+                    {t('analytics.for_reps', { count: rec.prs.bestRepsAtMaxWeight, defaultValue: `for ${rec.prs.bestRepsAtMaxWeight} reps` })}
                   </span>
                 </div>
 
                 <div>
                   <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-bold flex items-center gap-1">
-                    <Zap className="w-3 h-3 text-amber-500 dark:text-amber-400" /> Est. 1RM
+                    <Zap className="w-3 h-3 text-amber-500 dark:text-amber-400" /> {t('analytics.est_1rm', 'Est. 1RM')}
                   </span>
                   <p className="text-base font-black text-amber-600 dark:text-amber-400 mt-0.5">
                     {rec.prs.maxEstimated1RM} kg

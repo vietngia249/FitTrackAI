@@ -50,7 +50,7 @@ export const MuscleVolumePieChart: React.FC<MuscleVolumePieChartProps> = ({
                 <Cell
                   key={`cell-${index}`}
                   fill={COLORS[index % COLORS.length]}
-                  stroke="#0e131f"
+                  stroke="transparent"
                   strokeWidth={2}
                 />
               ))}
@@ -85,14 +85,14 @@ export const MuscleVolumePieChart: React.FC<MuscleVolumePieChartProps> = ({
       </div>
 
       {/* Custom Legend */}
-      <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800/60">
+      <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200 dark:border-slate-800/60">
         {formattedData.map((item, idx) => (
           <div key={item.name} className="flex items-center gap-2 text-xs">
             <div
               className="w-2.5 h-2.5 rounded-full shrink-0"
               style={{ backgroundColor: COLORS[idx % COLORS.length] }}
             />
-            <span className="text-slate-300 truncate">{item.name}</span>
+            <span className="text-slate-700 dark:text-slate-300 truncate">{item.name}</span>
             <span className="text-slate-500 font-mono text-[11px] ml-auto">
               {item.percentage}%
             </span>
