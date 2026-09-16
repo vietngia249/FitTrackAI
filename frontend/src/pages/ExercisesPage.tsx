@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Search,
   Plus,
@@ -27,6 +28,7 @@ const MUSCLE_GROUPS = [
 ];
 
 export const ExercisesPage: React.FC = () => {
+  const { t } = useTranslation();
   const { user, accessToken, openLoginModal } = useAuth();
 
   const [exercises, setExercises] = useState<Exercise[]>([]);
@@ -117,10 +119,10 @@ export const ExercisesPage: React.FC = () => {
           <div className="flex items-center gap-3 shrink-0">
             <button
               onClick={handleOpenCreate}
-              className="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-semibold text-sm shadow-lg shadow-emerald-500/20 flex items-center gap-2 transition-all hover:scale-[1.02] cursor-pointer"
+              className="px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-semibold text-sm shadow-lg shadow-emerald-500/20 flex items-center gap-2 transition-all hover:scale-[1.02] cursor-pointer keep-white active:scale-95"
             >
               <Plus className="w-4 h-4" />
-              <span>Add Custom Movement</span>
+              <span>{t('exercises.add_custom')}</span>
             </button>
           </div>
         </div>
@@ -136,8 +138,8 @@ export const ExercisesPage: React.FC = () => {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search exercise by name or muscle (e.g. Squat, Chest, Pull)..."
-              className="w-full pl-11 pr-4 py-3 rounded-2xl bg-[#0e131f] border border-slate-800 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition"
+              placeholder={t('exercises.search_ph')}
+              className="w-full pl-11 pr-4 py-3 rounded-2xl bg-white dark:bg-[#0e131f] border border-slate-200 dark:border-slate-800 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition shadow-sm"
             />
           </div>
 
@@ -146,7 +148,7 @@ export const ExercisesPage: React.FC = () => {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-3 py-2.5 rounded-xl bg-[#0e131f] border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 capitalize"
+              className="px-3 py-2.5 rounded-xl bg-white dark:bg-[#0e131f] border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:border-emerald-500 capitalize shadow-sm"
             >
               <option value="all">All Categories</option>
               <option value="strength">Strength</option>
@@ -158,7 +160,7 @@ export const ExercisesPage: React.FC = () => {
             <select
               value={selectedEquipment}
               onChange={(e) => setSelectedEquipment(e.target.value)}
-              className="px-3 py-2.5 rounded-xl bg-[#0e131f] border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 capitalize"
+              className="px-3 py-2.5 rounded-xl bg-white dark:bg-[#0e131f] border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:border-emerald-500 capitalize shadow-sm"
             >
               <option value="all">All Equipment</option>
               <option value="body only">Body Only</option>
@@ -172,7 +174,7 @@ export const ExercisesPage: React.FC = () => {
             <select
               value={selectedLevel}
               onChange={(e) => setSelectedLevel(e.target.value)}
-              className="px-3 py-2.5 rounded-xl bg-[#0e131f] border border-slate-800 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 capitalize"
+              className="px-3 py-2.5 rounded-xl bg-white dark:bg-[#0e131f] border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:border-emerald-500 capitalize shadow-sm"
             >
               <option value="all">All Levels</option>
               <option value="beginner">Beginner</option>
@@ -187,11 +189,11 @@ export const ExercisesPage: React.FC = () => {
               selectedLevel !== 'all') && (
               <button
                 onClick={handleResetFilters}
-                className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium flex items-center gap-1.5 transition cursor-pointer"
+                className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium flex items-center gap-1.5 transition cursor-pointer shadow-sm"
                 title="Reset filters"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Reset</span>
+                <span className="hidden sm:inline">{t('exercises.reset')}</span>
               </button>
             )}
           </div>
@@ -207,8 +209,8 @@ export const ExercisesPage: React.FC = () => {
                 onClick={() => setSelectedMuscle(muscle)}
                 className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap capitalize transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20'
-                    : 'bg-[#0e131f] text-slate-400 hover:text-slate-200 border border-slate-800/80 hover:border-slate-700'
+                    ? 'bg-emerald-500 text-white font-bold shadow-md shadow-emerald-500/20'
+                    : 'bg-white dark:bg-[#0e131f] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm'
                 }`}
               >
                 {muscle === 'all' ? 'All Muscles' : muscle}
@@ -220,13 +222,13 @@ export const ExercisesPage: React.FC = () => {
 
       {/* Results Count & Grid */}
       <div>
-        <div className="flex items-center justify-between text-xs text-slate-400 mb-4 px-1">
+        <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-4 px-1">
           <span>
-            Showing <strong className="text-slate-200">{exercises.length}</strong> of{' '}
-            <strong className="text-slate-200">{totalCount}</strong> exercises
+            Showing <strong className="text-slate-800 dark:text-slate-200">{exercises.length}</strong> of{' '}
+            <strong className="text-slate-800 dark:text-slate-200">{totalCount}</strong> exercises
           </span>
           {loading && (
-            <span className="text-emerald-400 animate-pulse flex items-center gap-1">
+            <span className="text-emerald-500 dark:text-emerald-400 animate-pulse flex items-center gap-1">
               <Activity className="w-3.5 h-3.5" /> Loading library...
             </span>
           )}
@@ -243,12 +245,12 @@ export const ExercisesPage: React.FC = () => {
             ))}
           </div>
         ) : (
-          <div className="p-12 text-center rounded-3xl bg-[#0e131f] border border-slate-800/80 max-w-lg mx-auto">
-            <div className="w-12 h-12 rounded-2xl bg-slate-800/60 text-slate-400 flex items-center justify-center mx-auto mb-3">
+          <div className="p-12 text-center rounded-3xl bg-white dark:bg-[#0e131f] border border-slate-200/80 dark:border-slate-800/80 max-w-lg mx-auto shadow-sm">
+            <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800/60 text-slate-400 flex items-center justify-center mx-auto mb-3">
               <Dumbbell className="w-6 h-6" />
             </div>
-            <h3 className="font-bold text-slate-200 text-base mb-1">No exercises found</h3>
-            <p className="text-slate-400 text-xs mb-4">
+            <h3 className="font-bold text-slate-800 dark:text-slate-200 text-base mb-1">{t('exercises.no_exercises')}</h3>
+            <p className="text-slate-500 dark:text-slate-400 text-xs mb-4">
               Try adjusting your search terms, muscle group filters, or clear active filters.
             </p>
             <button
