@@ -126,7 +126,9 @@
     "fat": "Béo",
     "targets_title": "Mục Tiêu Dinh Dưỡng Hàng Ngày",
     "targets_subtitle": "Cân đối lượng calo và tỷ lệ các nhóm chất đa lượng",
-    "hydration": "Lượng Nước Uống"
+    "hydration": "Lượng Nước Uống",
+    "remaining": "còn lại",
+    "target_reached": "Đã đạt mục tiêu!"
   },
   "progress": {
     "title": "Tiến Trình Thể Hình & Xu Hướng",

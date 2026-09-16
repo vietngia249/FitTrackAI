@@ -126,7 +126,9 @@
     "fat": "Fat",
     "targets_title": "Daily Nutrition Targets",
     "targets_subtitle": "Calibrate your calorie and macronutrient split",
-    "hydration": "Hydration"
+    "hydration": "Hydration",
+    "remaining": "remaining",
+    "target_reached": "Target reached!"
   },
   "progress": {
     "title": "Body Progress & Trends",

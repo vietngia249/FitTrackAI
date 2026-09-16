@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Search, X, Plus, Check, Utensils } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { FoodItem, MealType } from './nutritionTypes';
 import { searchFoodsApi, createCustomFoodApi, logMealApi } from './nutritionApi';
 
@@ -18,6 +19,7 @@ export const FoodSearchModal: React.FC<FoodSearchModalProps> = ({
   onClose,
   onMealLogged,
 }) => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'search' | 'custom'>('search');
   const [mealType, setMealType] = useState<MealType>(initialMealType);
   const [searchQuery, setSearchQuery] = useState('');
@@ -149,41 +151,43 @@ export const FoodSearchModal: React.FC<FoodSearchModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="relative w-full max-w-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="p-5 border-b border-slate-800 flex items-center justify-between">
+        <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
+            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
               <Utensils className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white">Log Food to Diary</h2>
-              <p className="text-xs text-slate-400">
-                Accurate macro snapshotting for reliable historical trends
+              <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                {t('nutrition.log_food_title')}
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                {t('nutrition.subtitle')}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-2 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Meal Type Selector & Tabs */}
-        <div className="p-5 pb-3 border-b border-slate-800/80 space-y-4">
+        <div className="p-5 pb-3 border-b border-slate-200 dark:border-slate-800/80 space-y-4">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-semibold text-slate-400 mr-2">Meal:</span>
+            <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 mr-2">Meal:</span>
             {(['breakfast', 'lunch', 'dinner', 'snack'] as MealType[]).map((type) => (
               <button
                 key={type}
                 onClick={() => setMealType(type)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold capitalize transition-all ${
                   mealType === type
-                    ? 'bg-emerald-500 text-black shadow-md shadow-emerald-500/20'
-                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                    ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                 }`}
               >
                 {type}
@@ -191,26 +195,26 @@ export const FoodSearchModal: React.FC<FoodSearchModalProps> = ({
             ))}
           </div>
 
-          <div className="flex rounded-xl bg-slate-950 p-1 border border-slate-800 text-xs font-semibold">
+          <div className="flex rounded-xl bg-slate-100 dark:bg-slate-950 p-1 border border-slate-200 dark:border-slate-800 text-xs font-semibold">
             <button
               onClick={() => setActiveTab('search')}
               className={`flex-1 py-1.5 rounded-lg text-center transition-all ${
                 activeTab === 'search'
-                  ? 'bg-slate-800 text-white shadow'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              Search Foods
+              {t('common.search')}
             </button>
             <button
               onClick={() => setActiveTab('custom')}
               className={`flex-1 py-1.5 rounded-lg text-center transition-all ${
                 activeTab === 'custom'
-                  ? 'bg-slate-800 text-white shadow'
-                  : 'text-slate-400 hover:text-white'
+                  ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
-              Create Custom Food
+              {t('exercises.create_title', { defaultValue: 'Custom Food' })}
             </button>
           </div>
         </div>
@@ -226,8 +230,8 @@ export const FoodSearchModal: React.FC<FoodSearchModalProps> = ({
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search whole foods, protein, rice, oats, chicken..."
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
+                  placeholder={t('nutrition.search_food_ph')}
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
                 />
               </div>
 
@@ -235,11 +239,11 @@ export const FoodSearchModal: React.FC<FoodSearchModalProps> = ({
               <div className="space-y-1 max-h-48 overflow-y-auto pr-1">
                 {isLoading ? (
                   <div className="py-6 text-center text-xs text-slate-400">
-                    Searching fitness database...
+                    {t('common.loading')}
                   </div>
                 ) : searchResults.length === 0 ? (
                   <div className="py-6 text-center text-xs text-slate-500">
-                    No matching foods found. Try searching or create a custom food.
+                    {t('exercises.no_exercises', { defaultValue: 'No matching foods found.' })}
                   </div>
                 ) : (
                   searchResults.map((food) => {
@@ -250,22 +254,22 @@ export const FoodSearchModal: React.FC<FoodSearchModalProps> = ({
                         onClick={() => handleSelectFood(food)}
                         className={`w-full text-left p-3 rounded-xl border flex items-center justify-between transition-all ${
                           isSelected
-                            ? 'bg-emerald-500/10 border-emerald-500/40 text-white'
-                            : 'bg-slate-950/40 border-slate-800/80 hover:bg-slate-800/40 text-slate-300'
+                            ? 'bg-emerald-500/10 border-emerald-500/40 text-slate-900 dark:text-white'
+                            : 'bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-800/40 text-slate-700 dark:text-slate-300'
                         }`}
                       >
                         <div>
                           <p className="text-sm font-semibold">{food.name}</p>
-                          <p className="text-xs text-slate-400">
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
                             {food.brand ? `${food.brand} • ` : ''}
                             {food.calories} kcal per {food.servingSize}{food.servingUnit}
                           </p>
                         </div>
                         <div className="text-right">
-                          <span className="text-xs font-mono font-bold text-emerald-400 block">
+                          <span className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 block">
                             P: {food.protein}g
                           </span>
-                          <span className="text-[11px] text-slate-400 font-mono">
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">
                             C: {food.carbohydrates}g • F: {food.fat}g
                           </span>
                         </div>
@@ -277,57 +281,67 @@ export const FoodSearchModal: React.FC<FoodSearchModalProps> = ({
 
               {/* Serving Size & Live Macro Calculator */}
               {selectedFood && (
-                <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-4">
+                <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-200 dark:border-slate-800 space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-xs text-slate-400 font-medium">Selected Food</span>
-                      <h4 className="text-sm font-bold text-white">{selectedFood.name}</h4>
+                      <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                        {t('nutrition.selected_food')}
+                      </span>
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-white">{selectedFood.name}</h4>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-slate-400">Serving:</span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400">Serving:</span>
                       <input
                         type="number"
                         min="1"
                         max="2000"
                         value={servingQty}
                         onChange={(e) => setServingQty(Math.max(1, Number(e.target.value)))}
-                        className="w-20 px-2 py-1 bg-slate-900 border border-slate-700 rounded-lg text-sm text-center font-bold text-white focus:outline-none focus:border-emerald-500"
+                        className="w-20 px-2 py-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-sm text-center font-bold text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
                       />
-                      <span className="text-xs text-slate-400">{selectedFood.servingUnit || 'g'}</span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400">{selectedFood.servingUnit || 'g'}</span>
                     </div>
                   </div>
 
                   {/* Calculated Macro Snapshot Pills */}
                   <div className="grid grid-cols-4 gap-2 text-center">
                     <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                      <span className="text-[10px] uppercase font-bold text-emerald-400 block">Calories</span>
-                      <span className="text-base font-extrabold text-white font-mono">{calcCalories}</span>
-                      <span className="text-[10px] text-slate-400 block">kcal</span>
+                      <span className="text-[10px] uppercase font-bold text-emerald-600 dark:text-emerald-400 block">
+                        {t('nutrition.calories')}
+                      </span>
+                      <span className="text-base font-extrabold text-slate-900 dark:text-white font-mono">{calcCalories}</span>
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 block">kcal</span>
                     </div>
                     <div className="p-2 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
-                      <span className="text-[10px] uppercase font-bold text-cyan-400 block">Protein</span>
-                      <span className="text-base font-extrabold text-white font-mono">{calcProtein}</span>
-                      <span className="text-[10px] text-slate-400 block">g</span>
+                      <span className="text-[10px] uppercase font-bold text-cyan-600 dark:text-cyan-400 block">
+                        {t('nutrition.protein')}
+                      </span>
+                      <span className="text-base font-extrabold text-slate-900 dark:text-white font-mono">{calcProtein}</span>
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 block">g</span>
                     </div>
                     <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                      <span className="text-[10px] uppercase font-bold text-amber-400 block">Carbs</span>
-                      <span className="text-base font-extrabold text-white font-mono">{calcCarbs}</span>
-                      <span className="text-[10px] text-slate-400 block">g</span>
+                      <span className="text-[10px] uppercase font-bold text-amber-600 dark:text-amber-400 block">
+                        {t('nutrition.carbs')}
+                      </span>
+                      <span className="text-base font-extrabold text-slate-900 dark:text-white font-mono">{calcCarbs}</span>
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 block">g</span>
                     </div>
                     <div className="p-2 rounded-lg bg-rose-500/10 border border-rose-500/20">
-                      <span className="text-[10px] uppercase font-bold text-rose-400 block">Fat</span>
-                      <span className="text-base font-extrabold text-white font-mono">{calcFat}</span>
-                      <span className="text-[10px] text-slate-400 block">g</span>
+                      <span className="text-[10px] uppercase font-bold text-rose-600 dark:text-rose-400 block">
+                        {t('nutrition.fat')}
+                      </span>
+                      <span className="text-base font-extrabold text-slate-900 dark:text-white font-mono">{calcFat}</span>
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 block">g</span>
                     </div>
                   </div>
 
                   <button
                     onClick={handleLogFood}
                     disabled={isSubmitting}
-                    className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-black font-bold text-sm shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all"
+                    className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white font-bold text-sm shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all active:scale-95"
                   >
                     <Check className="w-4 h-4" />
-                    <span>{isSubmitting ? 'Logging...' : `Log to ${mealType.toUpperCase()}`}</span>
+                    <span>{isSubmitting ? t('common.loading') : `Log to ${mealType.toUpperCase()}`}</span>
                   </button>
                 </div>
               )}
@@ -336,81 +350,91 @@ export const FoodSearchModal: React.FC<FoodSearchModalProps> = ({
             /* Custom Food Creation Form */
             <form onSubmit={handleCreateAndLogCustom} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Food Name</label>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  {t('nutrition.food_name')}
+                </label>
                 <input
                   type="text"
                   required
                   value={customName}
                   onChange={(e) => setCustomName(e.target.value)}
                   placeholder="e.g. Homemade Protein Pancake"
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Serving Size</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Serving Size</label>
                   <input
                     type="number"
                     min="1"
                     value={customServingSize}
                     onChange={(e) => setCustomServingSize(Number(e.target.value))}
-                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Unit</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Unit</label>
                   <input
                     type="text"
                     value={customServingUnit}
                     onChange={(e) => setCustomServingUnit(e.target.value)}
-                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-4 gap-2">
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-400 mb-1">Calories</label>
+                  <label className="block text-[11px] font-semibold text-slate-500 dark:text-slate-400 mb-1">
+                    {t('nutrition.calories')}
+                  </label>
                   <input
                     type="number"
                     min="0"
                     value={customCalories}
                     onChange={(e) => setCustomCalories(Number(e.target.value))}
-                    className="w-full px-2 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-center font-bold text-white focus:outline-none focus:border-emerald-500"
+                    className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-xs text-center font-bold text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-cyan-400 mb-1">Protein (g)</label>
+                  <label className="block text-[11px] font-semibold text-cyan-600 dark:text-cyan-400 mb-1">
+                    {t('nutrition.protein')}
+                  </label>
                   <input
                     type="number"
                     min="0"
                     step="0.1"
                     value={customProtein}
                     onChange={(e) => setCustomProtein(Number(e.target.value))}
-                    className="w-full px-2 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-center font-bold text-white focus:outline-none focus:border-cyan-500"
+                    className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-xs text-center font-bold text-slate-900 dark:text-white focus:outline-none focus:border-cyan-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-amber-400 mb-1">Carbs (g)</label>
+                  <label className="block text-[11px] font-semibold text-amber-600 dark:text-amber-400 mb-1">
+                    {t('nutrition.carbs')}
+                  </label>
                   <input
                     type="number"
                     min="0"
                     step="0.1"
                     value={customCarbs}
                     onChange={(e) => setCustomCarbs(Number(e.target.value))}
-                    className="w-full px-2 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-center font-bold text-white focus:outline-none focus:border-amber-500"
+                    className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-xs text-center font-bold text-slate-900 dark:text-white focus:outline-none focus:border-amber-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-rose-400 mb-1">Fat (g)</label>
+                  <label className="block text-[11px] font-semibold text-rose-600 dark:text-rose-400 mb-1">
+                    {t('nutrition.fat')}
+                  </label>
                   <input
                     type="number"
                     min="0"
                     step="0.1"
                     value={customFat}
                     onChange={(e) => setCustomFat(Number(e.target.value))}
-                    className="w-full px-2 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-center font-bold text-white focus:outline-none focus:border-rose-500"
+                    className="w-full px-2 py-1.5 bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 rounded-xl text-xs text-center font-bold text-slate-900 dark:text-white focus:outline-none focus:border-rose-500"
                   />
                 </div>
               </div>
@@ -418,7 +442,7 @@ export const FoodSearchModal: React.FC<FoodSearchModalProps> = ({
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full mt-2 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-black font-bold text-sm shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all"
+                className="w-full mt-2 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white font-bold text-sm shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2 transition-all active:scale-95"
               >
                 <Plus className="w-4 h-4" />
                 <span>Save & Log to {mealType.toUpperCase()}</span>
