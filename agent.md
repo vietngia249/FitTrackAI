@@ -57,4 +57,7 @@ Follow Conventional Commits:
 | Feature Nutrition i18n & Light Mode | Completed | `610b5ed` | MealSection, FoodSearchModal, NutritionGoalsModal, MacroCard |
 | Feature Copilot Drawer & Advisor Card | Completed | `c8a18fb` | OverloadAdvisorCard, AiCopilotDrawer responsive light/dark & i18n |
 | Feature Pages: Dashboard & Profile | Completed | `ec56913` | Full light mode styling, bilingual translations, metric forms |
-| Agents Guide & Documentation | Completed | [Pending Commit] | Create and maintain AGENTS.md standards and log |
+| Agents Guide & Documentation | Completed | `725a492` | Create and maintain AGENTS.md standards and log |
+| Sidebar Collapse i18n Keys | Completed | `987010a` | Add sidebar collapse and expand translation keys |
+| Collapsible Burger Sidebar | Completed | `6f3b962` | Implement burger toggle, mini rail (w-20), hover overlay expand (w-64) and tooltips |
+
