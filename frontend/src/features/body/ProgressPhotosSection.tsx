@@ -73,7 +73,7 @@ export const ProgressPhotosSection: React.FC = () => {
               <h3 className="font-bold text-base text-slate-900 dark:text-white">{t('progress.private_photos_title')}</h3>
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
                 <Lock className="w-2.5 h-2.5" />
-                <span>Private & Encrypted</span>
+                <span>{t('progress.private_encrypted', 'Private & Encrypted')}</span>
               </span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -89,13 +89,13 @@ export const ProgressPhotosSection: React.FC = () => {
               <button
                 key={type}
                 onClick={() => setSelectedType(type)}
-                className={`px-3 py-1 rounded-lg capitalize transition-all ${
+                className={`px-3 py-1 rounded-lg capitalize transition-all cursor-pointer ${
                   selectedType === type
                     ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm'
                     : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
-                {type}
+                {t(`progress.pose_${type}`, type)}
               </button>
             ))}
           </div>
@@ -117,16 +117,16 @@ export const ProgressPhotosSection: React.FC = () => {
             <ImageIcon className="w-6 h-6" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-slate-300">No progress photos logged yet</p>
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">{t('progress.no_photos')}</p>
             <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
-              Take photos in consistent lighting and poses every 2 to 4 weeks to visually track your body recomposition.
+              {t('progress.photos_hint', 'Take photos in consistent lighting and poses every 2 to 4 weeks to visually track your body recomposition.')}
             </p>
           </div>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-white border border-slate-700 transition"
+            className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-semibold text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700 transition cursor-pointer"
           >
-            Upload First Photo
+            {t('progress.upload_first_photo', 'Upload First Photo')}
           </button>
         </div>
       ) : (
@@ -159,20 +159,20 @@ export const ProgressPhotosSection: React.FC = () => {
       {/* Upload Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="relative w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden">
-            <div className="p-5 border-b border-slate-800 flex items-center justify-between">
+          <div className="relative w-full max-w-md bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden">
+            <div className="p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-400">
+                <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
                   <Camera className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-white">Add Progress Photo</h2>
-                  <p className="text-xs text-slate-400">Photos remain strictly private</p>
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">{t('progress.add_photo_title', 'Add Progress Photo')}</h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">{t('progress.private_photos_subtitle', 'Photos remain strictly private')}</p>
                 </div>
               </div>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+                className="p-2 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -181,20 +181,20 @@ export const ProgressPhotosSection: React.FC = () => {
             <form onSubmit={handleUpload} className="p-5 space-y-4">
               {/* Photo Pose Selector */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Pose Type</label>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">{t('progress.pose_type', 'Pose Type')}</label>
                 <div className="grid grid-cols-3 gap-2">
                   {(['front', 'side', 'back'] as PhotoType[]).map((type) => (
                     <button
                       type="button"
                       key={type}
                       onClick={() => setUploadType(type)}
-                      className={`py-2 rounded-xl text-xs font-bold capitalize transition-all ${
+                      className={`py-2 rounded-xl text-xs font-bold capitalize transition-all cursor-pointer ${
                         uploadType === type
                           ? 'bg-indigo-500 text-white shadow-md shadow-indigo-500/20'
-                          : 'bg-slate-950 border border-slate-800 text-slate-400 hover:text-white'
+                          : 'bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                       }`}
                     >
-                      {type}
+                      {t(`progress.pose_${type}`, type)}
                     </button>
                   ))}
                 </div>
@@ -202,31 +202,31 @@ export const ProgressPhotosSection: React.FC = () => {
 
               {/* Date */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Date</label>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">{t('common.date', 'Date')}</label>
                 <input
                   type="date"
                   required
                   value={uploadDate}
                   onChange={(e) => setUploadDate(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500"
                 />
               </div>
 
               {/* Photo File Input */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Photo Image</label>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">{t('progress.photo_image', 'Photo Image')}</label>
                 <input
                   type="file"
                   accept="image/*"
                   required
                   onChange={handleFileChange}
-                  className="w-full text-xs text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700"
+                  className="w-full text-xs text-slate-500 dark:text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-slate-100 dark:file:bg-slate-800 file:text-slate-700 dark:file:text-slate-200 hover:file:bg-slate-200 dark:hover:file:bg-slate-700 cursor-pointer"
                 />
               </div>
 
               {/* Image Preview */}
               {previewDataUrl && (
-                <div className="aspect-[3/4] max-h-48 rounded-xl overflow-hidden border border-slate-800 bg-black flex items-center justify-center">
+                <div className="aspect-[3/4] max-h-48 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-black flex items-center justify-center">
                   <img
                     src={previewDataUrl}
                     alt="Preview"
@@ -237,22 +237,22 @@ export const ProgressPhotosSection: React.FC = () => {
 
               {/* Notes */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Notes (optional)</label>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">{t('common.notes', 'Notes')}</label>
                 <input
                   type="text"
                   placeholder="e.g. End of 8-week hypertrophy block"
                   value={uploadNotes}
                   onChange={(e) => setUploadNotes(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:border-indigo-500"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-indigo-500"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmitting || !previewDataUrl}
-                className="w-full py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white font-bold text-sm shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2 transition-all"
+                className="w-full py-2.5 rounded-xl bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white font-bold text-sm shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95"
               >
-                <span>{isSubmitting ? 'Saving...' : 'Save Private Photo'}</span>
+                <span>{isSubmitting ? t('common.saving', 'Saving...') : t('progress.save_photo', 'Save Private Photo')}</span>
               </button>
             </form>
           </div>

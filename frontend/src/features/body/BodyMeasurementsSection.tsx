@@ -60,32 +60,32 @@ export const BodyMeasurementsSection: React.FC = () => {
 
   const cards = [
     {
-      label: 'Chest',
+      label: t('progress.chest', 'Chest'),
       value: latest?.chestCm ? `${latest.chestCm} cm` : '--',
       diff: getDiff(latest?.chestCm, previous?.chestCm),
     },
     {
-      label: 'Waist',
+      label: t('progress.waist', 'Waist'),
       value: latest?.waistCm ? `${latest.waistCm} cm` : '--',
       diff: getDiff(latest?.waistCm, previous?.waistCm),
     },
     {
-      label: 'Arms / Biceps',
+      label: t('progress.biceps', 'Arms / Biceps'),
       value: latest?.bicepsRightCm ? `${latest.bicepsRightCm} cm` : '--',
       diff: getDiff(latest?.bicepsRightCm, previous?.bicepsRightCm),
     },
     {
-      label: 'Hips',
+      label: t('progress.hips', 'Hips'),
       value: latest?.hipsCm ? `${latest.hipsCm} cm` : '--',
       diff: getDiff(latest?.hipsCm, previous?.hipsCm),
     },
     {
-      label: 'Thighs',
+      label: t('progress.thighs', 'Thighs'),
       value: latest?.thighRightCm ? `${latest.thighRightCm} cm` : '--',
       diff: getDiff(latest?.thighRightCm, previous?.thighRightCm),
     },
     {
-      label: 'Calves',
+      label: t('progress.calves', 'Calves'),
       value: latest?.calvesCm ? `${latest.calvesCm} cm` : '--',
       diff: getDiff(latest?.calvesCm, previous?.calvesCm),
     },
@@ -164,84 +164,85 @@ export const BodyMeasurementsSection: React.FC = () => {
             <form onSubmit={handleSave} className="p-5 space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Chest (cm)</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">{t('progress.chest', 'Chest')} (cm)</label>
                   <input
                     type="number"
                     step="0.1"
                     value={chestCm}
                     onChange={(e) => setChestCm(Number(e.target.value))}
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:border-teal-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Waist (cm)</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">{t('progress.waist', 'Waist')} (cm)</label>
                   <input
                     type="number"
                     step="0.1"
                     value={waistCm}
                     onChange={(e) => setWaistCm(Number(e.target.value))}
-                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:border-teal-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Arms / Biceps (cm)</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">{t('progress.biceps', 'Arms / Biceps')} (cm)</label>
                   <input
                     type="number"
                     step="0.1"
                     value={bicepsRightCm}
                     onChange={(e) => setBicepsRightCm(Number(e.target.value))}
-                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:border-teal-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Thighs (cm)</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">{t('progress.thighs', 'Thighs')} (cm)</label>
                   <input
                     type="number"
                     step="0.1"
                     value={thighRightCm}
                     onChange={(e) => setThighRightCm(Number(e.target.value))}
-                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:border-teal-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Hips (cm)</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">{t('progress.hips', 'Hips')} (cm)</label>
                   <input
                     type="number"
                     step="0.1"
                     value={hipsCm}
                     onChange={(e) => setHipsCm(Number(e.target.value))}
-                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:border-teal-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Calves (cm)</label>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">{t('progress.calves', 'Calves')} (cm)</label>
                   <input
                     type="number"
                     step="0.1"
                     value={calvesCm}
                     onChange={(e) => setCalvesCm(Number(e.target.value))}
-                    className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm font-bold text-white focus:outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:border-teal-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Notes</label>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">{t('common.notes', 'Notes')}</label>
                 <input
                   type="text"
-                  placeholder="e.g. Measured unflexed after workout"
+                  placeholder={t('progress.notes_ph', 'e.g. Measured unflexed after workout')}
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:border-teal-500"
+                  className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-teal-500"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-2.5 rounded-xl bg-teal-500 hover:bg-teal-600 disabled:opacity-50 text-black font-bold text-sm shadow-lg shadow-teal-500/20 flex items-center justify-center gap-2 transition-all"
+                className="w-full py-2.5 rounded-xl bg-teal-500 hover:bg-teal-600 disabled:opacity-50 text-white keep-white font-bold text-sm shadow-lg shadow-teal-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
               >
                 <Check className="w-4 h-4" />
-                <span>{isSubmitting ? 'Saving...' : 'Save Measurements'}</span>
+                <span>{isSubmitting ? t('common.saving', 'Saving...') : t('progress.update_measurements', 'Save Measurements')}</span>
               </button>
             </form>
           </div>
