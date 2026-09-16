@@ -49,3 +49,4 @@ redis_data/
 **/*.md
 !AGENTS.md
 !agent.md
+!README.md
