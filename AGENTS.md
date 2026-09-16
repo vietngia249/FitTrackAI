@@ -60,4 +60,6 @@ Follow Conventional Commits:
 | Agents Guide & Documentation | Completed | `725a492` | Create and maintain AGENTS.md standards and log |
 | Sidebar Collapse i18n Keys | Completed | `987010a` | Add sidebar collapse and expand translation keys |
 | Collapsible Burger Sidebar | Completed | `6f3b962` | Implement burger toggle, mini rail (w-20), hover overlay expand (w-64) and tooltips |
+| Dashboard Exercise Translations | Completed | `23b18fd` | Refine light mode contrast and translate default exercise items |
+
 
