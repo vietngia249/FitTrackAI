@@ -192,24 +192,54 @@ export async function fetchPlans(token?: string | null): Promise<WorkoutPlan[]> 
 
 export async function createPlan(
   payload: CreatePlanPayload,
-  token: string
+  token?: string | null
 ): Promise<WorkoutPlan> {
-  const res = await fetch(`${API_BASE}/plans`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    credentials: 'include',
-    body: JSON.stringify(payload),
-  });
+  if (token) {
+    try {
+      const res = await fetch(`${API_BASE}/plans`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      });
 
-  if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.message || 'Failed to create workout plan');
+      if (res.ok) {
+        return await res.json();
+      }
+    } catch {
+      // Fallback to local
+    }
   }
 
-  return res.json();
+  // Graceful local creation for offline / demo mode
+  const planId = `local-plan-${Date.now()}`;
+  const newPlan: WorkoutPlan = {
+    id: planId,
+    userId: 'local-user',
+    name: payload.name,
+    description: payload.description,
+    targetMuscles: payload.targetMuscles,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    exercises: payload.exercises.map((e, idx) => ({
+      id: `lpe-${idx}-${Date.now()}`,
+      planId,
+      exerciseId: e.exerciseId,
+      order: e.order,
+      targetSets: e.targetSets,
+      targetReps: e.targetReps,
+      restSeconds: e.restSeconds,
+      notes: e.notes,
+      exercise:
+        CURATED_FALLBACK_EXERCISES.find((ex) => ex.id === e.exerciseId) ||
+        CURATED_FALLBACK_EXERCISES[0],
+    })),
+  };
+
+  return newPlan;
 }
 
 export async function deletePlan(id: string, token: string): Promise<void> {
@@ -218,6 +248,26 @@ export async function deletePlan(id: string, token: string): Promise<void> {
     headers: { Authorization: `Bearer ${token}` },
     credentials: 'include',
   });
+}
+
+export async function fetchSessionsHistory(token?: string | null): Promise<WorkoutSession[]> {
+  if (token) {
+    try {
+      const res = await fetch(`${API_BASE}/sessions`, {
+        headers: { Authorization: `Bearer ${token}` },
+        credentials: 'include',
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && Array.isArray(data.items)) {
+          return data.items;
+        }
+      }
+    } catch {
+      // Fallback
+    }
+  }
+  return getLocalHistorySessions();
 }
 
 export async function startSessionApi(

@@ -17,7 +17,7 @@ import {
   startSessionApi,
   getLocalActiveSession,
   saveLocalActiveSession,
-  getLocalHistorySessions,
+  fetchSessionsHistory,
 } from '../features/workouts/workoutApi';
 import { ActiveWorkoutSession } from '../features/workouts/ActiveWorkoutSession';
 import { CreatePlanModal } from '../features/workouts/CreatePlanModal';
@@ -41,7 +41,7 @@ export const WorkoutsPage: React.FC = () => {
     }
 
     fetchPlans(accessToken).then(setPlans);
-    setHistory(getLocalHistorySessions());
+    fetchSessionsHistory(accessToken).then(setHistory);
   }, [accessToken]);
 
   const handleStartQuickWorkout = async () => {
@@ -107,17 +107,17 @@ export const WorkoutsPage: React.FC = () => {
           <div className="flex flex-wrap items-center gap-3 shrink-0">
             <button
               onClick={() => setIsCreatePlanOpen(true)}
-              className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-sm transition flex items-center gap-2 cursor-pointer"
+              className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-semibold text-sm transition flex items-center gap-2 cursor-pointer shadow-sm"
             >
-              <Plus className="w-4 h-4 text-emerald-400" />
+              <Plus className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
               <span>{t('workouts.new_plan')}</span>
             </button>
             <button
               onClick={handleStartQuickWorkout}
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-bold text-sm shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.02] flex items-center gap-2 cursor-pointer"
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 text-white font-bold text-sm shadow-lg shadow-emerald-500/20 transition-all hover:scale-[1.02] flex items-center gap-2 cursor-pointer keep-white active:scale-95"
             >
               <Play className="w-4 h-4 fill-current" />
-              <span>Start Empty Workout</span>
+              <span>{t('workouts.start_empty')}</span>
             </button>
           </div>
         </div>
@@ -156,7 +156,7 @@ export const WorkoutsPage: React.FC = () => {
           {plans.map((plan) => (
             <div
               key={plan.id}
-              className="bg-[#0e131f]/90 hover:bg-[#13192a] border border-slate-800/80 hover:border-emerald-500/40 rounded-3xl p-5 sm:p-6 shadow-xl transition-all duration-300 flex flex-col justify-between"
+              className="bg-white dark:bg-[#0e131f]/90 hover:bg-slate-50 dark:hover:bg-[#13192a] border border-slate-200/80 dark:border-slate-800/80 hover:border-emerald-500/40 rounded-3xl p-5 sm:p-6 shadow-sm dark:shadow-xl transition-all duration-300 flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center justify-between gap-2 mb-2">
@@ -208,10 +208,10 @@ export const WorkoutsPage: React.FC = () => {
 
               <button
                 onClick={() => handleStartRoutine(plan)}
-                className="w-full py-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Play className="w-3.5 h-3.5 fill-current" />
-                <span>Start Routine</span>
+                <span>{t('workouts.start_routine')}</span>
               </button>
             </div>
           ))}
@@ -226,24 +226,24 @@ export const WorkoutsPage: React.FC = () => {
               {history.map((sessionItem) => (
                 <div
                   key={sessionItem.id}
-                  className="p-5 rounded-2xl bg-[#0e131f]/90 border border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg hover:border-slate-700 transition"
+                  className="p-5 rounded-2xl bg-white dark:bg-[#0e131f]/90 border border-slate-200/80 dark:border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm dark:shadow-lg hover:border-slate-300 dark:hover:border-slate-700 transition"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center shrink-0">
                       <CheckCircle2 className="w-6 h-6" />
                     </div>
                     <div>
-                      <h4 className="font-bold text-base text-white">{sessionItem.name}</h4>
-                      <div className="flex items-center gap-3 text-xs text-slate-400 mt-1">
+                      <h4 className="font-bold text-base text-slate-900 dark:text-white">{sessionItem.name}</h4>
+                      <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mt-1">
                         <span>{new Date(sessionItem.startedAt).toLocaleDateString()}</span>
                         <span>•</span>
-                        <span className="flex items-center gap-1 font-mono text-slate-300">
+                        <span className="flex items-center gap-1 font-mono text-slate-700 dark:text-slate-300">
                           <Clock className="w-3.5 h-3.5 text-slate-400" />
                           {Math.floor(sessionItem.durationSeconds / 60)} mins
                         </span>
                         <span>•</span>
-                        <span className="flex items-center gap-1 font-mono text-emerald-400">
-                          <Flame className="w-3.5 h-3.5 text-amber-400" />
+                        <span className="flex items-center gap-1 font-mono text-emerald-600 dark:text-emerald-400">
+                          <Flame className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
                           {sessionItem.totalVolumeKg.toLocaleString()} kg
                         </span>
                       </div>
@@ -251,7 +251,7 @@ export const WorkoutsPage: React.FC = () => {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 capitalize">
+                    <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 capitalize">
                       {sessionItem.status}
                     </span>
                   </div>
@@ -259,19 +259,19 @@ export const WorkoutsPage: React.FC = () => {
               ))}
             </div>
           ) : (
-            <div className="p-12 text-center rounded-3xl bg-[#0e131f] border border-slate-800/80 max-w-md mx-auto">
-              <div className="w-12 h-12 rounded-2xl bg-slate-800/60 text-slate-400 flex items-center justify-center mx-auto mb-3">
+            <div className="p-12 text-center rounded-3xl bg-white dark:bg-[#0e131f] border border-slate-200/80 dark:border-slate-800/80 max-w-md mx-auto shadow-sm">
+              <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800/60 text-slate-400 flex items-center justify-center mx-auto mb-3">
                 <Trophy className="w-6 h-6" />
               </div>
-              <h3 className="font-bold text-slate-200 text-base mb-1">No completed workouts yet</h3>
-              <p className="text-slate-400 text-xs mb-4">
+              <h3 className="font-bold text-slate-800 dark:text-slate-200 text-base mb-1">{t('workouts.no_completed')}</h3>
+              <p className="text-slate-500 dark:text-slate-400 text-xs mb-4">
                 Start an empty workout or select one of the starter routine templates to begin!
               </p>
               <button
                 onClick={handleStartQuickWorkout}
-                className="px-4 py-2 rounded-xl bg-emerald-500 text-slate-950 text-xs font-bold hover:bg-emerald-400 transition cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-emerald-500 text-white text-xs font-bold hover:bg-emerald-600 transition cursor-pointer keep-white active:scale-95 shadow"
               >
-                Start Quick Workout
+                {t('workouts.start_empty')}
               </button>
             </div>
           )}

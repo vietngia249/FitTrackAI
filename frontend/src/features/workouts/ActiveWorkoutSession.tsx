@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Dumbbell,
   Clock,
@@ -27,6 +28,7 @@ export const ActiveWorkoutSession: React.FC<ActiveWorkoutSessionProps> = ({
   onFinish,
   onCancel,
 }) => {
+  const { t } = useTranslation();
   const { accessToken } = useAuth();
   const [session, setSession] = useState<WorkoutSession>(initialSession);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -205,29 +207,29 @@ export const ActiveWorkoutSession: React.FC<ActiveWorkoutSessionProps> = ({
   return (
     <div className="space-y-6 animate-fade-in pb-24">
       {/* Sticky Active Header Bar */}
-      <div className="sticky top-16 z-30 bg-[#0a0d14]/90 backdrop-blur-xl border-b border-slate-800/80 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between shadow-lg">
+      <div className="sticky top-16 z-30 bg-white/90 dark:bg-[#0a0d14]/90 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800/80 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between shadow-lg">
         <div className="flex items-center gap-3">
           <div className="w-3 h-3 rounded-full bg-emerald-500 animate-ping" />
           <div>
-            <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+            <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <span>{session.name}</span>
-              <span className="px-2 py-0.5 text-[10px] font-extrabold rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              <span className="px-2 py-0.5 text-[10px] font-extrabold rounded-md bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
                 LIVE
               </span>
             </h2>
-            <div className="flex items-center gap-3 text-xs text-slate-400">
-              <span className="flex items-center gap-1 font-mono text-emerald-400 font-semibold">
+            <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+              <span className="flex items-center gap-1 font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
                 <Clock className="w-3.5 h-3.5" />
                 {formatStopwatch(elapsedSeconds)}
               </span>
               <span>•</span>
               <span className="flex items-center gap-1">
-                <Flame className="w-3.5 h-3.5 text-amber-400" />
-                <strong className="text-slate-200">{calculateTotalVolume().toLocaleString()}</strong> kg
+                <Flame className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
+                <strong className="text-slate-800 dark:text-slate-200">{calculateTotalVolume().toLocaleString()}</strong> kg
               </span>
               <span>•</span>
               <span>
-                <strong className="text-slate-200">{totalCompletedSets}</strong> sets
+                <strong className="text-slate-800 dark:text-slate-200">{totalCompletedSets}</strong> {t('common.sets')}
               </span>
             </div>
           </div>
@@ -236,24 +238,24 @@ export const ActiveWorkoutSession: React.FC<ActiveWorkoutSessionProps> = ({
         <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={() => setIsRestTimerOpen(true)}
-            className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition"
+            className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 transition"
             title="Open Rest Timer"
           >
-            <Timer className="w-4 h-4 text-teal-400" />
+            <Timer className="w-4 h-4 text-teal-500 dark:text-teal-400" />
           </button>
 
           <button
             onClick={onCancel}
-            className="px-3 sm:px-4 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:bg-rose-500/10 border border-rose-500/20 transition cursor-pointer"
+            className="px-3 sm:px-4 py-2 rounded-xl text-xs font-semibold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 border border-rose-500/20 transition cursor-pointer"
           >
-            Discard
+            {t('workouts.discard_workout')}
           </button>
 
           <button
             onClick={() => setIsSummaryOpen(true)}
-            className="px-4 sm:px-5 py-2 rounded-xl text-xs font-bold text-slate-950 bg-gradient-to-r from-emerald-400 to-teal-300 hover:from-emerald-300 hover:to-teal-200 shadow-lg shadow-emerald-500/20 transition cursor-pointer"
+            className="px-4 sm:px-5 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 shadow-lg shadow-emerald-500/20 transition cursor-pointer keep-white"
           >
-            Finish Workout
+            {t('workouts.finish_workout')}
           </button>
         </div>
       </div>
@@ -490,10 +492,10 @@ export const ActiveWorkoutSession: React.FC<ActiveWorkoutSessionProps> = ({
               <button
                 type="button"
                 onClick={() => handleAddSet(exIdx)}
-                className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
+                className="px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
               >
-                <Plus className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Add Set</span>
+                <Plus className="w-3.5 h-3.5 text-emerald-500 dark:text-emerald-400" />
+                <span>{t('workouts.add_set')}</span>
               </button>
             </div>
           </div>
@@ -504,10 +506,10 @@ export const ActiveWorkoutSession: React.FC<ActiveWorkoutSessionProps> = ({
           <button
             type="button"
             onClick={() => setIsExercisePickerOpen(true)}
-            className="px-6 py-3 rounded-2xl bg-[#0e131f] hover:bg-slate-800/80 border border-dashed border-slate-700 hover:border-emerald-500 text-slate-300 text-sm font-semibold flex items-center gap-2 transition-all cursor-pointer"
+            className="px-6 py-3 rounded-2xl bg-white dark:bg-[#0e131f] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-dashed border-slate-300 dark:border-slate-700 hover:border-emerald-500 text-slate-700 dark:text-slate-300 text-sm font-semibold flex items-center gap-2 transition-all cursor-pointer shadow-sm"
           >
-            <Plus className="w-4 h-4 text-emerald-400" />
-            <span>Add Exercise to Workout</span>
+            <Plus className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
+            <span>{t('workouts.add_exercise_to_workout')}</span>
           </button>
         </div>
       </div>
@@ -521,13 +523,13 @@ export const ActiveWorkoutSession: React.FC<ActiveWorkoutSessionProps> = ({
 
       {/* Exercise Picker Modal */}
       {isExercisePickerOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="relative w-full max-w-lg bg-[#0e131f] border border-slate-800 rounded-3xl p-6 shadow-2xl max-h-[80vh] flex flex-col">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-800">
-              <h3 className="font-bold text-white text-lg">Add Exercise</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="relative w-full max-w-lg bg-white dark:bg-[#0e131f] border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-2xl max-h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
+              <h3 className="font-bold text-slate-900 dark:text-white text-lg">{t('workouts.add_exercise')}</h3>
               <button
                 onClick={() => setIsExercisePickerOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition"
+                className="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -558,38 +560,38 @@ export const ActiveWorkoutSession: React.FC<ActiveWorkoutSessionProps> = ({
 
       {/* Completion Summary Dialog */}
       {isSummaryOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
-          <div className="relative w-full max-w-md bg-[#0e131f] border border-emerald-500/40 rounded-3xl p-6 sm:p-8 shadow-2xl text-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-in">
+          <div className="relative w-full max-w-md bg-white dark:bg-[#0e131f] border border-emerald-500/40 rounded-3xl p-6 sm:p-8 shadow-2xl text-center">
             <div className="w-16 h-16 rounded-3xl bg-gradient-to-tr from-emerald-500 to-teal-400 p-0.5 mx-auto mb-4 shadow-xl shadow-emerald-500/30 flex items-center justify-center">
-              <div className="w-full h-full bg-[#0e131f] rounded-[22px] flex items-center justify-center">
-                <Trophy className="w-8 h-8 text-emerald-400 animate-bounce" />
+              <div className="w-full h-full bg-white dark:bg-[#0e131f] rounded-[22px] flex items-center justify-center">
+                <Trophy className="w-8 h-8 text-emerald-500 dark:text-emerald-400 animate-bounce" />
               </div>
             </div>
 
-            <h3 className="text-2xl font-black text-white tracking-tight">
+            <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
               Crushed It! 🎉
             </h3>
-            <p className="text-xs text-slate-400 mt-1 mb-6">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-6">
               Another stellar training session logged into FitTrack AI.
             </p>
 
             {/* Quick Metrics */}
-            <div className="grid grid-cols-3 gap-3 p-4 rounded-2xl bg-slate-900/60 border border-slate-800 mb-6">
+            <div className="grid grid-cols-3 gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 mb-6">
               <div>
-                <span className="text-[10px] uppercase font-bold text-slate-400">Duration</span>
-                <p className="text-lg font-black text-white mt-1">
+                <span className="text-[10px] uppercase font-bold text-slate-400">{t('common.duration')}</span>
+                <p className="text-lg font-black text-slate-900 dark:text-white mt-1">
                   {Math.floor(elapsedSeconds / 60)}m
                 </p>
               </div>
               <div>
-                <span className="text-[10px] uppercase font-bold text-slate-400">Volume</span>
-                <p className="text-lg font-black text-emerald-400 mt-1">
+                <span className="text-[10px] uppercase font-bold text-slate-400">{t('common.volume')}</span>
+                <p className="text-lg font-black text-emerald-600 dark:text-emerald-400 mt-1">
                   {calculateTotalVolume().toLocaleString()} kg
                 </p>
               </div>
               <div>
-                <span className="text-[10px] uppercase font-bold text-slate-400">Sets</span>
-                <p className="text-lg font-black text-white mt-1">
+                <span className="text-[10px] uppercase font-bold text-slate-400">{t('common.sets')}</span>
+                <p className="text-lg font-black text-slate-900 dark:text-white mt-1">
                   {totalCompletedSets}
                 </p>
               </div>
@@ -599,14 +601,14 @@ export const ActiveWorkoutSession: React.FC<ActiveWorkoutSessionProps> = ({
               <button
                 type="button"
                 onClick={() => setIsSummaryOpen(false)}
-                className="flex-1 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm transition cursor-pointer"
+                className="flex-1 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold text-sm transition cursor-pointer"
               >
                 Keep Training
               </button>
               <button
                 type="button"
                 onClick={handleFinishWorkout}
-                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-bold text-sm shadow-lg shadow-emerald-500/20 transition hover:scale-[1.02] cursor-pointer"
+                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 text-white font-bold text-sm shadow-lg shadow-emerald-500/20 transition hover:scale-[1.02] cursor-pointer keep-white"
               >
                 Save & Complete
               </button>
