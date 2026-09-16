@@ -32,7 +32,14 @@ export const AuthModal: React.FC = () => {
 
     const clientId =
       (import.meta as any).env.VITE_GOOGLE_CLIENT_ID ||
-      'fittrack-google-client-id.apps.googleusercontent.com';
+      (import.meta as any).env.GOOGLE_CLIENT_ID ||
+      '';
+
+    if (!clientId) {
+      setGoogleLoading(false);
+      setError('VITE_GOOGLE_CLIENT_ID is not configured in .env. Please configure it or sign in with email and password below.');
+      return;
+    }
 
     const google = (window as any).google;
     if (google?.accounts?.id) {
