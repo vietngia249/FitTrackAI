@@ -265,19 +265,19 @@ export const ActiveWorkoutSession: React.FC<ActiveWorkoutSessionProps> = ({
         {session.exercises.map((sessionEx, exIdx) => (
           <div
             key={sessionEx.id || exIdx}
-            className="rounded-3xl bg-[#0e131f]/90 border border-slate-800/80 p-4 sm:p-6 shadow-xl space-y-4"
+            className="rounded-3xl bg-white dark:bg-[#0e131f]/90 border border-slate-200/80 dark:border-slate-800/80 p-4 sm:p-6 shadow-sm dark:shadow-xl space-y-4"
           >
             {/* Exercise Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
               <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <div className="p-2.5 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                   <Dumbbell className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-base text-white">
+                  <h3 className="font-bold text-base text-slate-900 dark:text-white">
                     {sessionEx.exercise.name}
                   </h3>
-                  <div className="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
+                  <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                     <span className="capitalize">{sessionEx.exercise.equipment || 'Body only'}</span>
                     <span>•</span>
                     <span className="capitalize">{sessionEx.exercise.primaryMuscles[0]}</span>
@@ -290,37 +290,37 @@ export const ActiveWorkoutSession: React.FC<ActiveWorkoutSessionProps> = ({
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs sm:text-sm">
                 <thead>
-                  <tr className="text-slate-400 border-b border-slate-800/60 pb-2">
+                  <tr className="text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800/60 pb-2">
                     <th className="py-2 px-2 text-center w-12 uppercase tracking-wider font-semibold text-[11px]">
-                      Set
+                      {t('workouts.set', 'Set')}
                     </th>
                     <th className="py-2 px-2 text-center uppercase tracking-wider font-semibold text-[11px]">
-                      Weight (kg)
+                      {t('workouts.weight_kg', 'Weight (kg)')}
                     </th>
                     <th className="py-2 px-2 text-center uppercase tracking-wider font-semibold text-[11px]">
-                      Reps
+                      {t('workouts.reps', 'Reps')}
                     </th>
                     <th className="py-2 px-2 text-center uppercase tracking-wider font-semibold text-[11px]">
-                      RPE
+                      {t('workouts.rpe', 'RPE')}
                     </th>
                     <th className="py-2 px-2 text-center w-16 uppercase tracking-wider font-semibold text-[11px]">
-                      Done
+                      {t('workouts.done', 'Done')}
                     </th>
                     <th className="py-2 px-1 text-center w-8"></th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/40">
+                <tbody className="divide-y divide-slate-200 dark:divide-slate-800/40">
                   {sessionEx.sets.map((set, setIdx) => {
                     const isDone = set.isCompleted;
                     return (
                       <tr
                         key={set.id || setIdx}
                         className={`transition-colors ${
-                          isDone ? 'bg-emerald-500/5' : 'hover:bg-slate-900/50'
+                          isDone ? 'bg-emerald-500/5' : 'hover:bg-slate-50 dark:hover:bg-slate-900/50'
                         }`}
                       >
                         {/* Set Number */}
-                        <td className="py-2.5 px-2 text-center font-bold text-slate-400">
+                        <td className="py-2.5 px-2 text-center font-bold text-slate-500 dark:text-slate-400">
                           {set.setNumber}
                         </td>
 
@@ -337,7 +337,7 @@ export const ActiveWorkoutSession: React.FC<ActiveWorkoutSessionProps> = ({
                                   Math.max(0, set.weightKg - 2.5)
                                 )
                               }
-                              className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold flex items-center justify-center transition cursor-pointer"
+                              className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold flex items-center justify-center transition cursor-pointer"
                             >
                               -
                             </button>
@@ -353,7 +353,7 @@ export const ActiveWorkoutSession: React.FC<ActiveWorkoutSessionProps> = ({
                                   parseFloat(e.target.value) || 0
                                 )
                               }
-                              className="w-16 sm:w-20 px-2 py-1 text-center font-mono font-bold text-white bg-slate-900 border border-slate-800 rounded-lg focus:border-emerald-500 outline-none"
+                              className="w-16 sm:w-20 px-2 py-1 text-center font-mono font-bold text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg focus:border-emerald-500 outline-none"
                             />
                             <button
                               type="button"
@@ -365,7 +365,7 @@ export const ActiveWorkoutSession: React.FC<ActiveWorkoutSessionProps> = ({
                                   set.weightKg + 2.5
                                 )
                               }
-                              className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold flex items-center justify-center transition cursor-pointer"
+                              className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold flex items-center justify-center transition cursor-pointer"
                             >
                               +
                             </button>
@@ -385,7 +385,7 @@ export const ActiveWorkoutSession: React.FC<ActiveWorkoutSessionProps> = ({
                                   Math.max(0, set.reps - 1)
                                 )
                               }
-                              className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold flex items-center justify-center transition cursor-pointer"
+                              className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold flex items-center justify-center transition cursor-pointer"
                             >
                               -
                             </button>
@@ -400,7 +400,7 @@ export const ActiveWorkoutSession: React.FC<ActiveWorkoutSessionProps> = ({
                                   parseInt(e.target.value, 10) || 0
                                 )
                               }
-                              className="w-14 sm:w-16 px-2 py-1 text-center font-mono font-bold text-white bg-slate-900 border border-slate-800 rounded-lg focus:border-emerald-500 outline-none"
+                              className="w-14 sm:w-16 px-2 py-1 text-center font-mono font-bold text-slate-900 dark:text-white bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg focus:border-emerald-500 outline-none"
                             />
                             <button
                               type="button"
@@ -412,7 +412,7 @@ export const ActiveWorkoutSession: React.FC<ActiveWorkoutSessionProps> = ({
                                   set.reps + 1
                                 )
                               }
-                              className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold flex items-center justify-center transition cursor-pointer"
+                              className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold flex items-center justify-center transition cursor-pointer"
                             >
                               +
                             </button>
@@ -431,7 +431,7 @@ export const ActiveWorkoutSession: React.FC<ActiveWorkoutSessionProps> = ({
                                 parseFloat(e.target.value)
                               )
                             }
-                            className="px-2 py-1 bg-slate-900 border border-slate-800 rounded-lg text-xs font-semibold text-slate-300 focus:border-emerald-500 outline-none"
+                            className="px-2 py-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-xs font-semibold text-slate-800 dark:text-slate-300 focus:border-emerald-500 outline-none"
                           >
                             <option value="6">6 (Light)</option>
                             <option value="7">7 (3 reps in tank)</option>
@@ -458,7 +458,7 @@ export const ActiveWorkoutSession: React.FC<ActiveWorkoutSessionProps> = ({
                             className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all cursor-pointer mx-auto ${
                               isDone
                                 ? 'bg-emerald-500 text-slate-950 font-bold shadow-md shadow-emerald-500/20 scale-105'
-                                : 'bg-slate-800/80 hover:bg-slate-700 text-slate-400 border border-slate-700'
+                                : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-400 border border-slate-200 dark:border-slate-700'
                             }`}
                           >
                             <CheckCircle2

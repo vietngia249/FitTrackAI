@@ -65,7 +65,7 @@ export const WorkoutsPage: React.FC = () => {
   };
 
   const handleSessionCancelled = () => {
-    if (window.confirm('Are you sure you want to discard this workout?')) {
+    if (window.confirm(t('workouts.discard_confirm', 'Are you sure you want to discard this workout?'))) {
       setActiveSession(null);
       saveLocalActiveSession(null);
     }
@@ -89,17 +89,17 @@ export const WorkoutsPage: React.FC = () => {
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-teal-950/40 via-slate-900 to-slate-900 border border-slate-800/80 p-6 sm:p-8 shadow-xl">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-500/10 via-slate-100 to-white dark:from-teal-950/40 dark:via-slate-900 dark:to-slate-900 border border-slate-200 dark:border-slate-800/80 p-6 sm:p-8 shadow-sm dark:shadow-xl">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-semibold">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-700 dark:text-teal-400 text-xs font-semibold">
               <Dumbbell className="w-3.5 h-3.5" />
               <span>Progressive Overload & Live Sets</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               {t('workouts.title')}
             </h1>
-            <p className="text-slate-400 text-sm leading-relaxed">
+            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
               {t('workouts.subtitle')}
             </p>
           </div>
@@ -109,7 +109,7 @@ export const WorkoutsPage: React.FC = () => {
               onClick={() => setIsCreatePlanOpen(true)}
               className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 font-semibold text-sm transition flex items-center gap-2 cursor-pointer shadow-sm"
             >
-              <Plus className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
+              <Plus className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               <span>{t('workouts.new_plan')}</span>
             </button>
             <button
@@ -124,29 +124,29 @@ export const WorkoutsPage: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-3 border-b border-slate-800 pb-2">
+      <div className="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-2">
         <button
           onClick={() => setActiveTab('routines')}
           className={`px-4 py-2 rounded-xl text-sm font-bold transition cursor-pointer flex items-center gap-2 ${
             activeTab === 'routines'
-              ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-              : 'text-slate-400 hover:text-slate-200'
+              ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
           }`}
         >
           <Layers className="w-4 h-4" />
-          <span>My Routines ({plans.length})</span>
+          <span>{t('workouts.my_routines', 'My Routines')} ({plans.length})</span>
         </button>
 
         <button
           onClick={() => setActiveTab('history')}
           className={`px-4 py-2 rounded-xl text-sm font-bold transition cursor-pointer flex items-center gap-2 ${
             activeTab === 'history'
-              ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30'
-              : 'text-slate-400 hover:text-slate-200'
+              ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30'
+              : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
           }`}
         >
           <Calendar className="w-4 h-4" />
-          <span>Workout History ({history.length})</span>
+          <span>{t('workouts.workout_history', 'Workout History')} ({history.length})</span>
         </button>
       </div>
 
@@ -160,16 +160,16 @@ export const WorkoutsPage: React.FC = () => {
             >
               <div>
                 <div className="flex items-center justify-between gap-2 mb-2">
-                  <span className="px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                    Template
+                  <span className="px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider rounded-md bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                    {t('workouts.template', 'Template')}
                   </span>
-                  <span className="text-xs text-slate-400 font-medium">
-                    {plan.exercises.length} movements
+                  <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                    {plan.exercises.length} {t('workouts.movements', 'movements')}
                   </span>
                 </div>
 
-                <h3 className="text-lg font-bold text-white mb-1">{plan.name}</h3>
-                <p className="text-xs text-slate-400 line-clamp-2 mb-4">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">{plan.name}</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mb-4">
                   {plan.description || 'Targeted hypertrophy & progressive overload routine'}
                 </p>
 
@@ -178,7 +178,7 @@ export const WorkoutsPage: React.FC = () => {
                   {plan.targetMuscles.map((muscle) => (
                     <span
                       key={muscle}
-                      className="px-2 py-0.5 text-[10px] font-semibold bg-slate-800 text-slate-300 rounded-md capitalize"
+                      className="px-2 py-0.5 text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-md capitalize"
                     >
                       {muscle}
                     </span>
@@ -186,21 +186,21 @@ export const WorkoutsPage: React.FC = () => {
                 </div>
 
                 {/* Exercise list preview */}
-                <div className="space-y-1.5 pt-2 border-t border-slate-800/60 mb-5">
+                <div className="space-y-1.5 pt-2 border-t border-slate-200 dark:border-slate-800/60 mb-5">
                   {plan.exercises.slice(0, 3).map((pe, idx) => (
                     <div
                       key={pe.id || idx}
-                      className="text-xs text-slate-300 flex items-center justify-between"
+                      className="text-xs text-slate-700 dark:text-slate-300 flex items-center justify-between"
                     >
                       <span className="truncate pr-2">{pe.exercise.name}</span>
-                      <span className="text-slate-400 font-mono text-[11px] shrink-0">
+                      <span className="text-slate-500 dark:text-slate-400 font-mono text-[11px] shrink-0">
                         {pe.targetSets}×{pe.targetReps}
                       </span>
                     </div>
                   ))}
                   {plan.exercises.length > 3 && (
-                    <span className="text-[11px] text-slate-400 font-medium block">
-                      +{plan.exercises.length - 3} more exercises
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium block">
+                      +{plan.exercises.length - 3} {t('workouts.more_exercises', 'more exercises')}
                     </span>
                   )}
                 </div>
@@ -208,7 +208,7 @@ export const WorkoutsPage: React.FC = () => {
 
               <button
                 onClick={() => handleStartRoutine(plan)}
-                className="w-full py-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full py-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Play className="w-3.5 h-3.5 fill-current" />
                 <span>{t('workouts.start_routine')}</span>
