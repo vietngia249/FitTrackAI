@@ -44,9 +44,11 @@ export const WeightTrendChart: React.FC = () => {
             <Scale className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-bold text-base text-slate-900 dark:text-white">Body Weight & 7-Day Trend</h3>
+            <h3 className="font-bold text-base text-slate-900 dark:text-white">
+              {t('progress.body_weight_trend', 'Body Weight & 7-Day Trend')}
+            </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Filtered 7-day moving average eliminates water retention noise
+              {t('progress.body_weight_trend_desc', 'Filtered 7-day moving average eliminates water retention noise')}
             </p>
           </div>
         </div>
