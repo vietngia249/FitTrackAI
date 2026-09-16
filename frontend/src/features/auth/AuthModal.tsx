@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from './AuthContext.js';
 import { X, Lock, Mail, User, AlertCircle, Dumbbell, ArrowRight } from 'lucide-react';
 
 export const AuthModal: React.FC = () => {
+  const { t } = useTranslation();
   const {
     isAuthModalOpen,
     authModalMode,
@@ -17,7 +19,7 @@ export const AuthModal: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [fitnessGoal, setFitnessGoal] = useState('hypertrophy');
+  const [fitnessGoal, setFitnessGoal] = useState('muscle_gain');
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -111,42 +113,42 @@ export const AuthModal: React.FC = () => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in">
       <div
-        className="w-full max-w-md glass-panel bg-[#111622]/95 border border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden relative"
+        className="w-full max-w-md bg-white dark:bg-[#111622]/95 border border-slate-200 dark:border-slate-700/80 rounded-2xl shadow-2xl overflow-hidden relative"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
-        <div className="flex items-center justify-between p-5 border-b border-slate-800">
+        <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
               <Dumbbell className="w-4 h-4" />
             </div>
-            <span className="font-bold text-white text-base">
-              {isLogin ? 'Sign In to FitTrack AI' : 'Create an Athlete Account'}
+            <span className="font-bold text-slate-900 dark:text-white text-base">
+              {isLogin ? t('auth.sign_in_title', 'Sign In to FitTrack AI') : t('auth.create_account_title', 'Create an Athlete Account')}
             </span>
           </div>
           <button
             onClick={closeAuthModal}
-            className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Tab switch */}
-        <div className="flex border-b border-slate-800 bg-slate-900/50">
+        <div className="flex border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
           <button
             type="button"
             onClick={() => {
               setError(null);
               openLoginModal();
             }}
-            className={`flex-1 py-3 text-xs font-semibold text-center transition-all ${
+            className={`flex-1 py-3 text-xs font-semibold text-center transition-all cursor-pointer ${
               isLogin
-                ? 'text-emerald-400 border-b-2 border-emerald-400 bg-emerald-500/5'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'text-emerald-600 dark:text-emerald-400 border-b-2 border-emerald-500 bg-emerald-500/5'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
             }`}
           >
-            Sign In
+            {t('auth.tab_sign_in', 'Sign In')}
           </button>
           <button
             type="button"
@@ -154,20 +156,20 @@ export const AuthModal: React.FC = () => {
               setError(null);
               openRegisterModal();
             }}
-            className={`flex-1 py-3 text-xs font-semibold text-center transition-all ${
+            className={`flex-1 py-3 text-xs font-semibold text-center transition-all cursor-pointer ${
               !isLogin
-                ? 'text-emerald-400 border-b-2 border-emerald-400 bg-emerald-500/5'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'text-emerald-600 dark:text-emerald-400 border-b-2 border-emerald-500 bg-emerald-500/5'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
             }`}
           >
-            Register
+            {t('auth.tab_register', 'Register')}
           </button>
         </div>
 
         {/* Modal Content */}
         <div className="p-6 space-y-4">
           {error && (
-            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-2 text-rose-400 text-xs">
+            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-2 text-rose-600 dark:text-rose-400 text-xs">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{error}</span>
             </div>
@@ -178,10 +180,10 @@ export const AuthModal: React.FC = () => {
             type="button"
             onClick={handleGoogleSignIn}
             disabled={googleLoading || isSubmitting}
-            className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 hover:border-slate-600 text-sm font-semibold text-white shadow-md transition-all active:scale-[0.98] disabled:opacity-60"
+            className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-xl bg-slate-50 hover:bg-slate-100 dark:bg-slate-900/90 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700/80 hover:border-slate-300 dark:hover:border-slate-600 text-sm font-semibold text-slate-800 dark:text-white shadow-sm transition-all active:scale-[0.98] disabled:opacity-60 cursor-pointer"
           >
             {googleLoading ? (
-              <div className="w-5 h-5 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
+              <div className="w-5 h-5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
             ) : (
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path
@@ -204,112 +206,111 @@ export const AuthModal: React.FC = () => {
             )}
             <span>
               {googleLoading
-                ? 'Connecting to Google...'
+                ? t('auth.connecting_google', 'Connecting to Google...')
                 : isLogin
-                ? 'Continue with Google'
-                : 'Sign up with Google'}
+                ? t('auth.continue_google', 'Continue with Google')
+                : t('auth.signup_google', 'Sign up with Google')}
             </span>
           </button>
 
           {/* Divider */}
           <div className="relative flex items-center justify-center">
-            <div className="border-t border-slate-800 w-full" />
-            <span className="bg-[#111622] px-3 text-[11px] font-medium text-slate-500 uppercase tracking-wider shrink-0">
-              or continue with email
+            <div className="border-t border-slate-200 dark:border-slate-800 w-full" />
+            <span className="bg-white dark:bg-[#111622] px-3 text-[11px] font-medium text-slate-500 uppercase tracking-wider shrink-0">
+              {t('auth.or_email', 'or continue with email')}
             </span>
-            <div className="border-t border-slate-800 w-full" />
+            <div className="border-t border-slate-200 dark:border-slate-800 w-full" />
           </div>
 
           {/* Form Body */}
           <form onSubmit={handleSubmit} className="space-y-4">
+            {!isLogin && (
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  {t('auth.display_name', 'Display Name')}
+                </label>
+                <div className="relative">
+                  <User className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
+                  <input
+                    type="text"
+                    required
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    placeholder="e.g. Alex Nguyen"
+                    className="w-full pl-9 pr-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+              </div>
+            )}
 
-          {!isLogin && (
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                Display Name
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                {t('auth.email_address', 'Email Address')}
               </label>
               <div className="relative">
-                <User className="w-4 h-4 text-slate-500 absolute left-3 top-3.5" />
+                <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
                 <input
-                  type="text"
+                  type="email"
                   required
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  placeholder="e.g. Alex Nguyen"
-                  className="w-full pl-9 pr-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="athlete@fittrack.ai"
+                  className="w-full pl-9 pr-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500"
                 />
               </div>
             </div>
-          )}
 
-          <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1.5">
-              Email Address
-            </label>
-            <div className="relative">
-              <Mail className="w-4 h-4 text-slate-500 absolute left-3 top-3.5" />
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="athlete@fittrack.ai"
-                className="w-full pl-9 pr-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1.5">
-              Password {isLogin ? '' : '(min. 8 characters)'}
-            </label>
-            <div className="relative">
-              <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-3.5" />
-              <input
-                type="password"
-                required
-                minLength={8}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full pl-9 pr-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-              />
-            </div>
-          </div>
-
-          {!isLogin && (
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                Primary Fitness Goal
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                {t('auth.password', 'Password')} {isLogin ? '' : t('auth.min_chars', '(min. 8 characters)')}
               </label>
-              <select
-                value={fitnessGoal}
-                onChange={(e) => setFitnessGoal(e.target.value)}
-                className="w-full px-3 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500"
-              >
-                <option value="muscle_gain">Muscle Gain (Hypertrophy)</option>
-                <option value="strength">Strength & Powerlifting</option>
-                <option value="fat_loss">Fat Loss & Conditioning</option>
-                <option value="maintenance">General Maintenance & Health</option>
-              </select>
+              <div className="relative">
+                <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
+                <input
+                  type="password"
+                  required
+                  minLength={8}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full pl-9 pr-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                />
+              </div>
             </div>
-          )}
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full mt-2 flex items-center justify-center gap-2 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-black font-bold text-sm shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
-          >
-            <span>
-              {isSubmitting
-                ? 'Processing...'
-                : isLogin
-                ? 'Sign In to Account'
-                : 'Create Athlete Account'}
-            </span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </form>
+            {!isLogin && (
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
+                  {t('profile.primary_goal', 'Primary Fitness Goal')}
+                </label>
+                <select
+                  value={fitnessGoal}
+                  onChange={(e) => setFitnessGoal(e.target.value)}
+                  className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                >
+                  <option value="muscle_gain">{t('profile.muscle_gain', 'Muscle Gain (Hypertrophy)')}</option>
+                  <option value="strength">{t('profile.strength_goal', 'Strength & Powerlifting')}</option>
+                  <option value="fat_loss">{t('profile.fat_loss', 'Fat Loss & Conditioning')}</option>
+                  <option value="maintenance">{t('profile.maintenance_goal', 'General Maintenance & Health')}</option>
+                </select>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full mt-2 flex items-center justify-center gap-2 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white keep-white font-bold text-sm shadow-lg shadow-emerald-500/20 transition-all active:scale-95 cursor-pointer"
+            >
+              <span>
+                {isSubmitting
+                  ? t('auth.processing', 'Processing...')
+                  : isLogin
+                  ? t('auth.sign_in_btn', 'Sign In to Account')
+                  : t('auth.register_btn', 'Create Athlete Account')}
+              </span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </form>
         </div>
       </div>
     </div>
