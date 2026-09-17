@@ -17,7 +17,7 @@ export async function apiRegister(data: {
     body: JSON.stringify(data),
   });
 
-  const json = await res.json();
+  const json = await res.json().catch(() => ({ message: 'Network error or invalid server response' }));
   if (!res.ok) {
     throw new Error(json.message || 'Registration failed');
   }
@@ -35,7 +35,7 @@ export async function apiLogin(data: {
     body: JSON.stringify(data),
   });
 
-  const json = await res.json();
+  const json = await res.json().catch(() => ({ message: 'Network error or invalid server response' }));
   if (!res.ok) {
     throw new Error(json.message || 'Login failed');
   }
@@ -49,7 +49,7 @@ export async function apiRefreshToken(): Promise<AuthResponseData> {
     credentials: 'include',
   });
 
-  const json = await res.json();
+  const json = await res.json().catch(() => ({ message: 'Session expired or network error' }));
   if (!res.ok) {
     throw new Error(json.message || 'Session expired');
   }
@@ -72,7 +72,7 @@ export async function apiGetMe(accessToken: string): Promise<User> {
     credentials: 'include',
   });
 
-  const json = await res.json();
+  const json = await res.json().catch(() => ({ message: 'Failed to fetch user profile' }));
   if (!res.ok) {
     throw new Error(json.message || 'Failed to fetch user profile');
   }
@@ -87,7 +87,7 @@ export async function apiGoogleAuth(idToken: string): Promise<AuthResponseData> 
     body: JSON.stringify({ idToken }),
   });
 
-  const json = await res.json();
+  const json = await res.json().catch(() => ({ message: 'Google authentication network error' }));
   if (!res.ok) {
     throw new Error(json.message || 'Google authentication failed');
   }

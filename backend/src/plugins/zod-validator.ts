@@ -38,6 +38,19 @@ const zodValidatorPlugin: FastifyPluginAsync = async (fastify) => {
       });
     }
 
+    if (
+      err?.name === 'PrismaClientInitializationError' ||
+      err?.code === 'P1001' ||
+      err?.message?.includes("Can't reach database server")
+    ) {
+      request.log.error(error);
+      return reply.status(503).send({
+        statusCode: 503,
+        error: 'Service Unavailable',
+        message: 'Database service is currently unreachable. Please try again shortly.',
+      });
+    }
+
     request.log.error(error);
     return reply.status(500).send({
       statusCode: 500,

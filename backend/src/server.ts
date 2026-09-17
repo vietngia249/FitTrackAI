@@ -1,11 +1,14 @@
 import { buildApp } from './app.js';
 import { env } from './config/env.js';
 import { logger } from './shared/logger/index.js';
+import { connectDatabase } from './infrastructure/database/prisma.js';
 
 async function startServer() {
   const app = buildApp();
 
   try {
+    await connectDatabase();
+
     const address = await app.listen({
       port: env.PORT,
       host: env.HOST,

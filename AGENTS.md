@@ -184,3 +184,4 @@ Every file under `Docs/` features YAML frontmatter with `version`, `updated_at`,
 | Agent Context Documentation System    | Completed | `d051dae` | Build standardized Docs/ context system with AGENTS.md routing                   |
 | Vertical Navbar Burger Toggle & Hover | Completed | `e37d105` | Refine vertical navbar with burger button toggle and hover overlay               |
 | Auth Token Refresh & Profile Fallback | Completed | `ece46c1` | Auto-refresh token on 401 and preserve local profile on expired session          |
+| Neon Adapter & Auth Login 500 Fix     | Completed | `pending` | Integrate @prisma/adapter-neon over WebSocket (port 443), fix login 500 error    |

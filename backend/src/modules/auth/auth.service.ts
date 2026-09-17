@@ -69,6 +69,12 @@ export class AuthService {
       throw AppError.unauthorized('Invalid email or password');
     }
 
+    if (user.passwordHash.startsWith('OAUTH_GOOGLE_')) {
+      throw AppError.badRequest(
+        'This account was registered using Google. Please sign in with Google.'
+      );
+    }
+
     const isPasswordValid = await verifyPassword(
       user.passwordHash,
       input.password
