@@ -15,8 +15,6 @@ import {
   Menu,
   X,
   ChevronRight,
-  PanelLeftClose,
-  PanelLeftOpen
 } from 'lucide-react';
 import { LanguageSwitcher } from '../common/LanguageSwitcher.js';
 import { ThemeToggle } from '../common/ThemeToggle.js';
@@ -120,13 +118,14 @@ export const Layout: React.FC = () => {
                 </div>
               </div>
 
-              {/* Collapse button inside sidebar header */}
+              {/* Burger button inside sidebar header */}
               <button
                 onClick={toggleSidebar}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors cursor-pointer flex-shrink-0"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors cursor-pointer flex-shrink-0"
                 title={isCollapsed ? t('common.expand_sidebar', 'Expand Sidebar') : t('common.collapse_sidebar', 'Collapse Sidebar')}
+                aria-label="Toggle Sidebar"
               >
-                <PanelLeftClose className="w-4 h-4" />
+                <Menu className="w-4 h-4" />
               </button>
             </div>
           ) : (
@@ -134,10 +133,11 @@ export const Layout: React.FC = () => {
               <button
                 onClick={toggleSidebar}
                 title={t('common.expand_sidebar', 'Expand Sidebar')}
-                className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 p-0.5 shadow-md shadow-emerald-500/20 flex items-center justify-center flex-shrink-0 hover:scale-105 transition-transform cursor-pointer"
+                className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 p-0.5 shadow-md shadow-emerald-500/20 flex items-center justify-center flex-shrink-0 hover:scale-105 transition-transform cursor-pointer group"
+                aria-label="Expand Sidebar"
               >
-                <div className="w-full h-full bg-white dark:bg-[#0a0d14] rounded-[10px] flex items-center justify-center">
-                  <Dumbbell className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
+                <div className="w-full h-full bg-white dark:bg-[#0a0d14] rounded-[10px] flex items-center justify-center group-hover:bg-emerald-500/10 transition-colors">
+                  <Menu className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
                 </div>
               </button>
             </div>
@@ -391,16 +391,11 @@ export const Layout: React.FC = () => {
                   toggleSidebar();
                 }
               }}
-              className="p-2 rounded-xl text-slate-500 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-all cursor-pointer flex items-center justify-center"
+              className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-500/10 dark:hover:bg-emerald-500/10 border border-slate-200 dark:border-slate-800 transition-all cursor-pointer flex items-center justify-center shadow-sm"
               title={isCollapsed ? t('common.expand_sidebar', 'Expand Sidebar') : t('common.collapse_sidebar', 'Collapse Sidebar')}
               aria-label="Toggle Navigation"
             >
-              {isCollapsed ? (
-                <PanelLeftOpen className="w-5 h-5 hidden md:block" />
-              ) : (
-                <PanelLeftClose className="w-5 h-5 hidden md:block" />
-              )}
-              <Menu className="w-5 h-5 md:hidden" />
+              <Menu className="w-5 h-5" />
             </button>
 
             {/* Breadcrumb / Current View Title */}
