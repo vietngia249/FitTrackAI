@@ -4,6 +4,7 @@ import {
   CreateFoodInput,
   CreateMealInput,
   UpdateNutritionGoalInput,
+  UpdateMealFoodItemInput,
 } from './nutrition.schemas.js';
 
 export interface FoodItemDTO {
@@ -499,6 +500,65 @@ export class NutritionService {
       return true;
     } catch {
       return true;
+    }
+  }
+
+  /**
+   * Update a specific meal item.
+   * Enforces user tenancy isolation (meal must belong to userId).
+   * Automatically rescales macros proportionally if servingQty changes and macros are not explicitly provided.
+   */
+  async updateMealItem(userId: string, itemId: string, input: UpdateMealFoodItemInput) {
+    try {
+      const existing = await prisma.mealFoodItem.findFirst({
+        where: {
+          id: itemId,
+          meal: { userId },
+        },
+      });
+
+      if (!existing) {
+        return null;
+      }
+
+      let newCalories = input.calories;
+      let newProtein = input.protein;
+      let newCarbs = input.carbohydrates;
+      let newFat = input.fat;
+
+      // Proportional scaling if servingQty changed and macros not explicitly provided
+      if (input.servingQty !== undefined && input.servingQty > 0 && existing.servingQty > 0) {
+        const ratio = input.servingQty / existing.servingQty;
+        if (newCalories === undefined) {
+          newCalories = Math.round(existing.calories * ratio * 10) / 10;
+        }
+        if (newProtein === undefined) {
+          newProtein = Math.round(existing.protein * ratio * 10) / 10;
+        }
+        if (newCarbs === undefined) {
+          newCarbs = Math.round(existing.carbohydrates * ratio * 10) / 10;
+        }
+        if (newFat === undefined) {
+          newFat = Math.round(existing.fat * ratio * 10) / 10;
+        }
+      }
+
+      const updated = await prisma.mealFoodItem.update({
+        where: { id: itemId },
+        data: {
+          ...(input.name !== undefined && { name: input.name }),
+          ...(input.servingQty !== undefined && { servingQty: input.servingQty }),
+          ...(input.servingUnit !== undefined && { servingUnit: input.servingUnit }),
+          ...(newCalories !== undefined && { calories: Math.round(newCalories * 10) / 10 }),
+          ...(newProtein !== undefined && { protein: Math.round(newProtein * 10) / 10 }),
+          ...(newCarbs !== undefined && { carbohydrates: Math.round(newCarbs * 10) / 10 }),
+          ...(newFat !== undefined && { fat: Math.round(newFat * 10) / 10 }),
+        },
+      });
+
+      return updated;
+    } catch {
+      return null;
     }
   }
 

@@ -6,6 +6,7 @@ import {
   logMealHandler,
   deleteMealHandler,
   deleteMealItemHandler,
+  updateMealItemHandler,
   getDailyGoalsHandler,
   updateDailyGoalsHandler,
 } from './nutrition.controller.js';
@@ -22,6 +23,7 @@ export const nutritionRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.get('/meals', getMealsByDateHandler);
   fastify.post('/meals', logMealHandler);
   fastify.delete('/meals/:id', deleteMealHandler);
+  fastify.put('/meals/items/:id', updateMealItemHandler);
   fastify.delete('/meals/items/:id', deleteMealItemHandler);
 
   // Daily Nutrition Goals

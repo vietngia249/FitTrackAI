@@ -165,7 +165,21 @@
     "remaining": "remaining",
     "target_reached": "Target reached!",
     "meals_title": "Meals & Food Items",
-    "items_logged": "items logged"
+    "items_logged": "items logged",
+    "breakfast": "Breakfast",
+    "lunch": "Lunch",
+    "dinner": "Dinner",
+    "snack": "Snacks & Supplements",
+    "no_foods_logged": "No foods logged for this meal yet.",
+    "edit_food": "Edit food item",
+    "edit_item_title": "Edit Food Item",
+    "delete_confirm": "Are you sure you want to remove this food item?",
+    "serving_qty": "Serving Quantity & Unit",
+    "original_log": "Logged",
+    "recalculated_macros": "Recalculated Nutrients",
+    "auto_scale_macros": "Switch to auto-scale",
+    "manual_override": "Custom override",
+    "invalid_qty": "Serving quantity must be greater than 0"
   },
   "progress": {
     "title": "Body Progress & Trends",

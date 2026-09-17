@@ -7,6 +7,7 @@ import {
   GetMealsQuerySchema,
   UpdateNutritionGoalSchema,
   NutritionParamSchema,
+  UpdateMealFoodItemSchema,
 } from './nutrition.schemas.js';
 
 const nutritionService = new NutritionService();
@@ -135,6 +136,48 @@ export async function deleteMealItemHandler(
   }
 
   return reply.status(204).send();
+}
+
+export async function updateMealItemHandler(
+  request: FastifyRequest,
+  reply: FastifyReply
+) {
+  const user = request.user as { id: string };
+  const paramResult = NutritionParamSchema.safeParse(request.params);
+
+  if (!paramResult.success) {
+    return reply.status(400).send({
+      statusCode: 400,
+      error: 'Bad Request',
+      message: 'Invalid item ID',
+    });
+  }
+
+  const parseResult = UpdateMealFoodItemSchema.safeParse(request.body);
+  if (!parseResult.success) {
+    return reply.status(400).send({
+      statusCode: 400,
+      error: 'Bad Request',
+      message: 'Validation failed',
+      issues: parseResult.error.issues,
+    });
+  }
+
+  const updated = await nutritionService.updateMealItem(
+    user.id,
+    paramResult.data.id,
+    parseResult.data
+  );
+
+  if (!updated) {
+    return reply.status(404).send({
+      statusCode: 404,
+      error: 'Not Found',
+      message: 'Item not found or unauthorized',
+    });
+  }
+
+  return reply.send(updated);
 }
 
 export async function getDailyGoalsHandler(

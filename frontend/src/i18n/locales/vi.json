@@ -165,7 +165,21 @@
     "remaining": "còn lại",
     "target_reached": "Đã đạt mục tiêu!",
     "meals_title": "Nhật ký Bữa ăn & Thực phẩm",
-    "items_logged": "món đã ghi"
+    "items_logged": "món đã ghi",
+    "breakfast": "Bữa sáng",
+    "lunch": "Bữa trưa",
+    "dinner": "Bữa tối",
+    "snack": "Bữa phụ & Thực phẩm bổ sung",
+    "no_foods_logged": "Chưa ghi nhận món ăn nào cho bữa này.",
+    "edit_food": "Chỉnh sửa món ăn",
+    "edit_item_title": "Chỉnh sửa món ăn",
+    "delete_confirm": "Bạn có chắc chắn muốn xóa món ăn này không?",
+    "serving_qty": "Khối lượng / Khẩu phần & Đơn vị",
+    "original_log": "Đã ghi",
+    "recalculated_macros": "Thông số dinh dưỡng tính lại",
+    "auto_scale_macros": "Chuyển sang tự động tính",
+    "manual_override": "Tùy chỉnh thủ công",
+    "invalid_qty": "Khối lượng khẩu phần phải lớn hơn 0"
   },
   "progress": {
     "title": "Tiến Trình Thể Hình",

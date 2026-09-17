@@ -12,6 +12,7 @@ import {
   DailyNutritionResponse,
   DailyNutritionGoals,
   MealType,
+  MealFoodItem,
 } from '../features/nutrition/nutritionTypes';
 import {
   getDailyNutritionApi,
@@ -23,6 +24,7 @@ import { MacroCard } from '../features/nutrition/MacroCard';
 import { MealSection } from '../features/nutrition/MealSection';
 import { FoodSearchModal } from '../features/nutrition/FoodSearchModal';
 import { NutritionGoalsModal } from '../features/nutrition/NutritionGoalsModal';
+import { EditMealItemModal } from '../features/nutrition/EditMealItemModal';
 
 export const NutritionPage: React.FC = () => {
   const { t } = useTranslation();
@@ -52,6 +54,7 @@ export const NutritionPage: React.FC = () => {
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
   const [activeLogMealType, setActiveLogMealType] = useState<MealType>('breakfast');
   const [isGoalsModalOpen, setIsGoalsModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<MealFoodItem | null>(null);
 
   const fetchNutrition = useCallback(async () => {
     const data = await getDailyNutritionApi(selectedDate);
@@ -96,6 +99,10 @@ export const NutritionPage: React.FC = () => {
   const handleOpenLogModal = (type: MealType = 'breakfast') => {
     setActiveLogMealType(type);
     setIsLogModalOpen(true);
+  };
+
+  const handleEditItem = (item: MealFoodItem) => {
+    setEditingItem(item);
   };
 
   const handleDeleteItem = async (itemId: string) => {
@@ -274,24 +281,28 @@ export const NutritionPage: React.FC = () => {
             mealType="breakfast"
             meals={nutritionData.mealsByType.breakfast || []}
             onOpenLogModal={handleOpenLogModal}
+            onEditItem={handleEditItem}
             onDeleteItem={handleDeleteItem}
           />
           <MealSection
             mealType="lunch"
             meals={nutritionData.mealsByType.lunch || []}
             onOpenLogModal={handleOpenLogModal}
+            onEditItem={handleEditItem}
             onDeleteItem={handleDeleteItem}
           />
           <MealSection
             mealType="dinner"
             meals={nutritionData.mealsByType.dinner || []}
             onOpenLogModal={handleOpenLogModal}
+            onEditItem={handleEditItem}
             onDeleteItem={handleDeleteItem}
           />
           <MealSection
             mealType="snack"
             meals={nutritionData.mealsByType.snack || []}
             onOpenLogModal={handleOpenLogModal}
+            onEditItem={handleEditItem}
             onDeleteItem={handleDeleteItem}
           />
         </div>
@@ -304,6 +315,14 @@ export const NutritionPage: React.FC = () => {
         selectedDate={selectedDate}
         onClose={() => setIsLogModalOpen(false)}
         onMealLogged={fetchNutrition}
+      />
+
+      {/* Edit Food Item Modal */}
+      <EditMealItemModal
+        isOpen={Boolean(editingItem)}
+        item={editingItem}
+        onClose={() => setEditingItem(null)}
+        onItemUpdated={fetchNutrition}
       />
 
       {/* Nutrition Goals Calibration Modal */}

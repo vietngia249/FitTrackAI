@@ -1,12 +1,13 @@
 import React from 'react';
-import { Coffee, Utensils, Moon, Apple, Plus, Trash2 } from 'lucide-react';
+import { Coffee, Utensils, Moon, Apple, Plus, Trash2, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Meal, MealType } from './nutritionTypes';
+import { Meal, MealFoodItem, MealType } from './nutritionTypes';
 
 interface MealSectionProps {
   mealType: MealType;
   meals: Meal[];
   onOpenLogModal: (type: MealType) => void;
+  onEditItem: (item: MealFoodItem) => void;
   onDeleteItem: (itemId: string) => void;
 }
 
@@ -14,6 +15,7 @@ export const MealSection: React.FC<MealSectionProps> = ({
   mealType,
   meals,
   onOpenLogModal,
+  onEditItem,
   onDeleteItem,
 }) => {
   const { t } = useTranslation();
@@ -106,18 +108,33 @@ export const MealSection: React.FC<MealSectionProps> = ({
                 </p>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <span className="text-sm font-bold text-slate-700 dark:text-slate-100 font-mono">
                   {Math.round(item.calories)} kcal
                 </span>
                 {item.id && (
-                  <button
-                    onClick={() => onDeleteItem(item.id)}
-                    title={t('nutrition.remove_item')}
-                    className="opacity-0 group-hover:opacity-100 p-1 rounded-md text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => onEditItem(item)}
+                      title={t('nutrition.edit_food', 'Edit food')}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors cursor-pointer"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (window.confirm(t('nutrition.delete_confirm', 'Are you sure you want to remove this item?'))) {
+                          onDeleteItem(item.id);
+                        }
+                      }}
+                      title={t('nutrition.remove_item', 'Remove item')}
+                      className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-colors cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 )}
               </div>
             </div>

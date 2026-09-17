@@ -91,7 +91,9 @@ verification_status: verified
 | `GET` | `/nutrition/meals` | Bearer | Get user's logged meals for specified `date` (YYYY-MM-DD) |
 | `POST` | `/nutrition/meals` | Bearer | Log a meal (Breakfast, Lunch, Dinner, Snack) with food items |
 | `DELETE` | `/nutrition/meals/:id` | Bearer | Delete logged meal |
-| `GET` | `/nutrition/foods/search` | Bearer | Search food library with calorie and macro breakdown |
+| `PUT` | `/nutrition/meals/items/:id` | Bearer | Update logged food item (servingQty, servingUnit, proportional macros) |
+| `DELETE` | `/nutrition/meals/items/:id` | Bearer | Delete logged meal food item |
+| `GET` | `/nutrition/foods` | Bearer | Search food library with calorie and macro breakdown |
 | `POST` | `/nutrition/foods` | Bearer | Create user-defined custom food item |
 | `GET` | `/nutrition/goals` | Bearer | Fetch user's daily calorie and macro targets |
 | `PUT` | `/nutrition/goals` | Bearer | Update daily calorie and macro targets |

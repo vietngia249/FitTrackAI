@@ -65,3 +65,15 @@ export type UpdateNutritionGoalInput = z.infer<typeof UpdateNutritionGoalSchema>
 export const NutritionParamSchema = z.object({
   id: z.string().min(1),
 });
+
+export const UpdateMealFoodItemSchema = z.object({
+  name: z.string().min(1).optional(),
+  servingQty: z.number().positive().optional(),
+  servingUnit: z.string().min(1).optional(),
+  calories: z.number().nonnegative().optional(),
+  protein: z.number().nonnegative().optional(),
+  carbohydrates: z.number().nonnegative().optional(),
+  fat: z.number().nonnegative().optional(),
+});
+
+export type UpdateMealFoodItemInput = z.infer<typeof UpdateMealFoodItemSchema>;

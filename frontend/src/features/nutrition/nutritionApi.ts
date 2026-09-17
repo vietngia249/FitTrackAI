@@ -1,10 +1,12 @@
 import {
   FoodItem,
   Meal,
+  MealFoodItem,
   DailyNutritionGoals,
   DailyNutritionResponse,
   CreateFoodPayload,
   LogMealPayload,
+  UpdateMealItemPayload,
 } from './nutritionTypes';
 
 const API_BASE = '/api/v1/nutrition';
@@ -428,6 +430,49 @@ export async function deleteMealItemApi(itemId: string): Promise<boolean> {
   }
   saveLocalMeals(local);
   return true;
+}
+
+export async function updateMealItemApi(
+  itemId: string,
+  payload: UpdateMealItemPayload
+): Promise<MealFoodItem | null> {
+  try {
+    const res = await fetch(`${API_BASE}/meals/items/${itemId}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeader(),
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (res.ok) {
+      const updatedItem: MealFoodItem = await res.json();
+      const local = getLocalMeals();
+      for (const meal of local) {
+        const idx = meal.items.findIndex((it) => it.id === itemId);
+        if (idx !== -1) {
+          meal.items[idx] = { ...meal.items[idx], ...updatedItem };
+        }
+      }
+      saveLocalMeals(local);
+      return updatedItem;
+    }
+  } catch {
+    // Offline fallback
+  }
+
+  const local = getLocalMeals();
+  let updatedFallback: MealFoodItem | null = null;
+  for (const meal of local) {
+    const idx = meal.items.findIndex((it) => it.id === itemId);
+    if (idx !== -1) {
+      meal.items[idx] = { ...meal.items[idx], ...payload };
+      updatedFallback = meal.items[idx];
+    }
+  }
+  saveLocalMeals(local);
+  return updatedFallback;
 }
 
 export async function getNutritionGoalsApi(): Promise<DailyNutritionGoals> {

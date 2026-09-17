@@ -85,6 +85,8 @@ verification_status: verified
 - **Caloric & Macro Tracker**: Dynamic progress bars tracking Daily Calories, Protein (g), Carbohydrates (g), and Fat (g) against personalized targets.
 - **Food Search**: Instant querying across seeded standard foods and user-created custom items.
 - **Immutable Log Snapshots**: Captured macros are copied directly into `MealFoodItem` records upon logging.
+- **Interactive Food Item Edit**: Allows editing logged items (`servingQty`, unit, and macros) with automatic proportional nutrient recalculation and optional custom overrides.
+- **Accessible Item & Meal Deletion**: Prominent, high-contrast delete actions with confirmation dialogues to prevent accidental data loss.
 
 ### G. Body Tracking & Progress
 - **Weigh-in History**: Daily weight logs rendered on a responsive Recharts timeline.
@@ -98,5 +100,6 @@ verification_status: verified
 
 | Version | Date | Changes |
 |---|---|---|
+| 1.2.0 | 2026-09-16 | Added logged food item edit dialog with proportional macro recalculation and accessible delete capabilities |
 | 1.1.0 | 2026-09-16 | Added Exercises batch pagination (873 items) and Gemini-style multi-thread persistent AI chat history |
 | 1.0.0 | 2026-09-16 | Initial baseline cataloging all platform features, specs, and mathematical formulas |

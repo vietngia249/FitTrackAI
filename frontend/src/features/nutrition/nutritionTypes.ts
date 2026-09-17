@@ -92,3 +92,13 @@ export interface LogMealPayload {
     fat: number;
   }>;
 }
+
+export interface UpdateMealItemPayload {
+  name?: string;
+  servingQty?: number;
+  servingUnit?: string;
+  calories?: number;
+  protein?: number;
+  carbohydrates?: number;
+  fat?: number;
+}
