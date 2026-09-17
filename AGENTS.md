@@ -188,4 +188,8 @@ Every file under `Docs/` features YAML frontmatter with `version`, `updated_at`,
 | Exercises Pagination & Gemini AI Chat | Completed | `1692583` | Add exercises load more (873 items) and Gemini multi-thread chat history         |
 | Meal Item Edit & Delete Actions       | Completed | `37f16bd` | Add edit food modal with macro scaling and accessible delete confirmation        |
 | Copilot FAB & Gemini Chat History     | Completed | `c554d05` | Circular FAB launcher, Gemini-style persistent history threads, navbar layout    |
+| Batch 1 UI & Command Center Suite    | Completed | `9e6e7f0` | Water tracker, macro rings, activity heatmap, meal favorites, photo compare      |
+| MediaPipe Form Coach Integration      | Completed | `b0019c1` | Real MediaPipe pose landmarker with live webcam and video upload analysis        |
+| Form Precision & Per-Rep Analytics   | Completed | `45ca1e4` | Full pose model, human presence filter, EMA smoothing, and per-rep metrics       |
+
 
