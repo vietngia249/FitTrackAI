@@ -6,6 +6,8 @@ import {
   Dumbbell,
   RotateCcw,
   Activity,
+  ChevronDown,
+  Check,
 } from 'lucide-react';
 import { Exercise, ExerciseQueryFilters } from '../features/exercises/exerciseTypes';
 import { fetchExercises } from '../features/exercises/exerciseApi';
@@ -34,6 +36,8 @@ export const ExercisesPage: React.FC = () => {
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const PAGE_SIZE = 48;
 
   // Filter states
   const [search, setSearch] = useState('');
@@ -46,24 +50,46 @@ export const ExercisesPage: React.FC = () => {
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
+  const getActiveFilters = (): ExerciseQueryFilters => ({
+    search: search.trim() || undefined,
+    muscle: selectedMuscle !== 'all' ? selectedMuscle : undefined,
+    category: selectedCategory !== 'all' ? selectedCategory : undefined,
+    equipment: selectedEquipment !== 'all' ? selectedEquipment : undefined,
+    level: selectedLevel !== 'all' ? selectedLevel : undefined,
+  });
+
   const loadData = async () => {
     setLoading(true);
     try {
-      const filters: ExerciseQueryFilters = {
-        search: search.trim() || undefined,
-        muscle: selectedMuscle !== 'all' ? selectedMuscle : undefined,
-        category: selectedCategory !== 'all' ? selectedCategory : undefined,
-        equipment: selectedEquipment !== 'all' ? selectedEquipment : undefined,
-        level: selectedLevel !== 'all' ? selectedLevel : undefined,
-      };
-
-      const res = await fetchExercises(filters, accessToken, 60, 0);
+      const filters = getActiveFilters();
+      const res = await fetchExercises(filters, accessToken, PAGE_SIZE, 0);
       setExercises(res.items);
       setTotalCount(res.total);
     } catch {
       // Graceful fallback
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleLoadMore = async () => {
+    if (loadingMore || exercises.length >= totalCount) return;
+    setLoadingMore(true);
+    try {
+      const filters = getActiveFilters();
+      const nextOffset = exercises.length;
+      const res = await fetchExercises(filters, accessToken, PAGE_SIZE, nextOffset);
+      setExercises((prev) => {
+        // Prevent accidental duplicate IDs
+        const existingIds = new Set(prev.map((e) => e.id));
+        const newUnique = res.items.filter((e) => !existingIds.has(e.id));
+        return [...prev, ...newUnique];
+      });
+      setTotalCount(res.total);
+    } catch {
+      // Graceful error ignore
+    } finally {
+      setLoadingMore(false);
     }
   };
 
@@ -233,15 +259,58 @@ export const ExercisesPage: React.FC = () => {
         </div>
 
         {exercises.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            {exercises.map((exercise) => (
-              <ExerciseCard
-                key={exercise.id}
-                exercise={exercise}
-                onSelect={(ex) => setSelectedExercise(ex)}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+              {exercises.map((exercise) => (
+                <ExerciseCard
+                  key={exercise.id}
+                  exercise={exercise}
+                  onSelect={(ex) => setSelectedExercise(ex)}
+                />
+              ))}
+            </div>
+
+            {/* Load More Pagination Button */}
+            {exercises.length < totalCount ? (
+              <div className="flex flex-col items-center justify-center pt-8 pb-4 gap-3">
+                <button
+                  onClick={handleLoadMore}
+                  disabled={loadingMore}
+                  className="px-6 py-3 rounded-2xl bg-white dark:bg-[#0e131f] border border-slate-200 dark:border-slate-800 hover:border-emerald-500/50 dark:hover:border-emerald-500/50 shadow-sm hover:shadow-md text-sm font-semibold text-slate-800 dark:text-slate-100 flex items-center gap-2.5 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer disabled:opacity-60"
+                >
+                  {loadingMore ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                      <span>{t('exercises.loading_more', 'Loading more exercises...')}</span>
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="w-4 h-4 text-emerald-500" />
+                      <span>
+                        {t('exercises.load_more', {
+                          count: Math.min(PAGE_SIZE, totalCount - exercises.length),
+                          defaultValue: `Load More Movements (+${Math.min(PAGE_SIZE, totalCount - exercises.length)})`,
+                        })}
+                      </span>
+                    </>
+                  )}
+                </button>
+                <span className="text-[11px] text-slate-400 dark:text-slate-500 font-mono">
+                  {exercises.length} / {totalCount}
+                </span>
+              </div>
+            ) : totalCount > 0 ? (
+              <div className="flex items-center justify-center gap-2 pt-8 pb-4 text-xs text-slate-400 dark:text-slate-500">
+                <Check className="w-4 h-4 text-emerald-500" />
+                <span>
+                  {t('exercises.all_loaded', {
+                    total: totalCount,
+                    defaultValue: `All ${totalCount} movements loaded`,
+                  })}
+                </span>
+              </div>
+            ) : null}
+          </>
         ) : (
           <div className="p-12 text-center rounded-3xl bg-white dark:bg-[#0e131f] border border-slate-200/80 dark:border-slate-800/80 max-w-lg mx-auto shadow-sm">
             <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800/60 text-slate-400 flex items-center justify-center mx-auto mb-3">

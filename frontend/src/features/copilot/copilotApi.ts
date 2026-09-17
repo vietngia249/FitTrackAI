@@ -54,7 +54,8 @@ export async function fetchCopilotRecommendations(): Promise<CopilotRecommendati
 }
 
 export async function sendCopilotChat(
-  message: string
+  message: string,
+  history?: { role: 'user' | 'assistant'; text: string }[]
 ): Promise<{ reply: string; budgetRemaining: number }> {
   try {
     const res = await fetch(`${API_BASE}/chat`, {
@@ -63,7 +64,7 @@ export async function sendCopilotChat(
         'Content-Type': 'application/json',
         ...getAuthHeader(),
       },
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ message, history }),
     });
 
     if (res.ok) {

@@ -1,11 +1,11 @@
 ---
 document: FEATURES
-version: 1.0.0
+version: 1.1.0
 status: active
 
 created_at: 2026-09-16T07:18:00+07:00
-updated_at: 2026-09-16T07:18:00+07:00
-last_verified_at: 2026-09-16T07:18:00+07:00
+updated_at: 2026-09-16T08:00:00+07:00
+last_verified_at: 2026-09-16T08:00:00+07:00
 
 source_snapshot: 2026-09-16
 source_commit: d051dae
@@ -56,7 +56,16 @@ verification_status: verified
 - **Personal Records (PR) Showcase**: Displays all-time max weight and estimated 1RM milestones with session timestamps.
 - **Empty State Handling**: When no workouts are logged, shows clean, educational guidance prompts instead of mock data.
 
-### D. AI Copilot & Insights
+### D. Exercise Library & Movement Discovery
+- **Comprehensive Database**: 870+ biomechanically indexed exercises covering strength, cardio, stretching, and plyometrics.
+- **Progressive Batch Pagination**: Paginated in 48-item increments with "Load More" controls, loading indicator, and total count progress (`48 / 873`).
+- **Multi-Vector Filtering**: Filter by muscle target, equipment (barbell, dumbbell, body only, cable, machine, bands), category, and difficulty level.
+
+### E. AI Copilot & Gemini-Style Chat Threads
+- **Gemini-Style Multi-Thread Hub**: Supports multiple independent conversation threads with collapsible thread sidebar in drawer.
+- **Persistent Chat History**: All threads and messages are persisted in local storage per user (`fittrack_gemini_threads_${userId}`), preserving full history across page reloads.
+- **Thread Management**: Create new chats, switch between active threads, automatic title generation from first prompt, copy responses, and delete conversations.
+- **Multi-Turn Context Retention**: Previous conversational turns are transmitted to Google Gemini API to maintain conversational memory within active threads.
 - **Grounded Gemini Chat**: Communicates with Google Gemini models using strict system prompts pre-loaded with the user's verified weight, age, height, BMI, and 7-day training volume.
 - **Medical Disclaimer Guardrail**: Refuses injury diagnosis and directs users to licensed healthcare professionals.
 - **Overload Advisor Card**: Heuristic recommendation engine that suggests `+2.5 kg` or `+5.0 kg` load increments based on completed working sets.
@@ -89,4 +98,5 @@ verification_status: verified
 
 | Version | Date | Changes |
 |---|---|---|
+| 1.1.0 | 2026-09-16 | Added Exercises batch pagination (873 items) and Gemini-style multi-thread persistent AI chat history |
 | 1.0.0 | 2026-09-16 | Initial baseline cataloging all platform features, specs, and mathematical formulas |

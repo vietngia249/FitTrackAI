@@ -21,7 +21,11 @@ export async function copilotChatHandler(
     });
   }
 
-  const result = await copilotService.chat(userId, parseResult.data.message);
+  const result = await copilotService.chat(
+    userId,
+    parseResult.data.message,
+    parseResult.data.history
+  );
   return reply.send(result);
 }
 

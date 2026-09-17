@@ -191,7 +191,11 @@ export class CopilotService {
   /**
    * Grounded fitness chat answering strictly with user's verified fitness context.
    */
-  async chat(userId: string, userMessage: string): Promise<{ reply: string; budgetRemaining: number }> {
+  async chat(
+    userId: string,
+    userMessage: string,
+    history?: { role: 'user' | 'assistant'; text: string }[]
+  ): Promise<{ reply: string; budgetRemaining: number }> {
     const { allowed, remaining } = this.checkAndIncrementUsage(userId);
 
     if (!allowed) {
@@ -289,6 +293,21 @@ Guidelines:
         ];
         const uniqueModels = Array.from(new Set(candidateModels));
 
+        const historyContents = (history || [])
+          .slice(-6)
+          .map((item) => ({
+            role: item.role === 'assistant' ? 'model' : 'user',
+            parts: [{ text: item.text }],
+          }));
+
+        const contents = [
+          ...historyContents,
+          {
+            role: 'user',
+            parts: [{ text: userMessage }],
+          },
+        ];
+
         for (const modelName of uniqueModels) {
           try {
             const geminiRes = await fetch(
@@ -300,12 +319,7 @@ Guidelines:
                   system_instruction: {
                     parts: [{ text: systemPrompt }],
                   },
-                  contents: [
-                    {
-                      role: 'user',
-                      parts: [{ text: userMessage }],
-                    },
-                  ],
+                  contents,
                   generationConfig: {
                     temperature: 0.7,
                     maxOutputTokens: 1000,

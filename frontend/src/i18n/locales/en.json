@@ -217,6 +217,9 @@
     "search_ph": "Search exercise by name or muscle (e.g. Squat, Chest, Pull)...",
     "reset": "Reset",
     "showing_results": "Showing {{count}} of {{total}} exercises",
+    "load_more": "Load More Movements (+{{count}})",
+    "all_loaded": "All {{total}} movements loaded",
+    "loading_more": "Loading more exercises...",
     "loading_library": "Loading library...",
     "no_exercises": "No exercises found",
     "no_exercises_desc": "Try adjusting your search terms, muscle group filters, or clear active filters.",
@@ -366,7 +369,15 @@
     "prompt_overload": "Why is progressive overload recommended today?",
     "prompt_nutrition": "Review my protein and calorie goals",
     "prompt_deload": "Should I schedule a deload week?",
-    "welcome_message": "Hello! I'm your FitTrack Gemini AI Coach. I analyze your logged workouts, 1RM trajectory, nutrition snapshots, and recovery data to give you personalized coaching advice. What would you like to optimize today?"
+    "welcome_message": "Hello! I'm your FitTrack Gemini AI Coach. I analyze your logged workouts, 1RM trajectory, nutrition snapshots, and recovery data to give you personalized coaching advice. What would you like to optimize today?",
+    "new_chat": "New Chat",
+    "chat_history": "Conversations",
+    "no_conversations": "No conversations yet",
+    "delete_chat": "Delete conversation",
+    "copy_reply": "Copy response",
+    "copied": "Copied",
+    "default_chat_title": "Fitness Consultation",
+    "switch_threads": "Switch conversation"
   },
   "profile": {
     "title": "User Profile & Preferences",

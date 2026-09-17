@@ -1,11 +1,11 @@
 ---
 document: API_SPEC
-version: 1.0.0
+version: 1.1.0
 status: active
 
 created_at: 2026-09-16T07:18:00+07:00
-updated_at: 2026-09-16T07:18:00+07:00
-last_verified_at: 2026-09-16T07:18:00+07:00
+updated_at: 2026-09-16T08:00:00+07:00
+last_verified_at: 2026-09-16T08:00:00+07:00
 
 source_snapshot: 2026-09-16
 source_commit: d051dae
@@ -126,9 +126,9 @@ verification_status: verified
 
 | Method | Endpoint | Auth | Description |
 |---|---|---|---|
-| `POST` | `/copilot/chat` | Optional | Grounded fitness & nutrition conversational chat (Guest & Auth) |
+| `POST` | `/copilot/chat` | Optional | Grounded fitness & nutrition conversational chat with optional multi-turn `history` array |
 | `GET` | `/copilot/recommendations` | Bearer | Deterministic progressive overload tips and deload advisory |
-| `POST` | `/gemini/chat` | Optional | Alias to `/copilot/chat` |
+| `POST` | `/gemini/chat` | Optional | Alias to `/copilot/chat` (Payload: `{ message: string, history?: [{ role: 'user'\|'assistant', text: string }] }`) |
 | `GET` | `/gemini/recommendations` | Bearer | Alias to `/copilot/recommendations` |
 
 ---
@@ -146,4 +146,5 @@ verification_status: verified
 
 | Version | Date | Changes |
 |---|---|---|
+| 1.1.0 | 2026-09-16 | Added optional `history` parameter to `/copilot/chat` and `/gemini/chat` for multi-turn conversational context |
 | 1.0.0 | 2026-09-16 | Initial baseline API specification for all system domains |

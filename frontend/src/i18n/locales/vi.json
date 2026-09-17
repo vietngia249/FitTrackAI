@@ -217,6 +217,9 @@
     "search_ph": "Tìm kiếm bài tập theo tên hoặc cơ bắp (Ví dụ: Squat, Ngực, Lưng)...",
     "reset": "Đặt lại",
     "showing_results": "Hiển thị {{count}} trên {{total}} bài tập",
+    "load_more": "Tải thêm bài tập (+{{count}})",
+    "all_loaded": "Đã hiển thị toàn bộ {{total}} bài tập",
+    "loading_more": "Đang tải thêm bài tập...",
     "loading_library": "Đang tải thư viện...",
     "no_exercises": "Không tìm thấy bài tập phù hợp",
     "no_exercises_desc": "Hãy thử thay đổi từ khóa tìm kiếm, bộ lọc nhóm cơ hoặc xóa các bộ lọc hiện tại.",
@@ -366,7 +369,15 @@
     "prompt_overload": "Tại sao hôm nay lại đề xuất tăng tải tạ?",
     "prompt_nutrition": "Đánh giá lượng protein và calo mục tiêu của tôi",
     "prompt_deload": "Tôi có nên xếp tuần xả cơ (deload) không?",
-    "welcome_message": "Xin chào! Tôi là Trợ lý Huấn luyện viên FitTrack Gemini AI. Tôi phân tích các buổi tập, tiến trình 1RM, dinh dưỡng và chỉ số phục hồi để đưa ra lời khuyên cá nhân hóa. Hôm nay bạn muốn tối ưu mục tiêu nào?"
+    "welcome_message": "Xin chào! Tôi là Trợ lý Huấn luyện viên FitTrack Gemini AI. Tôi phân tích các buổi tập, tiến trình 1RM, dinh dưỡng và chỉ số phục hồi để đưa ra lời khuyên cá nhân hóa. Hôm nay bạn muốn tối ưu mục tiêu nào?",
+    "new_chat": "Cuộc trò chuyện mới",
+    "chat_history": "Lịch sử trò chuyện",
+    "no_conversations": "Chưa có cuộc trò chuyện nào",
+    "delete_chat": "Xóa cuộc trò chuyện",
+    "copy_reply": "Sao chép câu trả lời",
+    "copied": "Đã sao chép",
+    "default_chat_title": "Tư vấn thể hình",
+    "switch_threads": "Chuyển cuộc trò chuyện"
   },
   "profile": {
     "title": "Hồ Sơ & Cài Đặt",

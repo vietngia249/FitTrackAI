@@ -1,11 +1,11 @@
 ---
 document: AI
-version: 1.0.0
+version: 1.1.0
 status: active
 
 created_at: 2026-09-16T07:18:00+07:00
-updated_at: 2026-09-16T07:18:00+07:00
-last_verified_at: 2026-09-16T07:18:00+07:00
+updated_at: 2026-09-16T08:00:00+07:00
+last_verified_at: 2026-09-16T08:00:00+07:00
 
 source_snapshot: 2026-09-16
 source_commit: d051dae
@@ -72,6 +72,10 @@ While Gemini handles qualitative questions, load progressions are calculated det
 - Exercises `≥ 60 kg`: `+5.0 kg` increment
 - Deload Trigger: Triggered when recovery score $< 72\%$, advising a `40%` working volume reduction.
 
+### D. Multi-Turn Conversational Memory & Gemini-Style Chat Threads
+- **Multi-Turn Context Ingestion**: The backend `/api/v1/gemini/chat` accepts an optional `history` array of prior `{ role: 'user' | 'assistant', text: string }` turns. The service converts these turns into Gemini's native `contents` array (`user` and `model` roles), ensuring follow-up queries retain full conversational context.
+- **Client-Side Thread Isolation**: Threads are organized similarly to Google Gemini with a collapsible thread management sidebar, individual thread history, copy actions, and per-user local storage persistence (`fittrack_gemini_threads_${userId}`).
+
 ---
 
 ## 3. Client-Side Edge CV: MediaPipe Pose
@@ -115,4 +119,5 @@ Located in `frontend/src/features/formAnalysis/audioFeedback.ts`:
 
 | Version | Date | Changes |
 |---|---|---|
+| 1.1.0 | 2026-09-16 | Added multi-turn conversational context retention and Gemini-style thread management |
 | 1.0.0 | 2026-09-16 | Initial baseline of dual-engine AI architecture, Gemini prompts, and MediaPipe CV kinematics |

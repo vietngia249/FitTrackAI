@@ -27,3 +27,12 @@ export interface ChatMessage {
   timestamp: string;
   budgetRemaining?: number;
 }
+
+export interface ChatThread {
+  id: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+  messages: ChatMessage[];
+}
+
