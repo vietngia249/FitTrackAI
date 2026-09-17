@@ -67,7 +67,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.setItem('fittrack_user', JSON.stringify(data.user));
         }
       } catch {
-        // No active session or cookie expired
+        // Refresh cookie expired or unavailable; clear stale access token
+        if (mounted) {
+          setAccessToken(null);
+          localStorage.removeItem('fittrack_access_token');
+        }
       } finally {
         if (mounted) {
           setIsLoading(false);
@@ -139,11 +143,74 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const updateProfile = async (data: any) => {
-    const token = accessToken || localStorage.getItem('fittrack_access_token');
-    if (!token) throw new Error('You must be logged in to update your profile');
-    const updatedUser = await apiUpdateProfile(token, data);
-    setUser(updatedUser);
-    localStorage.setItem('fittrack_user', JSON.stringify(updatedUser));
+    let token = accessToken || localStorage.getItem('fittrack_access_token');
+
+    // Helper to merge local user state so user input is never lost
+    const updateLocalUser = () => {
+      const mergedUser: User = {
+        ...(user || {
+          id: 'local-user',
+          email: '',
+          displayName: data.displayName || 'Athlete',
+          createdAt: new Date().toISOString(),
+        }),
+        displayName: data.displayName || user?.displayName || 'Athlete',
+        profile: {
+          ...(user?.profile || {}),
+          ...data,
+        },
+      };
+      setUser(mergedUser);
+      localStorage.setItem('fittrack_user', JSON.stringify(mergedUser));
+      return mergedUser;
+    };
+
+    if (token) {
+      try {
+        const updatedUser = await apiUpdateProfile(token, data);
+        setUser(updatedUser);
+        localStorage.setItem('fittrack_user', JSON.stringify(updatedUser));
+        return;
+      } catch (err: any) {
+        // If 401 Unauthorized or token invalid/expired, attempt silent token refresh once
+        if (
+          err.statusCode === 401 ||
+          err.status === 401 ||
+          err.message?.includes('token') ||
+          err.message?.includes('Unauthorized')
+        ) {
+          try {
+            const refreshRes = await apiRefreshToken();
+            token = refreshRes.accessToken;
+            setAccessToken(token);
+            localStorage.setItem('fittrack_access_token', token);
+
+            // Retry update with refreshed token
+            const updatedUser = await apiUpdateProfile(token, data);
+            setUser(updatedUser);
+            localStorage.setItem('fittrack_user', JSON.stringify(updatedUser));
+            return;
+          } catch {
+            // Both access token and refresh token expired / invalid
+            updateLocalUser();
+            setAccessToken(null);
+            localStorage.removeItem('fittrack_access_token');
+            openLoginModal();
+            throw new Error(
+              'Phiên đăng nhập đã hết hạn. Dữ liệu đã được lưu tạm trên máy. Vui lòng đăng nhập lại để đồng bộ.'
+            );
+          }
+        }
+        throw err;
+      }
+    } else {
+      // User is editing profile without an active access token
+      updateLocalUser();
+      openLoginModal();
+      throw new Error(
+        'Bạn chưa đăng nhập. Dữ liệu đã được lưu tạm trên máy. Vui lòng đăng nhập để lưu vào tài khoản.'
+      );
+    }
   };
 
   return (

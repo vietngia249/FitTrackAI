@@ -119,9 +119,12 @@ export async function apiUpdateProfile(
     body: JSON.stringify(data),
   });
 
-  const json = await res.json();
+  const json = await res.json().catch(() => ({ message: 'Network response error' }));
   if (!res.ok) {
-    throw new Error(json.message || 'Failed to update profile');
+    const error: any = new Error(json.message || 'Failed to update profile');
+    error.status = res.status;
+    error.statusCode = res.status;
+    throw error;
   }
   return json.data.user;
 }

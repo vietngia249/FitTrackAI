@@ -322,9 +322,24 @@ export const ProfilePage: React.FC = () => {
         )}
 
         {saveError && (
-          <div className="p-3.5 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-center gap-2.5 text-rose-600 dark:text-rose-400 text-sm">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{saveError}</span>
+          <div className="p-3.5 bg-rose-500/10 border border-rose-500/30 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-rose-600 dark:text-rose-400 text-sm">
+            <div className="flex items-center gap-2.5">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{saveError}</span>
+            </div>
+            {(saveError.includes('hết hạn') ||
+              saveError.includes('expired') ||
+              saveError.includes('token') ||
+              saveError.includes('đăng nhập') ||
+              saveError.includes('Unauthorized')) && (
+              <button
+                type="button"
+                onClick={openLoginModal}
+                className="px-3.5 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs rounded-lg shadow cursor-pointer shrink-0 self-start sm:self-auto transition-all active:scale-95"
+              >
+                {t('common.sign_in', 'Sign In')}
+              </button>
+            )}
           </div>
         )}
 
