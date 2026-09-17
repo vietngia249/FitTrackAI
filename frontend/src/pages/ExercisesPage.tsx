@@ -99,19 +99,18 @@ export const ExercisesPage: React.FC = () => {
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-950/40 via-slate-900 to-slate-900 border border-slate-800/80 p-6 sm:p-8 shadow-xl">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-500/10 via-slate-50 to-white dark:from-emerald-950/40 dark:via-slate-900 dark:to-slate-900 border border-slate-200 dark:border-slate-800/80 p-6 sm:p-8 shadow-sm dark:shadow-xl">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
               <Dumbbell className="w-3.5 h-3.5" />
-              <span>800+ Verified Movements & Mechanics</span>
+              <span>{t('exercises.verified_badge')}</span>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-              Exercise Library
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              {t('exercises.title')}
             </h1>
-            <p className="text-slate-400 text-sm leading-relaxed">
-              Explore biomechanically categorized exercises, filter by muscle groups, equipment,
-              or jump directly into the AI Form Coach for real-time kinematic posture correction.
+            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+              {t('exercises.subtitle')}
             </p>
           </div>
 
@@ -148,38 +147,38 @@ export const ExercisesPage: React.FC = () => {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-3 py-2.5 rounded-xl bg-white dark:bg-[#0e131f] border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:border-emerald-500 capitalize shadow-sm"
+              className="px-3 py-2.5 rounded-xl bg-white dark:bg-[#0e131f] border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:border-emerald-500 capitalize shadow-sm cursor-pointer"
             >
-              <option value="all">All Categories</option>
-              <option value="strength">Strength</option>
-              <option value="cardio">Cardio</option>
-              <option value="stretching">Stretching</option>
-              <option value="plyometrics">Plyometrics</option>
+              <option value="all">{t('exercises.all_categories')}</option>
+              <option value="strength">{t('exercises.cat_strength')}</option>
+              <option value="cardio">{t('exercises.cat_cardio')}</option>
+              <option value="stretching">{t('exercises.cat_stretching')}</option>
+              <option value="plyometrics">{t('exercises.cat_plyometrics')}</option>
             </select>
 
             <select
               value={selectedEquipment}
               onChange={(e) => setSelectedEquipment(e.target.value)}
-              className="px-3 py-2.5 rounded-xl bg-white dark:bg-[#0e131f] border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:border-emerald-500 capitalize shadow-sm"
+              className="px-3 py-2.5 rounded-xl bg-white dark:bg-[#0e131f] border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:border-emerald-500 capitalize shadow-sm cursor-pointer"
             >
-              <option value="all">All Equipment</option>
-              <option value="body only">Body Only</option>
-              <option value="barbell">Barbell</option>
-              <option value="dumbbell">Dumbbell</option>
-              <option value="cable">Cable</option>
-              <option value="machine">Machine</option>
-              <option value="bands">Bands</option>
+              <option value="all">{t('exercises.all_equipment')}</option>
+              <option value="body only">{t('exercises.equip_body_only')}</option>
+              <option value="barbell">{t('exercises.equip_barbell')}</option>
+              <option value="dumbbell">{t('exercises.equip_dumbbell')}</option>
+              <option value="cable">{t('exercises.equip_cable')}</option>
+              <option value="machine">{t('exercises.equip_machine')}</option>
+              <option value="bands">{t('exercises.equip_bands')}</option>
             </select>
 
             <select
               value={selectedLevel}
               onChange={(e) => setSelectedLevel(e.target.value)}
-              className="px-3 py-2.5 rounded-xl bg-white dark:bg-[#0e131f] border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:border-emerald-500 capitalize shadow-sm"
+              className="px-3 py-2.5 rounded-xl bg-white dark:bg-[#0e131f] border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-200 focus:outline-none focus:border-emerald-500 capitalize shadow-sm cursor-pointer"
             >
-              <option value="all">All Levels</option>
-              <option value="beginner">Beginner</option>
-              <option value="intermediate">Intermediate</option>
-              <option value="expert">Expert</option>
+              <option value="all">{t('exercises.all_levels')}</option>
+              <option value="beginner">{t('exercises.lvl_beginner')}</option>
+              <option value="intermediate">{t('exercises.lvl_intermediate')}</option>
+              <option value="expert">{t('exercises.lvl_expert')}</option>
             </select>
 
             {(search ||
@@ -213,7 +212,7 @@ export const ExercisesPage: React.FC = () => {
                     : 'bg-white dark:bg-[#0e131f] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 border border-slate-200 dark:border-slate-800/80 hover:border-slate-300 dark:hover:border-slate-700 shadow-sm'
                 }`}
               >
-                {muscle === 'all' ? 'All Muscles' : muscle}
+                {muscle === 'all' ? t('exercises.all_muscles') : muscle}
               </button>
             );
           })}
@@ -224,12 +223,11 @@ export const ExercisesPage: React.FC = () => {
       <div>
         <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-4 px-1">
           <span>
-            Showing <strong className="text-slate-800 dark:text-slate-200">{exercises.length}</strong> of{' '}
-            <strong className="text-slate-800 dark:text-slate-200">{totalCount}</strong> exercises
+            {t('exercises.showing_results', { count: exercises.length, total: totalCount })}
           </span>
           {loading && (
-            <span className="text-emerald-500 dark:text-emerald-400 animate-pulse flex items-center gap-1">
-              <Activity className="w-3.5 h-3.5" /> Loading library...
+            <span className="text-emerald-600 dark:text-emerald-400 animate-pulse flex items-center gap-1">
+              <Activity className="w-3.5 h-3.5" /> {t('exercises.loading_library')}
             </span>
           )}
         </div>
@@ -251,13 +249,13 @@ export const ExercisesPage: React.FC = () => {
             </div>
             <h3 className="font-bold text-slate-800 dark:text-slate-200 text-base mb-1">{t('exercises.no_exercises')}</h3>
             <p className="text-slate-500 dark:text-slate-400 text-xs mb-4">
-              Try adjusting your search terms, muscle group filters, or clear active filters.
+              {t('exercises.no_exercises_desc')}
             </p>
             <button
               onClick={handleResetFilters}
-              className="px-4 py-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-xs font-semibold hover:bg-emerald-500/20 transition cursor-pointer"
+              className="px-4 py-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 text-xs font-semibold hover:bg-emerald-500/20 transition cursor-pointer"
             >
-              Clear All Filters
+              {t('exercises.clear_filters')}
             </button>
           </div>
         )}
