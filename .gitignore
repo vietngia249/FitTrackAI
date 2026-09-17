@@ -47,6 +47,5 @@ redis_data/
 # Exclude all Markdown files from Git (local only)
 *.md
 **/*.md
-!AGENTS.md
-!agent.md
 !README.md
+!AGENTS.md
