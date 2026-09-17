@@ -474,5 +474,75 @@
     "workload_balance": "Tỷ trọng khối lượng tập luyện theo từng nhóm cơ",
     "no_volume_distribution": "Chưa Có Dữ Liệu Khối Lượng Cơ",
     "no_volume_desc": "Hoàn thành các buổi tập nhắm vào các nhóm cơ để xem biểu đồ phân bố khối lượng."
+  },
+  "toast": {
+    "water_logged": "Đã thêm {{amount}}ml nước",
+    "water_reset": "Đã đặt lại lượng nước uống",
+    "food_logged": "Đã lưu món ăn thành công",
+    "food_updated": "Đã cập nhật món ăn",
+    "food_deleted": "Đã xóa món ăn",
+    "meal_deleted": "Đã xóa bữa ăn",
+    "favorite_added": "Đã thêm vào danh sách yêu thích",
+    "favorite_removed": "Đã xóa khỏi danh sách yêu thích",
+    "copied_to_clipboard": "Đã sao chép vào bộ nhớ tạm!"
+  },
+  "water": {
+    "title": "Lượng Nước Uống",
+    "daily_goal": "Mục Tiêu Mỗi Ngày",
+    "logged": "Đã Uống",
+    "remaining": "Còn Lại",
+    "add_200": "+200 ml",
+    "add_350": "+350 ml",
+    "add_500": "+500 ml",
+    "reset": "Đặt lại",
+    "goal_achieved": "Đạt mục tiêu! Cơ thể được cấp đủ nước."
+  },
+  "heatmap": {
+    "title": "Tần Suất Tập Luyện",
+    "subtitle": "Biểu đồ chăm chỉ trong 12 tuần gần nhất",
+    "active_days": "Ngày Tập",
+    "streak": "Chuỗi Hiện Tại",
+    "less": "Ít",
+    "more": "Nhiều",
+    "no_activity": "Không có buổi tập nào",
+    "volume_on": "{{volume}} kg khối lượng vào {{date}}"
+  },
+  "macro_rings": {
+    "title": "Cân Bằng Dinh Dưỡng",
+    "subtitle": "Tỷ lệ phân bổ mục tiêu hàng ngày",
+    "protein": "Chất đạm",
+    "carbs": "Tinh bột",
+    "fat": "Chất béo",
+    "calories": "Calories",
+    "achieved": "Đạt được"
+  },
+  "favorites": {
+    "title": "Món Ăn Yêu Thích",
+    "subtitle": "Thêm nhanh các món ăn bạn thường dùng",
+    "empty_title": "Chưa Có Món Yêu Thích Nào",
+    "empty_desc": "Bấm vào biểu tượng ngôi sao ở món ăn bất kỳ để lưu vào đây và thêm nhanh chỉ với 1 click.",
+    "add_to_meal": "Thêm Vào Bữa",
+    "select_meal": "Chọn Bữa Ăn"
+  },
+  "compare": {
+    "title": "So Sánh Ảnh Tiến Trình",
+    "subtitle": "So sánh sự chuyển biến vóc dáng qua các mốc thời gian",
+    "before": "Trước",
+    "after": "Sau",
+    "select_first": "Chọn Ảnh Thứ Nhất",
+    "select_second": "Chọn Ảnh Thứ Hai",
+    "no_photos_to_compare": "Bạn cần ít nhất 2 ảnh tiến trình để sử dụng công cụ so sánh này.",
+    "days_between": "Cách nhau {{days}} ngày",
+    "compare_btn": "So Sánh Ảnh"
+  },
+  "form_score": {
+    "latest_score": "Điểm Huấn Luyện Viên AI Form",
+    "latest_exercise": "Động Tác Gần Nhất",
+    "no_score_yet": "Chưa Có Phiên Chấm Điểm Nào",
+    "no_score_desc": "Sử dụng AI Form Coach cùng camera để phân tích kỹ thuật squat, deadlift, hít đất hoặc plank.",
+    "status_excellent": "Kỹ Thuật Xuất Sắc",
+    "status_good": "Kỹ Thuật Khá Tốt",
+    "status_needs_work": "Cần Tinh Chỉnh Động Tác",
+    "reps_analyzed": "Đã phân tích {{count}} reps"
   }
 }

@@ -118,6 +118,22 @@ export const AiFormPage: React.FC = () => {
       audioFeedback.speakCue(`${evalResult.repCount} reps!`);
     }
 
+    if (evalResult.isRepCompletedThisFrame) {
+      try {
+        localStorage.setItem(
+          'fittrack_last_form_score',
+          JSON.stringify({
+            exerciseType: selectedExercise,
+            formScore: evalResult.formScore,
+            repCount: evalResult.repCount,
+            updatedAt: new Date().toISOString(),
+          })
+        );
+      } catch {
+        // Ignore storage error
+      }
+    }
+
     if (isRunning) {
       animFrameRef.current = requestAnimationFrame(updateLoop);
     }

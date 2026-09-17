@@ -14,25 +14,55 @@ import {
   Loader2,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { fetchAnalyticsOverview } from '../features/analytics/analyticsApi';
-import { getDailyNutritionApi, getNutritionGoalsApi, DEFAULT_GOALS } from '../features/nutrition/nutritionApi';
-import { fetchPlans } from '../features/workouts/workoutApi';
-import { AnalyticsOverview } from '../features/analytics/analyticsTypes';
-import { DailyNutritionGoals } from '../features/nutrition/nutritionTypes';
-import { WorkoutPlan } from '../features/workouts/workoutTypes';
-import { useAuth } from '../features/auth/AuthContext';
+import { fetchAnalyticsOverview } from '../features/analytics/analyticsApi.js';
+import { getDailyNutritionApi, getNutritionGoalsApi, DEFAULT_GOALS } from '../features/nutrition/nutritionApi.js';
+import { fetchPlans, getLocalHistorySessions } from '../features/workouts/workoutApi.js';
+import { AnalyticsOverview } from '../features/analytics/analyticsTypes.js';
+import { DailyNutritionGoals, DailyNutritionSummary } from '../features/nutrition/nutritionTypes.js';
+import { WorkoutPlan, WorkoutSession } from '../features/workouts/workoutTypes.js';
+import { useAuth } from '../features/auth/AuthContext.js';
+import { WaterIntakeWidget } from '../features/nutrition/WaterIntakeWidget.js';
+import { MacroRingsDashboard } from '../features/nutrition/MacroRingsDashboard.js';
+import { ActivityHeatmapWidget } from '../features/analytics/ActivityHeatmapWidget.js';
+
+interface LastFormScore {
+  exerciseType: string;
+  formScore: number;
+  repCount: number;
+  updatedAt: string;
+}
 
 export const DashboardPage: React.FC = () => {
   const { t } = useTranslation();
   const { user, accessToken } = useAuth();
 
   const [overview, setOverview] = useState<AnalyticsOverview | null>(null);
-  const [caloriesConsumed, setCaloriesConsumed] = useState<number | null>(null);
+  const [nutritionSummary, setNutritionSummary] = useState<DailyNutritionSummary>({
+    calories: 0,
+    protein: 0,
+    carbohydrates: 0,
+    fat: 0,
+  });
   const [goals, setGoals] = useState<DailyNutritionGoals>(DEFAULT_GOALS);
   const [plans, setPlans] = useState<WorkoutPlan[]>([]);
+  const [historySessions, setHistorySessions] = useState<WorkoutSession[]>([]);
+  const [lastFormScore, setLastFormScore] = useState<LastFormScore | null>(null);
   const [loadingKpis, setLoadingKpis] = useState(true);
 
   useEffect(() => {
+    // Load local form score
+    try {
+      const savedScore = localStorage.getItem('fittrack_last_form_score');
+      if (savedScore) {
+        setLastFormScore(JSON.parse(savedScore));
+      }
+    } catch {
+      // Ignore
+    }
+
+    // Load local history sessions
+    setHistorySessions(getLocalHistorySessions());
+
     const today = new Date().toISOString().split('T')[0];
     Promise.all([
       fetchAnalyticsOverview(accessToken),
@@ -42,17 +72,18 @@ export const DashboardPage: React.FC = () => {
     ])
       .then(([ov, nutrition, g, p]) => {
         setOverview(ov);
-        setCaloriesConsumed(nutrition.summary.calories);
+        setNutritionSummary(nutrition.summary);
         setGoals(g);
         setPlans(p);
       })
       .finally(() => setLoadingKpis(false));
   }, [accessToken]);
 
+  const caloriesConsumed = nutritionSummary.calories;
   const caloriePercent =
-    caloriesConsumed !== null
+    caloriesConsumed > 0
       ? Math.min(Math.round((caloriesConsumed / goals.calorieTarget) * 100), 100)
-      : null;
+      : 0;
 
   const currentPlan = plans.length > 0 ? plans[0] : null;
 
@@ -194,25 +225,74 @@ export const DashboardPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Form Score — static badge until AI form backend is built */}
+        {/* Form Score — Connected to live AI form score */}
         <div className="glass-panel glass-panel-hover p-5 rounded-2xl">
           <div className="flex items-center justify-between">
             <span className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider">
               {t('dashboard.form_score')}
             </span>
-            <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">
+            <div
+              className={`p-2 rounded-xl ${
+                lastFormScore && lastFormScore.formScore >= 85
+                  ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                  : lastFormScore && lastFormScore.formScore >= 70
+                  ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                  : 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400'
+              }`}
+            >
               <Award className="w-4 h-4" />
             </div>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-slate-900 dark:text-white">—</span>
+            {lastFormScore ? (
+              <>
+                <span
+                  className={`text-3xl font-extrabold ${
+                    lastFormScore.formScore >= 85
+                      ? 'text-emerald-500'
+                      : lastFormScore.formScore >= 70
+                      ? 'text-amber-500'
+                      : 'text-rose-500'
+                  }`}
+                >
+                  {lastFormScore.formScore}
+                </span>
+                <span className="text-xs font-semibold text-slate-400">/100</span>
+              </>
+            ) : (
+              <span className="text-3xl font-extrabold text-slate-900 dark:text-white">—</span>
+            )}
           </div>
           <div className="mt-2 flex items-center text-xs text-slate-500 dark:text-slate-400 font-medium">
-            <Link to="/ai-form" className="text-teal-600 dark:text-teal-400 hover:underline">
-              {t('dashboard.run_ai_form', 'Run AI Form Analysis →')}
-            </Link>
+            {lastFormScore ? (
+              <Link
+                to="/ai-form"
+                className="text-teal-600 dark:text-teal-400 hover:underline capitalize truncate"
+              >
+                {lastFormScore.exerciseType.replace('_', ' ')} • {lastFormScore.repCount} reps →
+              </Link>
+            ) : (
+              <Link to="/ai-form" className="text-teal-600 dark:text-teal-400 hover:underline">
+                {t('dashboard.run_ai_form', 'Run AI Form Analysis →')}
+              </Link>
+            )}
           </div>
         </div>
+      </div>
+
+      {/* Daily Nutrition & Hydration Command Center */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <WaterIntakeWidget targetMl={goals.waterTargetMl} />
+        <MacroRingsDashboard
+          calories={nutritionSummary.calories}
+          calorieTarget={goals.calorieTarget}
+          protein={nutritionSummary.protein}
+          proteinTarget={goals.proteinTarget}
+          carbs={nutritionSummary.carbohydrates}
+          carbsTarget={goals.carbsTarget}
+          fat={nutritionSummary.fat}
+          fatTarget={goals.fatTarget}
+        />
       </div>
 
       {/* Split Grid: Today's Plan & Recent Activity */}
@@ -297,6 +377,12 @@ export const DashboardPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* 12-Week Workout Activity Heatmap */}
+      <ActivityHeatmapWidget
+        sessions={historySessions}
+        streakDays={overview?.streakDays ?? 0}
+      />
     </div>
   );
 };

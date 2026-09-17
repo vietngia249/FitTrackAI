@@ -474,5 +474,75 @@
     "workload_balance": "Proportional training volume per muscle group",
     "no_volume_distribution": "No Volume Distribution Yet",
     "no_volume_desc": "Complete workouts targeting specific muscle groups to view your distribution chart."
+  },
+  "toast": {
+    "water_logged": "Added {{amount}}ml water",
+    "water_reset": "Water intake reset",
+    "food_logged": "Food logged successfully",
+    "food_updated": "Food item updated",
+    "food_deleted": "Food item deleted",
+    "meal_deleted": "Meal deleted",
+    "favorite_added": "Added to favorite foods",
+    "favorite_removed": "Removed from favorite foods",
+    "copied_to_clipboard": "Copied to clipboard!"
+  },
+  "water": {
+    "title": "Water Intake",
+    "daily_goal": "Daily Target",
+    "logged": "Logged",
+    "remaining": "Remaining",
+    "add_200": "+200 ml",
+    "add_350": "+350 ml",
+    "add_500": "+500 ml",
+    "reset": "Reset",
+    "goal_achieved": "Goal Achieved! Outstanding hydration."
+  },
+  "heatmap": {
+    "title": "Workout Consistency",
+    "subtitle": "Activity heatmap across the last 12 weeks",
+    "active_days": "Active Days",
+    "streak": "Current Streak",
+    "less": "Less",
+    "more": "More",
+    "no_activity": "No workouts recorded",
+    "volume_on": "{{volume}} kg volume on {{date}}"
+  },
+  "macro_rings": {
+    "title": "Macronutrient Balance",
+    "subtitle": "Real-time daily target distribution",
+    "protein": "Protein",
+    "carbs": "Carbs",
+    "fat": "Fat",
+    "calories": "Calories",
+    "achieved": "Achieved"
+  },
+  "favorites": {
+    "title": "Favorite Foods",
+    "subtitle": "Quickly add meals you eat regularly",
+    "empty_title": "No Favorite Foods Yet",
+    "empty_desc": "Star any logged or searched food item to save it here for 1-click logging.",
+    "add_to_meal": "Add to Meal",
+    "select_meal": "Select Meal Section"
+  },
+  "compare": {
+    "title": "Side-by-Side Comparison",
+    "subtitle": "Compare your transformation photos across different dates",
+    "before": "Before",
+    "after": "After",
+    "select_first": "Select First Photo",
+    "select_second": "Select Second Photo",
+    "no_photos_to_compare": "You need at least 2 progress photos to use the comparison tool.",
+    "days_between": "{{days}} days apart",
+    "compare_btn": "Compare Photos"
+  },
+  "form_score": {
+    "latest_score": "AI Form Coach Score",
+    "latest_exercise": "Last Movement",
+    "no_score_yet": "No Form Session Recorded",
+    "no_score_desc": "Use AI Form Coach with your camera to analyze your squat, deadlift, push-up, or plank.",
+    "status_excellent": "Excellent Form",
+    "status_good": "Good Form",
+    "status_needs_work": "Needs Form Adjustment",
+    "reps_analyzed": "{{count}} reps analyzed"
   }
 }

@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Camera, Plus, X, Lock, Image as ImageIcon } from 'lucide-react';
+import { Camera, Plus, X, Lock, Image as ImageIcon, Columns2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { ProgressPhoto, PhotoType } from './bodyTypes';
-import { fetchPhotosApi, logPhotoApi } from './bodyApi';
+import { ProgressPhoto, PhotoType } from './bodyTypes.js';
+import { fetchPhotosApi, logPhotoApi } from './bodyApi.js';
+import { PhotoCompareModal } from './PhotoCompareModal.js';
+import { useToast } from '../../context/ToastContext.js';
 
 export const ProgressPhotosSection: React.FC = () => {
   const { t } = useTranslation();
+  const { success } = useToast();
   const [photos, setPhotos] = useState<ProgressPhoto[]>([]);
   const [selectedType, setSelectedType] = useState<PhotoType | 'all'>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCompareOpen, setIsCompareOpen] = useState(false);
   const [activePhoto, setActivePhoto] = useState<ProgressPhoto | null>(null);
 
   // Upload modal state
@@ -51,6 +55,7 @@ export const ProgressPhotosSection: React.FC = () => {
         photoUrl: previewDataUrl,
         notes: uploadNotes.trim() || undefined,
       });
+      success(t('toast.photo_uploaded', 'Progress photo saved'));
       loadPhotos();
       setIsModalOpen(false);
       setPreviewDataUrl(null);
@@ -99,6 +104,16 @@ export const ProgressPhotosSection: React.FC = () => {
               </button>
             ))}
           </div>
+
+          {photos.length >= 2 && (
+            <button
+              onClick={() => setIsCompareOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold border border-slate-200 dark:border-slate-700 transition-all cursor-pointer active:scale-95"
+            >
+              <Columns2 className="w-3.5 h-3.5 text-indigo-500" />
+              <span>{t('compare.compare_btn')}</span>
+            </button>
+          )}
 
           <button
             onClick={() => setIsModalOpen(true)}
@@ -300,6 +315,13 @@ export const ProgressPhotosSection: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Compare Modal */}
+      <PhotoCompareModal
+        isOpen={isCompareOpen}
+        onClose={() => setIsCompareOpen(false)}
+        photos={photos}
+      />
     </div>
   );
 };

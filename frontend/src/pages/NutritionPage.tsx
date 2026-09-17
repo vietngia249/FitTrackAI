@@ -1,33 +1,41 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Plus,
   Target,
   ChevronLeft,
   ChevronRight,
-  Droplets,
   Calendar,
+  Star,
 } from 'lucide-react';
 import {
+  FoodItem,
   DailyNutritionResponse,
   DailyNutritionGoals,
   MealType,
   MealFoodItem,
-} from '../features/nutrition/nutritionTypes';
+} from '../features/nutrition/nutritionTypes.js';
 import {
   getDailyNutritionApi,
   getNutritionGoalsApi,
   deleteMealItemApi,
+  logMealApi,
   DEFAULT_GOALS,
-} from '../features/nutrition/nutritionApi';
-import { MacroCard } from '../features/nutrition/MacroCard';
-import { MealSection } from '../features/nutrition/MealSection';
-import { FoodSearchModal } from '../features/nutrition/FoodSearchModal';
-import { NutritionGoalsModal } from '../features/nutrition/NutritionGoalsModal';
-import { EditMealItemModal } from '../features/nutrition/EditMealItemModal';
+} from '../features/nutrition/nutritionApi.js';
+import { MacroCard } from '../features/nutrition/MacroCard.js';
+import { MealSection } from '../features/nutrition/MealSection.js';
+import { FoodSearchModal } from '../features/nutrition/FoodSearchModal.js';
+import { NutritionGoalsModal } from '../features/nutrition/NutritionGoalsModal.js';
+import { EditMealItemModal } from '../features/nutrition/EditMealItemModal.js';
+import { FavoriteFoodsModal } from '../features/nutrition/FavoriteFoodsModal.js';
+import { useFavoriteFoods } from '../features/nutrition/useFavoriteFoods.js';
+import { WaterIntakeWidget } from '../features/nutrition/WaterIntakeWidget.js';
+import { useToast } from '../context/ToastContext.js';
 
 export const NutritionPage: React.FC = () => {
   const { t } = useTranslation();
+  const { success } = useToast();
+  const { favorites, isFavorite, toggleFavorite } = useFavoriteFoods();
 
   // Date management: default to today (YYYY-MM-DD)
   const [selectedDate, setSelectedDate] = useState<string>(() => {
@@ -42,18 +50,12 @@ export const NutritionPage: React.FC = () => {
   });
 
   const [goals, setGoals] = useState<DailyNutritionGoals>(DEFAULT_GOALS);
-  const WATER_KEY = (date: string) => `fittrack_water_${date}`;
-  const [waterConsumedMl, setWaterConsumedMl] = useState<number>(() => {
-    const today = new Date().toISOString().split('T')[0];
-    const stored = localStorage.getItem(`fittrack_water_${today}`);
-    return stored ? Number(stored) : 0;
-  });
-  const isFirstRender = useRef(true);
 
   // Modals state
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
   const [activeLogMealType, setActiveLogMealType] = useState<MealType>('breakfast');
   const [isGoalsModalOpen, setIsGoalsModalOpen] = useState(false);
+  const [isFavoritesModalOpen, setIsFavoritesModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<MealFoodItem | null>(null);
 
   const fetchNutrition = useCallback(async () => {
@@ -64,21 +66,6 @@ export const NutritionPage: React.FC = () => {
   useEffect(() => {
     fetchNutrition();
   }, [fetchNutrition]);
-
-  // Load water from localStorage when date changes
-  useEffect(() => {
-    const stored = localStorage.getItem(WATER_KEY(selectedDate));
-    setWaterConsumedMl(stored ? Number(stored) : 0);
-  }, [selectedDate]);
-
-  // Persist water intake on every change (skip initial mount)
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    localStorage.setItem(WATER_KEY(selectedDate), String(waterConsumedMl));
-  }, [waterConsumedMl, selectedDate]);
 
   useEffect(() => {
     getNutritionGoalsApi().then(setGoals);
@@ -107,11 +94,52 @@ export const NutritionPage: React.FC = () => {
 
   const handleDeleteItem = async (itemId: string) => {
     await deleteMealItemApi(itemId);
+    success(t('toast.food_deleted', 'Food item deleted'));
     fetchNutrition();
   };
 
-  const handleAddWater = (amount: number) => {
-    setWaterConsumedMl((prev) => Math.min(prev + amount, 6000));
+  const handleToggleMealFavorite = (item: MealFoodItem) => {
+    toggleFavorite({
+      id: item.foodId || item.id,
+      name: item.name,
+      servingSize: item.servingQty,
+      servingUnit: item.servingUnit,
+      calories: item.calories,
+      protein: item.protein,
+      carbohydrates: item.carbohydrates,
+      fat: item.fat,
+      isCustom: true,
+    });
+  };
+
+  const handleAddFavoriteToMeal = async (
+    mealType: MealType,
+    food: FoodItem,
+    qty: number
+  ) => {
+    try {
+      await logMealApi({
+        mealType,
+        loggedDate: selectedDate,
+        items: [
+          {
+            foodId: food.id,
+            name: food.name,
+            servingQty: qty,
+            servingUnit: food.servingUnit,
+            calories: Math.round(food.calories * qty),
+            protein: Math.round(food.protein * qty * 10) / 10,
+            carbohydrates: Math.round(food.carbohydrates * qty * 10) / 10,
+            fat: Math.round(food.fat * qty * 10) / 10,
+          },
+        ],
+      });
+      success(t('toast.food_logged', 'Food logged successfully'));
+      setIsFavoritesModalOpen(false);
+      fetchNutrition();
+    } catch {
+      // Handled
+    }
   };
 
   const isToday = selectedDate === new Date().toISOString().split('T')[0];
@@ -133,6 +161,16 @@ export const NutritionPage: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-auto">
+          <button
+            onClick={() => setIsFavoritesModalOpen(true)}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 font-semibold text-xs border border-amber-200/80 dark:border-amber-800/50 shadow-xs transition-all cursor-pointer hover:bg-amber-100 dark:hover:bg-amber-900/40"
+          >
+            <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+            <span>
+              {t('favorites.title')} {favorites.length > 0 ? `(${favorites.length})` : ''}
+            </span>
+          </button>
+
           <button
             onClick={() => setIsGoalsModalOpen(true)}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/90 dark:hover:bg-slate-700/90 text-slate-700 dark:text-slate-200 font-semibold text-xs border border-slate-200 dark:border-slate-700/60 shadow-sm transition-all cursor-pointer"
@@ -218,54 +256,7 @@ export const NutritionPage: React.FC = () => {
       </div>
 
       {/* Water Intake Tracker */}
-      <div className="glass-panel p-5 rounded-2xl border border-slate-200 dark:border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400">
-            <Droplets className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-lg font-bold text-slate-900 dark:text-white">{t('nutrition.hydration', 'Hydration')}</span>
-              <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
-                {waterConsumedMl} / {goals.waterTargetMl} ml (
-                {Math.round((waterConsumedMl / goals.waterTargetMl) * 100)}%)
-              </span>
-            </div>
-            <div className="w-48 sm:w-64 bg-slate-200 dark:bg-slate-800/80 rounded-full h-1.5 mt-2 overflow-hidden">
-              <div
-                className="bg-sky-500 dark:bg-sky-400 h-full rounded-full transition-all duration-300"
-                style={{
-                  width: `${Math.min(
-                    Math.round((waterConsumedMl / goals.waterTargetMl) * 100),
-                    100
-                  )}%`,
-                }}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => handleAddWater(250)}
-            className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-sky-700 dark:text-sky-300 font-semibold text-xs border border-slate-200 dark:border-slate-700/60 transition-colors cursor-pointer"
-          >
-            +250 ml
-          </button>
-          <button
-            onClick={() => handleAddWater(500)}
-            className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-sky-700 dark:text-sky-300 font-semibold text-xs border border-slate-200 dark:border-slate-700/60 transition-colors cursor-pointer"
-          >
-            +500 ml
-          </button>
-          <button
-            onClick={() => setWaterConsumedMl(0)}
-            className="px-2.5 py-1.5 rounded-xl text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 text-xs transition-colors cursor-pointer"
-          >
-            {t('common.reset', 'Reset')}
-          </button>
-        </div>
-      </div>
+      <WaterIntakeWidget targetMl={goals.waterTargetMl} />
 
       {/* Meals Log with Macro Snapshots */}
       <div className="space-y-4">
@@ -283,6 +274,8 @@ export const NutritionPage: React.FC = () => {
             onOpenLogModal={handleOpenLogModal}
             onEditItem={handleEditItem}
             onDeleteItem={handleDeleteItem}
+            onToggleFavorite={handleToggleMealFavorite}
+            isFavorite={isFavorite}
           />
           <MealSection
             mealType="lunch"
@@ -290,6 +283,8 @@ export const NutritionPage: React.FC = () => {
             onOpenLogModal={handleOpenLogModal}
             onEditItem={handleEditItem}
             onDeleteItem={handleDeleteItem}
+            onToggleFavorite={handleToggleMealFavorite}
+            isFavorite={isFavorite}
           />
           <MealSection
             mealType="dinner"
@@ -297,6 +292,8 @@ export const NutritionPage: React.FC = () => {
             onOpenLogModal={handleOpenLogModal}
             onEditItem={handleEditItem}
             onDeleteItem={handleDeleteItem}
+            onToggleFavorite={handleToggleMealFavorite}
+            isFavorite={isFavorite}
           />
           <MealSection
             mealType="snack"
@@ -304,6 +301,8 @@ export const NutritionPage: React.FC = () => {
             onOpenLogModal={handleOpenLogModal}
             onEditItem={handleEditItem}
             onDeleteItem={handleDeleteItem}
+            onToggleFavorite={handleToggleMealFavorite}
+            isFavorite={isFavorite}
           />
         </div>
       </div>
@@ -323,6 +322,15 @@ export const NutritionPage: React.FC = () => {
         item={editingItem}
         onClose={() => setEditingItem(null)}
         onItemUpdated={fetchNutrition}
+      />
+
+      {/* Favorite Foods Modal */}
+      <FavoriteFoodsModal
+        isOpen={isFavoritesModalOpen}
+        onClose={() => setIsFavoritesModalOpen(false)}
+        favorites={favorites}
+        onRemoveFavorite={toggleFavorite}
+        onSelectFood={handleAddFavoriteToMeal}
       />
 
       {/* Nutrition Goals Calibration Modal */}

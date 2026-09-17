@@ -1,7 +1,7 @@
 import React from 'react';
-import { Coffee, Utensils, Moon, Apple, Plus, Trash2, Pencil } from 'lucide-react';
+import { Coffee, Utensils, Moon, Apple, Plus, Trash2, Pencil, Star } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { Meal, MealFoodItem, MealType } from './nutritionTypes';
+import { Meal, MealFoodItem, MealType } from './nutritionTypes.js';
 
 interface MealSectionProps {
   mealType: MealType;
@@ -9,6 +9,8 @@ interface MealSectionProps {
   onOpenLogModal: (type: MealType) => void;
   onEditItem: (item: MealFoodItem) => void;
   onDeleteItem: (itemId: string) => void;
+  onToggleFavorite?: (item: MealFoodItem) => void;
+  isFavorite?: (foodId: string) => boolean;
 }
 
 export const MealSection: React.FC<MealSectionProps> = ({
@@ -17,6 +19,8 @@ export const MealSection: React.FC<MealSectionProps> = ({
   onOpenLogModal,
   onEditItem,
   onDeleteItem,
+  onToggleFavorite,
+  isFavorite,
 }) => {
   const { t } = useTranslation();
 
@@ -114,6 +118,22 @@ export const MealSection: React.FC<MealSectionProps> = ({
                 </span>
                 {item.id && (
                   <div className="flex items-center gap-1">
+                    {onToggleFavorite && (
+                      <button
+                        type="button"
+                        onClick={() => onToggleFavorite(item)}
+                        title={t('favorites.title', 'Favorite')}
+                        className="p-1.5 rounded-lg text-slate-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-colors cursor-pointer"
+                      >
+                        <Star
+                          className={`w-3.5 h-3.5 ${
+                            isFavorite && isFavorite(item.foodId || item.id)
+                              ? 'text-amber-500 fill-amber-500'
+                              : ''
+                          }`}
+                        />
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={() => onEditItem(item)}
