@@ -63,3 +63,9 @@ Follow Conventional Commits:
 | Dashboard Exercise Translations | Completed | `23b18fd` | Refine light mode contrast and translate default exercise items |
 | Feature Workouts Refinements | Completed | `773e02d` | Refine light mode styling and table header translations in active session and workouts page |
 | Feature Copilot Localization | Completed | `a8bfbbf` | Bind localized initial message and quick prompts in AI copilot drawer |
+| Feature Analytics Localizations | Completed | `7f023a2` | Localize chart labels and refine light mode styling in volume, 1rm, and PR components |
+| Feature Weight Trend Localizations | Completed | `9e90db8` | Localize weight trend title and subtitle in WeightTrendChart |
+| Feature Nutrition Refinements | Completed | `fc94a36` | Localize hydration tracker and meal counts with light mode contrast |
+| Feature Auth Modal Localizations | Completed | `fb78260` | Localize inputs and refine light mode styling in auth modal |
+| Feature Body Measurements Localizations | Completed | `83f4a09` | Localize measurements and progress photo upload with light mode support |
+| Project Documentation & Gitignore | Completed | `c92c684` | Add project README and whitelist in gitignore |
