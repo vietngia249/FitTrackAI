@@ -84,7 +84,7 @@ export const InsightsPage: React.FC = () => {
       const errMsg: ChatMessage = {
         id: `err-${Date.now()}`,
         sender: 'assistant',
-        text: 'Unable to connect to Gemini AI service. Please verify your connection.',
+        text: t('insights.gemini_error'),
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       setChatHistory((prev) => [...prev, errMsg]);
@@ -103,17 +103,14 @@ export const InsightsPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
-            <span>{t('insights.title', 'AI Insights & Gemini')}</span>
-            <span className="px-2 py-0.5 text-xs font-bold rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              PHASE 8
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
+            <span>{t('insights.title')}</span>
+            <span className="px-2 py-0.5 text-xs font-bold rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+              {t('insights.phase_badge')}
             </span>
           </h1>
-          <p className="text-slate-400 text-sm mt-1">
-            {t(
-              'insights.subtitle',
-              'Deterministic progressive overload calculations combined with grounded fitness AI coaching.'
-            )}
+          <p className="text-slate-600 dark:text-slate-400 text-sm mt-1">
+            {t('insights.subtitle')}
           </p>
         </div>
 
@@ -121,15 +118,15 @@ export const InsightsPage: React.FC = () => {
           <button
             onClick={loadRecommendations}
             disabled={loadingRecs}
-            className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white transition-all disabled:opacity-50"
+            className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-all disabled:opacity-50 cursor-pointer shadow-sm"
             title="Refresh Recommendations"
           >
             <RefreshCw className={`w-4 h-4 ${loadingRecs ? 'animate-spin' : ''}`} />
           </button>
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300">
-            <span>Daily Budget:</span>
-            <strong className="text-emerald-400 font-mono">
-              {budgetRemaining} / 15 queries left
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300 shadow-sm">
+            <span>{t('insights.daily_budget')}:</span>
+            <strong className="text-emerald-600 dark:text-emerald-400 font-mono">
+              {t('insights.budget_counter', { remaining: budgetRemaining })}
             </strong>
           </div>
         </div>
@@ -144,22 +141,21 @@ export const InsightsPage: React.FC = () => {
       />
 
       {/* Layer 2: Grounded Gemini AI Interactive Chat */}
-      <div className="glass-panel p-6 rounded-2xl space-y-4 border border-slate-800">
+      <div className="glass-panel p-6 rounded-2xl space-y-4 border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/60 shadow-lg">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400">
+            <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="font-bold text-lg text-white">Interactive Gemini AI Coach</h3>
-              <p className="text-xs text-slate-400">
-                Contextual queries answered strictly using your verified workout, nutrition & 1RM
-                records
+              <h3 className="font-bold text-lg text-slate-900 dark:text-white">{t('insights.interactive_coach')}</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                {t('insights.copilot_disclaimer')}
               </p>
             </div>
           </div>
-          <span className="flex items-center gap-1.5 text-xs px-3 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+          <span className="flex items-center gap-1.5 text-xs px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 shadow-sm">
+            <ShieldCheck className="w-4 h-4 text-emerald-500 dark:text-emerald-400" />
             <span>Anti-Hallucination Grounding</span>
           </span>
         </div>
@@ -167,16 +163,16 @@ export const InsightsPage: React.FC = () => {
         {/* Suggested Queries Chips */}
         <div className="flex flex-wrap gap-2 pt-2">
           {[
-            'How is my progressive overload on Bench Press?',
-            'What is my estimated 1RM progression this month?',
-            'Check my protein adherence against daily goals',
-            'Is it time for a recovery deload week?',
+            t('insights.prompt_bench'),
+            t('insights.prompt_1rm'),
+            t('insights.prompt_protein'),
+            t('insights.prompt_deload'),
           ].map((prompt, idx) => (
             <button
               key={idx}
               onClick={() => handleSendChat(prompt)}
               disabled={chatLoading}
-              className="text-xs px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition-all text-left"
+              className="text-xs px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700/60 transition-all text-left shadow-sm cursor-pointer"
             >
               {prompt}
             </button>
@@ -184,14 +180,14 @@ export const InsightsPage: React.FC = () => {
         </div>
 
         {/* Chat History Box */}
-        <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 max-h-96 overflow-y-auto space-y-3">
+        <div className="bg-slate-50/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 max-h-96 overflow-y-auto space-y-3">
           {chatHistory.map((msg) => (
             <div
               key={msg.id}
               className={`flex gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               {msg.sender === 'assistant' && (
-                <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shrink-0 mt-0.5 text-emerald-400">
+                <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shrink-0 mt-0.5 text-emerald-600 dark:text-emerald-400">
                   <Bot className="w-4 h-4" />
                 </div>
               )}
@@ -199,14 +195,14 @@ export const InsightsPage: React.FC = () => {
               <div
                 className={`max-w-[85%] rounded-2xl px-4 py-3 text-xs leading-relaxed ${
                   msg.sender === 'user'
-                    ? 'bg-emerald-500 text-black font-semibold shadow-md shadow-emerald-500/10'
-                    : 'bg-slate-800/90 text-slate-200 border border-slate-700/80'
+                    ? 'bg-emerald-500 text-white font-semibold shadow-md shadow-emerald-500/10'
+                    : 'bg-white dark:bg-slate-800/90 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700/80 shadow-sm'
                 }`}
               >
-                <p className="whitespace-pre-wrap">{msg.text}</p>
+                <p className="whitespace-pre-wrap">{msg.id === 'msg-init' ? t('insights.welcome_message') : msg.text}</p>
                 <div
                   className={`text-[9px] mt-1.5 flex items-center justify-end ${
-                    msg.sender === 'user' ? 'text-black/60' : 'text-slate-400'
+                    msg.sender === 'user' ? 'text-white/80' : 'text-slate-400 dark:text-slate-500'
                   }`}
                 >
                   <span>{msg.timestamp}</span>
@@ -214,7 +210,7 @@ export const InsightsPage: React.FC = () => {
               </div>
 
               {msg.sender === 'user' && (
-                <div className="w-7 h-7 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0 mt-0.5 text-slate-300">
+                <div className="w-7 h-7 rounded-lg bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 flex items-center justify-center shrink-0 mt-0.5 text-slate-700 dark:text-slate-300">
                   <User className="w-4 h-4" />
                 </div>
               )}
@@ -222,21 +218,21 @@ export const InsightsPage: React.FC = () => {
           ))}
 
           {chatLoading && (
-            <div className="flex gap-3 items-center text-xs text-slate-400">
-              <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shrink-0 text-emerald-400">
+            <div className="flex gap-3 items-center text-xs text-slate-500 dark:text-slate-400">
+              <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shrink-0 text-emerald-500 dark:text-emerald-400">
                 <Bot className="w-4 h-4 animate-spin" />
               </div>
-              <div className="bg-slate-800/80 px-4 py-2.5 rounded-2xl border border-slate-700 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce"></span>
+              <div className="bg-white dark:bg-slate-800/80 px-4 py-2.5 rounded-2xl border border-slate-200 dark:border-slate-700 flex items-center gap-2 shadow-sm">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce"></span>
                 <span
-                  className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce"
+                  className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce"
                   style={{ animationDelay: '0.15s' }}
                 ></span>
                 <span
-                  className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce"
+                  className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-bounce"
                   style={{ animationDelay: '0.3s' }}
                 ></span>
-                <span className="text-slate-400">Consulting training database & formulas...</span>
+                <span className="text-slate-600 dark:text-slate-400">{t('insights.consulting_db')}</span>
               </div>
             </div>
           )}
@@ -256,16 +252,16 @@ export const InsightsPage: React.FC = () => {
             }}
             placeholder={
               budgetRemaining > 0
-                ? 'Ask your coach anything about your training, recovery, or diet...'
-                : 'Daily query budget reached (resets at 00:00)'
+                ? t('insights.input_placeholder')
+                : t('insights.budget_exhausted')
             }
             disabled={budgetRemaining <= 0 || chatLoading}
-            className="w-full pl-4 pr-12 py-3.5 bg-slate-900/90 border border-slate-700 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-all disabled:opacity-50"
+            className="w-full pl-4 pr-12 py-3.5 bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700 rounded-xl text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition-all disabled:opacity-50 shadow-sm"
           />
           <button
             onClick={() => handleSendChat()}
             disabled={!query.trim() || chatLoading || budgetRemaining <= 0}
-            className="absolute right-2 top-3.5 p-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 disabled:opacity-40 text-black transition-all"
+            className="absolute right-2 top-3.5 p-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 disabled:opacity-40 text-white transition-all cursor-pointer shadow-md shadow-emerald-500/20"
           >
             <Send className="w-4 h-4 font-bold" />
           </button>
