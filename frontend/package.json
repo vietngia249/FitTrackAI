@@ -11,6 +11,7 @@
     "lint": "eslint src/ --ext .ts,.tsx || exit 0"
   },
   "dependencies": {
+    "@mediapipe/tasks-vision": "^1.0.1",
     "clsx": "^2.1.1",
     "i18next": "^23.15.1",
     "i18next-browser-languagedetector": "^8.0.0",

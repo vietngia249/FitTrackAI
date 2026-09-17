@@ -7,6 +7,7 @@ interface PoseCanvasOverlayProps {
   evaluation: FormEvaluation;
   width: number;
   height: number;
+  isMirrored?: boolean;
 }
 
 export const PoseCanvasOverlay: React.FC<PoseCanvasOverlayProps> = ({
@@ -14,6 +15,7 @@ export const PoseCanvasOverlay: React.FC<PoseCanvasOverlayProps> = ({
   evaluation,
   width,
   height,
+  isMirrored = false,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
@@ -26,6 +28,10 @@ export const PoseCanvasOverlay: React.FC<PoseCanvasOverlayProps> = ({
     ctx.clearRect(0, 0, width, height);
 
     if (!landmarks || landmarks.length === 0) return;
+
+    // Helper for coordinate conversion (handles mirror horizontally for front-facing webcam)
+    const getX = (normalizedX: number) => (isMirrored ? (1 - normalizedX) * width : normalizedX * width);
+    const getY = (normalizedY: number) => normalizedY * height;
 
     // Determine color theme based on stage
     let strokeColor = '#10b981'; // emerald
@@ -60,8 +66,8 @@ export const PoseCanvasOverlay: React.FC<PoseCanvasOverlayProps> = ({
         (p2.visibility === undefined || p2.visibility > 0.5)
       ) {
         ctx.beginPath();
-        ctx.moveTo(p1.x * width, p1.y * height);
-        ctx.lineTo(p2.x * width, p2.y * height);
+        ctx.moveTo(getX(p1.x), getY(p1.y));
+        ctx.lineTo(getX(p2.x), getY(p2.y));
         ctx.stroke();
       }
     }
@@ -72,8 +78,8 @@ export const PoseCanvasOverlay: React.FC<PoseCanvasOverlayProps> = ({
       const lm = landmarks[i];
       if (!lm || (lm.visibility !== undefined && lm.visibility <= 0.5)) continue;
 
-      const px = lm.x * width;
-      const py = lm.y * height;
+      const px = getX(lm.x);
+      const py = getY(lm.y);
 
       // Outer glow circle
       ctx.beginPath();
@@ -99,8 +105,8 @@ export const PoseCanvasOverlay: React.FC<PoseCanvasOverlayProps> = ({
     }
 
     if (targetLandmark && evaluation.primaryAngle > 0) {
-      const bx = targetLandmark.x * width;
-      const by = targetLandmark.y * height;
+      const bx = getX(targetLandmark.x);
+      const by = getY(targetLandmark.y);
 
       ctx.save();
       ctx.shadowBlur = 0;
@@ -123,7 +129,7 @@ export const PoseCanvasOverlay: React.FC<PoseCanvasOverlayProps> = ({
       ctx.fillText(text, boxX + 7, boxY + 15);
       ctx.restore();
     }
-  }, [landmarks, evaluation, width, height]);
+  }, [landmarks, evaluation, width, height, isMirrored]);
 
   return (
     <canvas
