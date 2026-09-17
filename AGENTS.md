@@ -187,3 +187,5 @@ Every file under `Docs/` features YAML frontmatter with `version`, `updated_at`,
 | Neon Adapter & Auth Login 500 Fix     | Completed | `b3f7ca3` | Integrate @prisma/adapter-neon over WebSocket (port 443), fix login 500 error    |
 | Exercises Pagination & Gemini AI Chat | Completed | `1692583` | Add exercises load more (873 items) and Gemini multi-thread chat history         |
 | Meal Item Edit & Delete Actions       | Completed | `37f16bd` | Add edit food modal with macro scaling and accessible delete confirmation        |
+| Copilot FAB & Gemini Chat History     | Completed | `c554d05` | Circular FAB launcher, Gemini-style persistent history threads, navbar layout    |
+
