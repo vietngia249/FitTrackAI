@@ -44,7 +44,6 @@ export function buildApp() {
   app.register(nutritionRoutes, { prefix: '/api/v1/nutrition' });
   app.register(bodyRoutes, { prefix: '/api/v1/body' });
   app.register(copilotRoutes, { prefix: '/api/v1/gemini' });
-  app.register(copilotRoutes, { prefix: '/api/v1/copilot' });
 
   // Root fallback route
   app.get('/', async () => {

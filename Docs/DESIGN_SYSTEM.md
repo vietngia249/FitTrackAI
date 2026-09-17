@@ -82,9 +82,10 @@ FitTrack AI embodies a modern, ultra-clean aesthetic inspired by high-end biomet
 
 ### A. Navigation System
 - **Desktop Sidebar**:
-  - Collapsed Mini Rail: `w-20`, centers icons with interactive floating tooltips.
+  - Collapsed Mini Rail: `w-20`, displays FitTrack Dumbbell Logo at top, centers nav icons with interactive floating hover tooltips. No auto-expansion on hover.
   - Expanded State: `w-64`, reveals full bilingual labels and active indicator pills.
-  - Burger Toggle: Located at the top of the rail for deliberate expand/collapse toggling.
+  - Brand Header: Displays FitTrack Dumbbell Logo in both states, linking to `/`.
+  - Burger Toggle: Located in the top header immediately to the right of the sidebar for clean, deliberate expand/collapse toggling.
 - **Mobile Bottom Navigation**:
   - Fixed dock pinned to screen bottom (`bottom-0 left-0 right-0 z-40`).
   - Provides instant thumb access to Dashboard, Workouts, Form Coach, Nutrition, and Profile.
@@ -101,10 +102,25 @@ Classes defined in `frontend/src/index.css`:
   - Section headers: `w-5 h-5`
   - Empty state banners: `w-8 h-8` or `w-10 h-10`
 
+### D. Floating Action Button (FAB) & AI Assistant
+- **Circular AI Copilot Launcher**:
+  - Shape: Perfect circle (`w-14 h-14 rounded-full flex items-center justify-center`).
+  - Gradient: `bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-400`.
+  - Icon: Centered `Sparkles` icon (`w-6 h-6 text-slate-950`) with micro-pulse indicator.
+  - Elevation & Glow: `shadow-xl shadow-emerald-500/30 hover:shadow-emerald-500/50 ring-4 ring-emerald-500/20 hover:ring-emerald-500/40`.
+  - Micro-interactions: `hover:scale-110 active:scale-95 transition-all`.
+  - Budget Badge: Positioned at `-top-1 -right-1`, high-contrast dark badge (`bg-slate-950 text-emerald-400 border border-emerald-500/50 text-[10px] font-mono font-extrabold`).
+
+### E. Gemini Chat History System
+- **Left Sidebar**: Slide-over drawer on mobile, collapsible on desktop (`w-72 sm:w-80`) listing recent conversations chronologically by `updatedAt`.
+- **Thread Actions**: Quick "+ New Chat" CTA, inline rename, delete conversation, and active thread highlight.
+- **Persistence**: Scoped storage with initialization lock preventing race condition overwrite.
+
 ---
 
 ## Changelog
 
 | Version | Date | Changes |
 |---|---|---|
+| 1.1.0 | 2026-09-16 | Added Circular Floating Action Button (FAB) and Gemini-style persistent Chat History layout |
 | 1.0.0 | 2026-09-16 | Initial baseline of design system, color tokens, and contrast rules |

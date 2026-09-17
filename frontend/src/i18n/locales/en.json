@@ -391,7 +391,16 @@
     "copy_reply": "Copy response",
     "copied": "Copied",
     "default_chat_title": "Fitness Consultation",
-    "switch_threads": "Switch conversation"
+    "switch_threads": "Switch conversation",
+    "recent_chats": "Recent",
+    "rename_chat": "Rename",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm_delete": "Are you sure you want to delete this conversation?",
+    "launcher_tooltip": "FitTrack Gemini AI Coach",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "typing_placeholder": "Type your message..."
   },
   "profile": {
     "title": "User Profile & Preferences",

@@ -62,9 +62,10 @@ verification_status: verified
 - **Multi-Vector Filtering**: Filter by muscle target, equipment (barbell, dumbbell, body only, cable, machine, bands), category, and difficulty level.
 
 ### E. AI Copilot & Gemini-Style Chat Threads
-- **Gemini-Style Multi-Thread Hub**: Supports multiple independent conversation threads with collapsible thread sidebar in drawer.
-- **Persistent Chat History**: All threads and messages are persisted in local storage per user (`fittrack_gemini_threads_${userId}`), preserving full history across page reloads.
-- **Thread Management**: Create new chats, switch between active threads, automatic title generation from first prompt, copy responses, and delete conversations.
+- **Circular FAB Launcher**: Sleek circular Floating Action Button with animated Sparkles icon, emerald-teal-cyan gradient, and daily budget remaining corner badge.
+- **Gemini-Style Multi-Thread Hub**: Supports multiple independent conversation threads with collapsible thread sidebar in drawer and "Recent" chronology.
+- **Persistent Chat History**: All threads and messages are persisted in local storage per user (`fittrack_gemini_threads_${userId}`) with an initialization lock preventing data loss on reload.
+- **Thread Management**: Create new chats, switch between active threads, automatic title generation from first prompt, inline renaming, copy responses, and delete conversations.
 - **Multi-Turn Context Retention**: Previous conversational turns are transmitted to Google Gemini API to maintain conversational memory within active threads.
 - **Grounded Gemini Chat**: Communicates with Google Gemini models using strict system prompts pre-loaded with the user's verified weight, age, height, BMI, and 7-day training volume.
 - **Medical Disclaimer Guardrail**: Refuses injury diagnosis and directs users to licensed healthcare professionals.

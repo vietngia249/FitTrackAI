@@ -94,7 +94,7 @@ export class WorkoutsService {
   // ==========================================
 
   async startSession(userId: string, input: StartWorkoutSessionInput) {
-    let sessionName = input.name;
+    let sessionName = input.name ?? 'Quick Workout';
     let templateExercises: Array<{
       exerciseId: string;
       order: number;

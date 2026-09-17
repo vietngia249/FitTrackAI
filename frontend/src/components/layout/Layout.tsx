@@ -37,8 +37,6 @@ export const Layout: React.FC = () => {
       return false;
     }
   });
-  const [isHovered, setIsHovered] = useState(false);
-
   const toggleSidebar = () => {
     setIsCollapsed((prev) => {
       const next = !prev;
@@ -49,8 +47,8 @@ export const Layout: React.FC = () => {
     });
   };
 
-  // Sidebar is visually expanded if not collapsed OR if hovered while collapsed
-  const isExpanded = !isCollapsed || isHovered;
+  // Sidebar is visually expanded only when not collapsed (no auto-expand on hover)
+  const isExpanded = !isCollapsed;
 
   const navItems = [
     { to: '/', label: t('nav.dashboard'), icon: LayoutDashboard },
@@ -76,70 +74,47 @@ export const Layout: React.FC = () => {
           - Fixed Left
           - Expanded: w-64
           - Collapsed: w-20
-          - Hover-expand when collapsed: expands to w-64 as floating overlay
+          - No hover expansion (toggled solely via header burger button)
           ========================================================================= */}
       <aside
-        onMouseEnter={() => {
-          if (isCollapsed) setIsHovered(true);
-        }}
-        onMouseLeave={() => {
-          if (isCollapsed) setIsHovered(false);
-        }}
         className={`hidden md:flex flex-col fixed top-0 bottom-0 left-0 bg-white/95 dark:bg-[#0a0d14]/95 border-r border-slate-200/90 dark:border-slate-800/80 backdrop-blur-xl select-none transition-all duration-300 ease-in-out z-40 ${
           isExpanded ? 'w-64' : 'w-20'
-        } ${
-          isCollapsed && isHovered
-            ? 'shadow-2xl ring-1 ring-slate-900/10 dark:ring-white/10 z-50'
-            : ''
         }`}
       >
-        {/* Sidebar Brand Header */}
+        {/* Sidebar Brand Header: Always displays FitTrack Logo */}
         <div className="h-16 px-4 flex items-center border-b border-slate-200/80 dark:border-slate-800/80 transition-all">
           {isExpanded ? (
-            <div className="flex items-center justify-between w-full">
-              <div className="flex items-center gap-3 overflow-hidden">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 p-0.5 shadow-md shadow-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                  <div className="w-full h-full bg-white dark:bg-[#0a0d14] rounded-[10px] flex items-center justify-center">
-                    <Dumbbell className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
-                  </div>
-                </div>
-                <div className="flex flex-col overflow-hidden">
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-extrabold text-base tracking-tight gradient-text truncate">
-                      FitTrack AI
-                    </span>
-                    <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex-shrink-0">
-                      BETA
-                    </span>
-                  </div>
-                  <span className="text-[10px] text-slate-400 truncate">
-                    {t('common.tagline')}
-                  </span>
+            <NavLink to="/" className="flex items-center gap-3 overflow-hidden group w-full">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 p-0.5 shadow-md shadow-emerald-500/20 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                <div className="w-full h-full bg-white dark:bg-[#0a0d14] rounded-[10px] flex items-center justify-center">
+                  <Dumbbell className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
                 </div>
               </div>
-
-              {/* Burger button inside sidebar header */}
-              <button
-                onClick={toggleSidebar}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors cursor-pointer flex-shrink-0"
-                title={isCollapsed ? t('common.expand_sidebar', 'Expand Sidebar') : t('common.collapse_sidebar', 'Collapse Sidebar')}
-                aria-label="Toggle Sidebar"
-              >
-                <Menu className="w-4 h-4" />
-              </button>
-            </div>
+              <div className="flex flex-col overflow-hidden">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-extrabold text-base tracking-tight gradient-text truncate">
+                    FitTrack AI
+                  </span>
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex-shrink-0">
+                    BETA
+                  </span>
+                </div>
+                <span className="text-[10px] text-slate-400 truncate">
+                  {t('common.tagline')}
+                </span>
+              </div>
+            </NavLink>
           ) : (
             <div className="w-full flex items-center justify-center">
-              <button
-                onClick={toggleSidebar}
-                title={t('common.expand_sidebar', 'Expand Sidebar')}
-                className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 p-0.5 shadow-md shadow-emerald-500/20 flex items-center justify-center flex-shrink-0 hover:scale-105 transition-transform cursor-pointer group"
-                aria-label="Expand Sidebar"
+              <NavLink
+                to="/"
+                title="FitTrack AI"
+                className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 p-0.5 shadow-md shadow-emerald-500/20 flex items-center justify-center flex-shrink-0 hover:scale-105 transition-transform cursor-pointer"
               >
-                <div className="w-full h-full bg-white dark:bg-[#0a0d14] rounded-[10px] flex items-center justify-center group-hover:bg-emerald-500/10 transition-colors">
-                  <Menu className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
+                <div className="w-full h-full bg-white dark:bg-[#0a0d14] rounded-[10px] flex items-center justify-center">
+                  <Dumbbell className="w-5 h-5 text-emerald-500 dark:text-emerald-400" />
                 </div>
-              </button>
+              </NavLink>
             </div>
           )}
         </div>
@@ -391,11 +366,11 @@ export const Layout: React.FC = () => {
                   toggleSidebar();
                 }
               }}
-              className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-500/10 dark:hover:bg-emerald-500/10 border border-slate-200 dark:border-slate-800 transition-all cursor-pointer flex items-center justify-center shadow-sm"
+              className="p-2 rounded-xl text-slate-700 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-500/10 dark:hover:bg-emerald-500/10 bg-white dark:bg-[#0e131f] border border-slate-200 dark:border-slate-800 transition-all cursor-pointer flex items-center justify-center shadow-sm"
               title={isCollapsed ? t('common.expand_sidebar', 'Expand Sidebar') : t('common.collapse_sidebar', 'Collapse Sidebar')}
               aria-label="Toggle Navigation"
             >
-              <Menu className="w-5 h-5" />
+              <Menu className="w-5 h-5 text-slate-700 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors" />
             </button>
 
             {/* Breadcrumb / Current View Title */}

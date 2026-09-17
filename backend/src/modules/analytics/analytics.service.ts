@@ -65,8 +65,19 @@ export class AnalyticsService {
       }
     }
 
-    // Compute active streak (consecutive days or weekly sessions)
-    const streakDays = workoutDates.size;
+    // Compute consecutive workout streak (days in a row ending today or yesterday)
+    let streakDays = 0;
+    const todayStreak = new Date();
+    todayStreak.setHours(0, 0, 0, 0);
+    for (let i = 0; i < 60; i++) {
+      const checkDate = new Date(todayStreak.getTime() - i * 24 * 60 * 60 * 1000);
+      const dateStr = checkDate.toISOString().split('T')[0];
+      if (workoutDates.has(dateStr)) {
+        streakDays++;
+      } else if (i > 0) {
+        break; // Streak broken — stop counting
+      }
+    }
 
     // Convert muscle map to array for chart visualization
     const muscleDistribution = Object.entries(muscleVolumeMap).map(

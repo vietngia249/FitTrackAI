@@ -14,6 +14,7 @@ import {
   Check,
   PanelLeftClose,
   PanelLeftOpen,
+  Pencil,
 } from 'lucide-react';
 import { ChatMessage, ChatThread } from './copilotTypes';
 import { sendCopilotChat } from './copilotApi';
@@ -36,9 +37,11 @@ export const AiCopilotDrawer: React.FC<AiCopilotDrawerProps> = ({
   const { user } = useAuth();
   const [internalIsOpen, setInternalIsOpen] = useState(false);
   const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
+
   const handleClose = () => {
     if (externalOnClose) externalOnClose();
     setInternalIsOpen(false);
+    setIsSidebarOpen(false);
   };
 
   const storageKey = useMemo(
@@ -51,6 +54,10 @@ export const AiCopilotDrawer: React.FC<AiCopilotDrawerProps> = ({
   const [loading, setLoading] = useState(false);
   const [budgetRemaining, setBudgetRemaining] = useState<number>(15);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  // Inline rename state for thread
+  const [editingThreadId, setEditingThreadId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState('');
 
   const createInitialThread = (): ChatThread => {
     const defaultTitle = t('copilot.default_chat_title', 'Fitness Consultation');
@@ -73,6 +80,9 @@ export const AiCopilotDrawer: React.FC<AiCopilotDrawerProps> = ({
     };
   };
 
+  // State guard to prevent saving empty/stale state before initialization completes
+  const isInitializedRef = useRef(false);
+
   // Threads state
   const [threads, setThreads] = useState<ChatThread[]>(() => {
     try {
@@ -80,6 +90,7 @@ export const AiCopilotDrawer: React.FC<AiCopilotDrawerProps> = ({
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
+          isInitializedRef.current = true;
           return parsed;
         }
       }
@@ -93,7 +104,7 @@ export const AiCopilotDrawer: React.FC<AiCopilotDrawerProps> = ({
     return threads[0]?.id || `thread-${Date.now()}`;
   });
 
-  // Re-load threads when user changes
+  // Re-load threads safely when storageKey changes (e.g. login/logout)
   useEffect(() => {
     try {
       const saved = localStorage.getItem(storageKey);
@@ -101,26 +112,53 @@ export const AiCopilotDrawer: React.FC<AiCopilotDrawerProps> = ({
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
           setThreads(parsed);
-          setActiveThreadId(parsed[0].id);
+          setActiveThreadId((prev) =>
+            parsed.some((t: ChatThread) => t.id === prev) ? prev : parsed[0].id
+          );
+          isInitializedRef.current = true;
           return;
+        }
+      }
+
+      // If user just logged in and has no threads, migrate guest threads
+      if (user?.id) {
+        const guestSaved = localStorage.getItem(`${STORAGE_PREFIX}guest`);
+        if (guestSaved) {
+          const parsedGuest = JSON.parse(guestSaved);
+          if (Array.isArray(parsedGuest) && parsedGuest.length > 0) {
+            setThreads(parsedGuest);
+            setActiveThreadId(parsedGuest[0].id);
+            isInitializedRef.current = true;
+            return;
+          }
         }
       }
     } catch {
       // Ignore error
     }
+
     const init = createInitialThread();
     setThreads([init]);
     setActiveThreadId(init.id);
-  }, [storageKey]);
+    isInitializedRef.current = true;
+  }, [storageKey, user?.id]);
 
-  // Persist threads to localStorage
+  // Persist threads to localStorage ONLY after proper initialization
   useEffect(() => {
+    if (!isInitializedRef.current) return;
     try {
       localStorage.setItem(storageKey, JSON.stringify(threads));
     } catch {
       // Ignore storage errors
     }
   }, [threads, storageKey]);
+
+  // Sorted threads for Gemini-style chronological display (most recently updated first)
+  const sortedThreads = useMemo(() => {
+    return [...threads].sort(
+      (a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime()
+    );
+  }, [threads]);
 
   const activeThread = useMemo(() => {
     return threads.find((t) => t.id === activeThreadId) || threads[0];
@@ -186,6 +224,30 @@ export const AiCopilotDrawer: React.FC<AiCopilotDrawerProps> = ({
     });
   };
 
+  const handleStartRename = (thread: ChatThread, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingThreadId(thread.id);
+    setEditingTitle(thread.title);
+  };
+
+  const handleSaveRename = (threadId: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    const cleanTitle = editingTitle.trim();
+    if (cleanTitle) {
+      setThreads((prev) =>
+        prev.map((t) =>
+          t.id === threadId ? { ...t, title: cleanTitle, updatedAt: new Date().toISOString() } : t
+        )
+      );
+    }
+    setEditingThreadId(null);
+  };
+
+  const handleCancelRename = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingThreadId(null);
+  };
+
   const handleCopyText = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
@@ -206,10 +268,18 @@ export const AiCopilotDrawer: React.FC<AiCopilotDrawerProps> = ({
     // Auto-generate title from first user query if still default title
     const currentMessages = activeThread.messages || [];
     const isFirstUserMsg = currentMessages.filter((m) => m.sender === 'user').length === 0;
+    const defaultChatTitle = t('copilot.default_chat_title', 'Fitness Consultation');
+    const newChatTitle = t('copilot.new_chat', 'New Chat');
+    const isGenericTitle =
+      activeThread.title === defaultChatTitle ||
+      activeThread.title === newChatTitle ||
+      activeThread.title === 'New Chat' ||
+      activeThread.title === 'Tư vấn thể hình';
+
     const newTitle =
-      isFirstUserMsg
-        ? textToSend.length > 28
-          ? `${textToSend.substring(0, 28)}...`
+      isFirstUserMsg || isGenericTitle
+        ? textToSend.length > 32
+          ? `${textToSend.substring(0, 32)}...`
           : textToSend
         : activeThread.title;
 
@@ -266,7 +336,7 @@ export const AiCopilotDrawer: React.FC<AiCopilotDrawerProps> = ({
       const errorMsg: ChatMessage = {
         id: `err-${Date.now()}`,
         sender: 'assistant',
-        text: 'Sorry, I encountered a temporary connection issue. Please check your network and try again.',
+        text: t('copilot.connection_error', 'Sorry, I encountered a temporary connection issue. Please check your network and try again.'),
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
 
@@ -308,20 +378,21 @@ export const AiCopilotDrawer: React.FC<AiCopilotDrawerProps> = ({
 
   return (
     <>
-      {/* Floating Launcher Button (when closed) */}
+      {/* Floating Circular Launcher Button (when drawer is closed) */}
       {!isOpen && (
         <button
           onClick={() => setInternalIsOpen(true)}
-          className="fixed bottom-20 md:bottom-8 right-5 z-40 group flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-slate-950 font-bold shadow-xl shadow-emerald-500/25 hover:shadow-emerald-500/40 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+          title={`${t('copilot.launcher_tooltip', 'FitTrack Gemini AI Coach')} (${budgetRemaining}/15)`}
+          aria-label={t('copilot.launcher_tooltip', 'FitTrack Gemini AI Coach')}
+          className="fixed bottom-20 md:bottom-8 right-5 z-40 group flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-400 text-slate-950 font-bold shadow-xl shadow-emerald-500/30 hover:shadow-emerald-500/50 hover:scale-110 active:scale-95 transition-all cursor-pointer ring-4 ring-emerald-500/20 hover:ring-emerald-500/40"
         >
-          <div className="relative">
-            <Sparkles className="w-5 h-5 animate-pulse" />
-            <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-white ring-2 ring-emerald-400"></span>
+          <div className="relative flex items-center justify-center">
+            <Sparkles className="w-6 h-6 text-slate-950 transition-transform group-hover:rotate-12 duration-300" />
+            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-white ring-2 ring-emerald-400 animate-pulse"></span>
           </div>
-          <span className="text-xs tracking-wide uppercase font-extrabold hidden sm:inline">
-            Gemini AI
-          </span>
-          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-black/20 font-mono">
+
+          {/* Budget remaining badge positioned at top-right corner of the circle */}
+          <span className="absolute -top-1 -right-1 min-w-[20px] h-5 px-1.5 flex items-center justify-center rounded-full bg-slate-950 text-emerald-400 border border-emerald-500/50 text-[10px] font-mono font-extrabold shadow-md">
             {budgetRemaining}
           </span>
         </button>
@@ -337,18 +408,18 @@ export const AiCopilotDrawer: React.FC<AiCopilotDrawerProps> = ({
           />
 
           {/* Drawer Container */}
-          <div className="relative w-full max-w-xl md:max-w-2xl bg-white dark:bg-[#0d121d] border-l border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col h-full z-10 animate-in slide-in-from-right duration-300 overflow-hidden">
+          <div className="relative w-full max-w-xl md:max-w-2xl lg:max-w-3xl bg-white dark:bg-[#0d121d] border-l border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col h-full z-10 animate-in slide-in-from-right duration-300 overflow-hidden">
             {/* Top Gemini Header */}
-            <div className="p-3.5 sm:p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-900/80 flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2.5 min-w-0">
-                {/* Toggle Sidebar Icon */}
+            <div className="p-3 sm:p-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-900/80 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+                {/* Toggle Sidebar Icon (Gemini Style) */}
                 <button
                   onClick={() => setIsSidebarOpen((prev) => !prev)}
                   title={t('copilot.switch_threads', 'Switch conversation')}
-                  className={`p-1.5 rounded-xl border transition-all cursor-pointer ${
+                  className={`px-2.5 py-1.5 rounded-xl border flex items-center gap-1.5 transition-all cursor-pointer ${
                     isSidebarOpen
                       ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
-                      : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 border-slate-200 dark:border-slate-800'
+                      : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 border-slate-200 dark:border-slate-800'
                   }`}
                 >
                   {isSidebarOpen ? (
@@ -356,6 +427,12 @@ export const AiCopilotDrawer: React.FC<AiCopilotDrawerProps> = ({
                   ) : (
                     <PanelLeftOpen className="w-4 h-4" />
                   )}
+                  <span className="text-xs font-semibold hidden sm:inline">
+                    {t('copilot.chat_history', 'Conversations')}
+                  </span>
+                  <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono font-bold">
+                    {threads.length}
+                  </span>
                 </button>
 
                 <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 p-0.5 flex items-center justify-center shrink-0 shadow-md shadow-emerald-500/20">
@@ -366,14 +443,14 @@ export const AiCopilotDrawer: React.FC<AiCopilotDrawerProps> = ({
 
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate">
+                    <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white truncate max-w-[140px] sm:max-w-xs">
                       {activeThread?.title || t('copilot.title', 'FitTrack Gemini AI Coach')}
                     </h3>
                     <span className="hidden sm:inline-block text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
                       {t('copilot.grounded_badge', 'GROUNDED')}
                     </span>
                   </div>
-                  <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate">
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate hidden xs:block">
                     {t('copilot.subtitle', 'Contextual Fitness & Diet Coach powered by Gemini')}
                   </p>
                 </div>
@@ -391,7 +468,7 @@ export const AiCopilotDrawer: React.FC<AiCopilotDrawerProps> = ({
                   <span className="hidden sm:inline">{t('copilot.new_chat', 'New Chat')}</span>
                 </button>
 
-                <div className="hidden sm:block text-[11px] px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-mono">
+                <div className="text-[11px] px-2.5 py-1 rounded-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-mono">
                   <span className="text-emerald-600 dark:text-emerald-400 font-bold">{budgetRemaining}</span>/15
                 </div>
 
@@ -421,12 +498,12 @@ export const AiCopilotDrawer: React.FC<AiCopilotDrawerProps> = ({
             <div className="relative flex-1 flex overflow-hidden">
               {/* Left Conversation Threads Sidebar (Gemini style) */}
               <div
-                className={`absolute inset-y-0 left-0 z-20 w-64 bg-slate-50 dark:bg-[#0a0e17] border-r border-slate-200 dark:border-slate-800 flex flex-col transition-transform duration-300 ease-in-out ${
-                  isSidebarOpen ? 'translate-x-0 shadow-xl' : '-translate-x-full'
+                className={`absolute inset-y-0 left-0 z-20 w-72 sm:w-80 bg-slate-50 dark:bg-[#0a0e17] border-r border-slate-200 dark:border-slate-800 flex flex-col transition-transform duration-300 ease-in-out shadow-2xl ${
+                  isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
                 }`}
               >
                 {/* Sidebar Header */}
-                <div className="p-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <div className="p-3.5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
                   <div className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-200">
                     <MessageSquare className="w-4 h-4 text-emerald-500" />
                     <span>{t('copilot.chat_history', 'Conversations')}</span>
@@ -435,11 +512,11 @@ export const AiCopilotDrawer: React.FC<AiCopilotDrawerProps> = ({
                     onClick={() => setIsSidebarOpen(false)}
                     className="p-1 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-white"
                   >
-                    <X className="w-3.5 h-3.5" />
+                    <X className="w-4 h-4" />
                   </button>
                 </div>
 
-                {/* New Chat action inside sidebar */}
+                {/* Big New Chat Action inside sidebar */}
                 <div className="p-3 border-b border-slate-200/80 dark:border-slate-800/80">
                   <button
                     onClick={handleCreateNewThread}
@@ -450,52 +527,107 @@ export const AiCopilotDrawer: React.FC<AiCopilotDrawerProps> = ({
                   </button>
                 </div>
 
+                {/* Section Header: Recent */}
+                <div className="px-3 pt-3 pb-1 flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                    {t('copilot.recent_chats', 'Recent')}
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-mono">
+                    {sortedThreads.length}
+                  </span>
+                </div>
+
                 {/* Threads List */}
                 <div className="flex-1 overflow-y-auto p-2 space-y-1">
-                  {threads.length === 0 ? (
+                  {sortedThreads.length === 0 ? (
                     <div className="p-6 text-center text-xs text-slate-400">
                       {t('copilot.no_conversations', 'No conversations yet')}
                     </div>
                   ) : (
-                    threads.map((thread) => {
+                    sortedThreads.map((thread) => {
                       const isActive = thread.id === activeThreadId;
+                      const isEditing = editingThreadId === thread.id;
+
                       return (
                         <div
                           key={thread.id}
                           onClick={() => {
-                            setActiveThreadId(thread.id);
-                            setIsSidebarOpen(false);
+                            if (!isEditing) {
+                              setActiveThreadId(thread.id);
+                              setIsSidebarOpen(false);
+                            }
                           }}
                           className={`group relative flex items-center justify-between p-2.5 rounded-xl text-xs transition-all cursor-pointer ${
                             isActive
-                              ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-500/30'
+                              ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-semibold border border-emerald-500/30 shadow-sm'
                               : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800/60 hover:text-slate-900 dark:hover:text-white'
                           }`}
                         >
-                          <div className="flex items-center gap-2 min-w-0 pr-6">
-                            <MessageSquare
-                              className={`w-3.5 h-3.5 shrink-0 ${
-                                isActive
-                                  ? 'text-emerald-500'
-                                  : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300'
-                              }`}
-                            />
-                            <div className="truncate">
-                              <p className="truncate text-xs">{thread.title}</p>
-                              <span className="text-[10px] text-slate-400 font-normal">
-                                {formatThreadDate(thread.updatedAt)} · {thread.messages.length} msgs
-                              </span>
+                          {isEditing ? (
+                            <div className="flex items-center gap-1.5 w-full" onClick={(e) => e.stopPropagation()}>
+                              <input
+                                type="text"
+                                value={editingTitle}
+                                onChange={(e) => setEditingTitle(e.target.value)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') handleSaveRename(thread.id);
+                                  if (e.key === 'Escape') handleCancelRename(e as any);
+                                }}
+                                autoFocus
+                                className="flex-1 px-2 py-1 text-xs bg-white dark:bg-slate-800 border border-emerald-500 rounded-lg text-slate-900 dark:text-white focus:outline-none"
+                              />
+                              <button
+                                onClick={(e) => handleSaveRename(thread.id, e)}
+                                className="p-1 rounded-md text-emerald-600 hover:bg-emerald-500/10"
+                                title={t('copilot.save', 'Save')}
+                              >
+                                <Check className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                onClick={handleCancelRename}
+                                className="p-1 rounded-md text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
+                                title={t('copilot.cancel', 'Cancel')}
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
                             </div>
-                          </div>
+                          ) : (
+                            <>
+                              <div className="flex items-center gap-2 min-w-0 pr-2">
+                                <MessageSquare
+                                  className={`w-3.5 h-3.5 shrink-0 ${
+                                    isActive
+                                      ? 'text-emerald-500'
+                                      : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300'
+                                  }`}
+                                />
+                                <div className="truncate">
+                                  <p className="truncate text-xs">{thread.title}</p>
+                                  <span className="text-[10px] text-slate-400 font-normal">
+                                    {formatThreadDate(thread.updatedAt || thread.createdAt)} · {thread.messages.length} msgs
+                                  </span>
+                                </div>
+                              </div>
 
-                          {/* Delete Action */}
-                          <button
-                            onClick={(e) => handleDeleteThread(thread.id, e)}
-                            title={t('copilot.delete_chat', 'Delete conversation')}
-                            className="opacity-0 group-hover:opacity-100 p-1 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 transition-all cursor-pointer"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
+                              {/* Hover Action Buttons: Rename & Delete */}
+                              <div className="opacity-0 group-hover:opacity-100 flex items-center gap-0.5 shrink-0 transition-opacity">
+                                <button
+                                  onClick={(e) => handleStartRename(thread, e)}
+                                  title={t('copilot.rename_chat', 'Rename')}
+                                  className="p-1 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-500/10 transition-all cursor-pointer"
+                                >
+                                  <Pencil className="w-3 h-3" />
+                                </button>
+                                <button
+                                  onClick={(e) => handleDeleteThread(thread.id, e)}
+                                  title={t('copilot.delete_chat', 'Delete conversation')}
+                                  className="p-1 rounded-lg text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 transition-all cursor-pointer"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </>
+                          )}
                         </div>
                       );
                     })

@@ -391,7 +391,16 @@
     "copy_reply": "Sao chép câu trả lời",
     "copied": "Đã sao chép",
     "default_chat_title": "Tư vấn thể hình",
-    "switch_threads": "Chuyển cuộc trò chuyện"
+    "switch_threads": "Chuyển cuộc trò chuyện",
+    "recent_chats": "Gần đây",
+    "rename_chat": "Đổi tên",
+    "save": "Lưu",
+    "cancel": "Hủy",
+    "confirm_delete": "Bạn có chắc muốn xóa cuộc trò chuyện này?",
+    "launcher_tooltip": "Huấn Luyện Viên FitTrack Gemini AI",
+    "today": "Hôm nay",
+    "yesterday": "Hôm qua",
+    "typing_placeholder": "Nhập tin nhắn..."
   },
   "profile": {
     "title": "Hồ Sơ & Cài Đặt",

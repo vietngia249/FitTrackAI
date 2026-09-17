@@ -285,11 +285,11 @@ Guidelines:
 - Be direct, specific, and actionable. Avoid generic disclaimers unless dealing with acute injury.`;
 
         const candidateModels = [
-          env.LLM_MODEL || 'gemini-flash-lite-latest',
-          'gemini-flash-lite-latest',
-          'gemini-3.5-flash-lite',
-          'gemini-3.5-flash',
-          'gemini-3.6-flash',
+          env.LLM_MODEL || 'gemini-2.0-flash-lite',
+          'gemini-2.0-flash-lite',
+          'gemini-2.0-flash',
+          'gemini-1.5-flash-8b',
+          'gemini-1.5-flash',
         ];
         const uniqueModels = Array.from(new Set(candidateModels));
 
