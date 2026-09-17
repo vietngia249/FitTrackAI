@@ -98,39 +98,52 @@ export const OneRepMaxProgressionChart: React.FC<OneRepMaxProgressionChartProps>
         </div>
       </div>
 
-      {/* Chart Canvas */}
-      <div className="h-64 sm:h-72 w-full pt-2">
-        <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data.progression} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-            <defs>
-              <linearGradient id="gradient1RM" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#10b981" stopOpacity={0.35} />
-                <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
-            <XAxis
-              dataKey="date"
-              stroke="#64748b"
-              fontSize={11}
-              tickLine={false}
-              axisLine={false}
-              tickFormatter={(val: string) => {
-                const parts = val.split('-');
-                return `${parts[1]}/${parts[2]}`;
-              }}
-            />
-            <YAxis
-              stroke="#64748b"
-              fontSize={11}
-              tickLine={false}
-              axisLine={false}
-              domain={['dataMin - 5', 'dataMax + 5']}
-              unit="kg"
-            />
-            <Tooltip
-              content={({ active, payload, label }) => {
-                if (active && payload && payload.length) {
+      {/* Chart Canvas or Empty State */}
+      {data.progression.length === 0 ? (
+        <div className="h-64 sm:h-72 w-full flex flex-col items-center justify-center text-center p-6 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50/50 dark:bg-slate-900/30">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center mb-3">
+            <TrendingUp className="w-6 h-6" />
+          </div>
+          <h4 className="font-bold text-sm text-slate-800 dark:text-slate-200 mb-1">
+            {t('analytics.no_progression_data', 'No progression data recorded yet')}
+          </h4>
+          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm">
+            {t('analytics.no_progression_desc', 'Complete workout sessions with this exercise to visualize your estimated 1RM curve and overload trajectory.')}
+          </p>
+        </div>
+      ) : (
+        <div className="h-64 sm:h-72 w-full pt-2">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={data.progression} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <defs>
+                <linearGradient id="gradient1RM" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.35} />
+                  <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+              <XAxis
+                dataKey="date"
+                stroke="#64748b"
+                fontSize={11}
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={(val: string) => {
+                  const parts = val.split('-');
+                  return `${parts[1]}/${parts[2]}`;
+                }}
+              />
+              <YAxis
+                stroke="#64748b"
+                fontSize={11}
+                tickLine={false}
+                axisLine={false}
+                domain={['dataMin - 5', 'dataMax + 5']}
+                unit="kg"
+              />
+              <Tooltip
+                content={({ active, payload, label }) => {
+                  if (!active || !payload || !payload.length) return null;
                   const p = payload[0].payload;
                   return (
                     <div className="p-3 bg-[#0d121f] border border-emerald-500/30 rounded-xl shadow-xl text-xs space-y-1">
@@ -147,21 +160,20 @@ export const OneRepMaxProgressionChart: React.FC<OneRepMaxProgressionChartProps>
                       </div>
                     </div>
                   );
-                }
-                return null;
-              }}
-            />
-            <Area
-              type="monotone"
-              dataKey="estimated1RM"
-              stroke="#10b981"
-              strokeWidth={3}
-              fillOpacity={1}
-              fill="url(#gradient1RM)"
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </div>
+                }}
+              />
+              <Area
+                type="monotone"
+                dataKey="estimated1RM"
+                stroke="#10b981"
+                strokeWidth={3}
+                fillOpacity={1}
+                fill="url(#gradient1RM)"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      )}
     </div>
   );
 };

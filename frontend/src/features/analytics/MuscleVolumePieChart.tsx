@@ -33,72 +33,88 @@ export const MuscleVolumePieChart: React.FC<MuscleVolumePieChartProps> = ({
         <p className="text-xs text-slate-500 dark:text-slate-400">{t('analytics.workload_balance')}</p>
       </div>
 
-      {/* Donut Chart Canvas */}
-      <div className="h-56 w-full relative flex items-center justify-center">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={formattedData}
-              cx="50%"
-              cy="50%"
-              innerRadius={55}
-              outerRadius={80}
-              paddingAngle={4}
-              dataKey="value"
-            >
-              {formattedData.map((_, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={COLORS[index % COLORS.length]}
-                  stroke="transparent"
-                  strokeWidth={2}
-                />
-              ))}
-            </Pie>
-            <Tooltip
-              content={({ active, payload }) => {
-                if (active && payload && payload.length) {
-                  const data = payload[0].payload;
-                  return (
-                    <div className="p-2.5 bg-white dark:bg-[#0d121f] border border-slate-200 dark:border-slate-700 rounded-xl text-xs space-y-1 shadow-lg">
-                      <div className="font-bold text-slate-900 dark:text-white">{data.name}</div>
-                      <div className="text-emerald-600 dark:text-emerald-400 font-bold">
-                        {data.value.toLocaleString()} kg ({data.percentage}%)
-                      </div>
-                    </div>
-                  );
-                }
-                return null;
-              }}
-            />
-          </PieChart>
-        </ResponsiveContainer>
-
-        {/* Center Total Volume */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <span className="text-[10px] uppercase font-bold text-slate-400">{t('common.total')}</span>
-          <span className="text-sm font-black text-slate-900 dark:text-white">
-            {(totalVolume / 1000).toFixed(1)}k
-          </span>
-          <span className="text-[10px] text-slate-400">kg</span>
-        </div>
-      </div>
-
-      {/* Custom Legend */}
-      <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200 dark:border-slate-800/60">
-        {formattedData.map((item, idx) => (
-          <div key={item.name} className="flex items-center gap-2 text-xs">
-            <div
-              className="w-2.5 h-2.5 rounded-full shrink-0"
-              style={{ backgroundColor: COLORS[idx % COLORS.length] }}
-            />
-            <span className="text-slate-700 dark:text-slate-300 truncate">{item.name}</span>
-            <span className="text-slate-500 font-mono text-[11px] ml-auto">
-              {item.percentage}%
-            </span>
+      {/* Donut Chart Canvas or Empty State */}
+      {distribution.length === 0 || totalVolume === 0 ? (
+        <div className="h-56 w-full flex flex-col items-center justify-center text-center p-4 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50/50 dark:bg-slate-900/30">
+          <div className="w-10 h-10 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20 flex items-center justify-center mb-2">
+            <Layers className="w-5 h-5" />
           </div>
-        ))}
-      </div>
+          <h4 className="font-bold text-xs text-slate-800 dark:text-slate-200 mb-1">
+            {t('analytics.no_volume_distribution', 'No Volume Distribution Yet')}
+          </h4>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 max-w-xs">
+            {t('analytics.no_volume_desc', 'Complete workouts targeting specific muscle groups to view your distribution chart.')}
+          </p>
+        </div>
+      ) : (
+        <>
+          <div className="h-56 w-full relative flex items-center justify-center">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={formattedData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={55}
+                  outerRadius={80}
+                  paddingAngle={4}
+                  dataKey="value"
+                >
+                  {formattedData.map((_, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
+                      stroke="transparent"
+                      strokeWidth={2}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      const data = payload[0].payload;
+                      return (
+                        <div className="p-2.5 bg-white dark:bg-[#0d121f] border border-slate-200 dark:border-slate-700 rounded-xl text-xs space-y-1 shadow-lg">
+                          <div className="font-bold text-slate-900 dark:text-white">{data.name}</div>
+                          <div className="text-emerald-600 dark:text-emerald-400 font-bold">
+                            {data.value.toLocaleString()} kg ({data.percentage}%)
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+
+            {/* Center Total Volume */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span className="text-[10px] uppercase font-bold text-slate-400">{t('common.total')}</span>
+              <span className="text-sm font-black text-slate-900 dark:text-white">
+                {(totalVolume / 1000).toFixed(1)}k
+              </span>
+              <span className="text-[10px] text-slate-400">kg</span>
+            </div>
+          </div>
+
+          {/* Custom Legend */}
+          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-200 dark:border-slate-800/60">
+            {formattedData.map((item, idx) => (
+              <div key={item.name} className="flex items-center gap-2 text-xs">
+                <div
+                  className="w-2.5 h-2.5 rounded-full shrink-0"
+                  style={{ backgroundColor: COLORS[idx % COLORS.length] }}
+                />
+                <span className="text-slate-700 dark:text-slate-300 truncate">{item.name}</span>
+                <span className="text-slate-500 font-mono text-[11px] ml-auto">
+                  {item.percentage}%
+                </span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 };

@@ -408,5 +408,29 @@
     "height_ph": "Ví dụ: 175",
     "weight_ph": "Ví dụ: 72.5",
     "target_weight_ph": "Ví dụ: 78.0"
+  },
+  "analytics": {
+    "progressive_overload_trend": "Tăng Tải Tịnh Tiến & Xu Hướng 1RM",
+    "est_1rm_progression": "Tiến Trình 1RM Ước Tính",
+    "epley_formula_note": "Tính theo công thức chuẩn Epley: w × (1 + r / 30)",
+    "peak_1rm": "1RM Cao Nhất",
+    "heaviest_lift": "Mức Tạ Nặng Nhất",
+    "best_set_reps": "Số Rep Tốt Nhất",
+    "best_set_vol": "Khối Lượng Set Tốt Nhất",
+    "no_progression_data": "Chưa có dữ liệu tiến trình",
+    "no_progression_desc": "Hoàn thành các buổi tập với bài tập này để xem đường cong 1RM ước tính và xu hướng tăng tải.",
+    "hall_of_fame": "Bảng Vàng Kỷ Lục",
+    "all_time_pr": "Kỷ Lục Cá Nhân (PR) Mọi Thời Đại",
+    "peak_strength": "Các cột mốc sức mạnh cao nhất qua các bài tập trọng tâm",
+    "pr_record": "Kỷ Lục PR",
+    "max_lift": "Mức Tạ Cao Nhất",
+    "est_1rm": "1RM Ước Tính",
+    "no_prs_title": "Chưa Có Kỷ Lục Cá Nhân Nào",
+    "no_prs_desc": "Ghi nhận và hoàn thành các hiệp tập có mức tạ và số rep để thiết lập kỷ lục cá nhân cho từng bài tập.",
+    "volume_distribution": "Phân Bố Khối Lượng Tập",
+    "targeted_muscle_load": "Khối Lượng Cơ Mục Tiêu",
+    "workload_balance": "Tỷ trọng khối lượng tập luyện theo từng nhóm cơ",
+    "no_volume_distribution": "Chưa Có Dữ Liệu Khối Lượng Cơ",
+    "no_volume_desc": "Hoàn thành các buổi tập nhắm vào các nhóm cơ để xem biểu đồ phân bố khối lượng."
   }
 }

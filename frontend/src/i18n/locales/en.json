@@ -408,5 +408,29 @@
     "height_ph": "e.g. 175",
     "weight_ph": "e.g. 72.5",
     "target_weight_ph": "e.g. 78.0"
+  },
+  "analytics": {
+    "progressive_overload_trend": "Progressive Overload & 1RM Trend",
+    "est_1rm_progression": "Estimated 1RM Progression",
+    "epley_formula_note": "Calculated via validated Epley formula: w × (1 + r / 30)",
+    "peak_1rm": "Peak 1RM",
+    "heaviest_lift": "Heaviest Lift",
+    "best_set_reps": "Best Set Reps",
+    "best_set_vol": "Best Set Vol",
+    "no_progression_data": "No progression data recorded yet",
+    "no_progression_desc": "Complete workout sessions with this exercise to visualize your estimated 1RM curve and overload trajectory.",
+    "hall_of_fame": "Hall of Fame",
+    "all_time_pr": "All-Time Personal Records",
+    "peak_strength": "Peak strength milestones and all-time records across core movements",
+    "pr_record": "PR Record",
+    "max_lift": "Max Lift",
+    "est_1rm": "Est. 1RM",
+    "no_prs_title": "No Personal Records Yet",
+    "no_prs_desc": "Log and complete your workout sets with weight and reps to establish all-time personal records across exercises.",
+    "volume_distribution": "Volume Distribution",
+    "targeted_muscle_load": "Targeted Muscle Load",
+    "workload_balance": "Proportional training volume per muscle group",
+    "no_volume_distribution": "No Volume Distribution Yet",
+    "no_volume_desc": "Complete workouts targeting specific muscle groups to view your distribution chart."
   }
 }
