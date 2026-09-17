@@ -93,52 +93,67 @@ export const OverloadAdvisorCard: React.FC<OverloadAdvisorCardProps> = ({
         </div>
       )}
 
-      {/* Grid of Progressive Overload Tips */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        {tips.map((tip) => (
-          <div
-            key={tip.exerciseId}
-            className="glass-panel p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-emerald-500/40 transition-all flex flex-col justify-between group"
-          >
-            <div>
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <span className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-300 transition-colors">
-                  {tip.exerciseName}
-                </span>
-                <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 flex items-center gap-0.5">
-                  <ArrowUpRight className="w-3 h-3" />+{tip.increaseKg} kg
-                </span>
+      {/* Grid of Progressive Overload Tips or Empty State */}
+      {tips.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          {tips.map((tip) => (
+            <div
+              key={tip.exerciseId}
+              className="glass-panel p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-emerald-500/40 transition-all flex flex-col justify-between group"
+            >
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <span className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-300 transition-colors">
+                    {tip.exerciseName}
+                  </span>
+                  <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 flex items-center gap-0.5">
+                    <ArrowUpRight className="w-3 h-3" />+{tip.increaseKg} kg
+                  </span>
+                </div>
+
+                <div className="flex items-baseline gap-2 mb-2">
+                  <span className="text-xs text-slate-500 dark:text-slate-400">{t('copilot.current', 'Current')}:</span>
+                  <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                    {tip.currentWeightKg} kg
+                  </span>
+                  <span className="text-xs text-slate-400 dark:text-slate-500">➔</span>
+                  <span className="text-xs text-emerald-600 dark:text-emerald-400 font-bold">{t('copilot.target', 'Target')}:</span>
+                  <span className="text-sm font-bold text-emerald-600 dark:text-emerald-300">
+                    {tip.recommendedWeightKg} kg
+                  </span>
+                </div>
+
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-3">{tip.reason}</p>
               </div>
 
-              <div className="flex items-baseline gap-2 mb-2">
-                <span className="text-xs text-slate-500 dark:text-slate-400">Current:</span>
-                <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                  {tip.currentWeightKg} kg
-                </span>
-                <span className="text-xs text-slate-400 dark:text-slate-500">➔</span>
-                <span className="text-xs text-emerald-600 dark:text-emerald-400 font-bold">Target:</span>
-                <span className="text-sm font-bold text-emerald-600 dark:text-emerald-300">
-                  {tip.recommendedWeightKg} kg
-                </span>
-              </div>
-
-              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-3">{tip.reason}</p>
+              {onAskCopilot && (
+                <button
+                  onClick={() =>
+                    onAskCopilot(`How should I prepare for my next ${tip.exerciseName} session?`)
+                  }
+                  className="w-full mt-2 py-1.5 px-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-[11px] font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                >
+                  <Sparkles className="w-3 h-3 text-teal-600 dark:text-teal-400" />
+                  <span>{t('copilot.ask_gemini_strategy', 'Ask Gemini Strategy')}</span>
+                </button>
+              )}
             </div>
-
-            {onAskCopilot && (
-              <button
-                onClick={() =>
-                  onAskCopilot(`How should I prepare for my next ${tip.exerciseName} session?`)
-                }
-                className="w-full mt-2 py-1.5 px-2 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-700 text-[11px] font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-              >
-                <Sparkles className="w-3 h-3 text-teal-600 dark:text-teal-400" />
-                <span>{t('copilot.ask_gemini_strategy', 'Ask Gemini Strategy')}</span>
-              </button>
+          ))}
+        </div>
+      ) : (
+        <div className="p-8 rounded-2xl border border-dashed border-slate-200 dark:border-slate-800 text-center flex flex-col items-center justify-center bg-slate-50/50 dark:bg-slate-900/20">
+          <Zap className="w-8 h-8 text-slate-400 dark:text-slate-600 mb-2 opacity-60" />
+          <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+            {t('copilot.no_overload_tips', 'No Overload Recommendations Yet')}
+          </p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm">
+            {t(
+              'copilot.no_overload_tips_desc',
+              'Complete your workout sessions with RPE data to receive automated overload suggestions and target progression.'
             )}
-          </div>
-        ))}
-      </div>
+          </p>
+        </div>
+      )}
     </div>
   );
 };

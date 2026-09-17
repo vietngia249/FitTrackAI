@@ -339,7 +339,7 @@
     "budget_exhausted": "Daily query budget reached (resets at 00:00)",
     "consulting_db": "Consulting training database & formulas...",
     "gemini_error": "Unable to connect to Gemini AI service. Please verify your connection.",
-    "welcome_message": "Welcome to your AI Coaching Insights! I've analyzed your recent workout logs and nutritional averages. You are in a positive progressive overload trajectory with low fatigue accumulation."
+    "welcome_message": "Welcome to your AI Coaching Insights! Ask me anything about progressive overload, workout routines, recovery, or nutrition optimization based on your fitness goals."
   },
   "copilot": {
     "title": "FitTrack Gemini AI Coach",
@@ -350,6 +350,10 @@
     "input_placeholder": "Ask Gemini about sets, 1RM, macros...",
     "limit_reached": "Daily limit reached (resets midnight)",
     "recovery": "Recovery",
+    "current": "Current",
+    "target": "Target",
+    "no_overload_tips": "No Overload Recommendations Yet",
+    "no_overload_tips_desc": "Complete your workout sessions with RPE data to receive automated overload suggestions and target progression.",
     "load_phase_active": "Load Phase Active",
     "deload_advised": "Deload Advised",
     "deload_week_recommended": "Deload Week Recommended:",

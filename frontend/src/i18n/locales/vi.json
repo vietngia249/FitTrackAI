@@ -339,7 +339,7 @@
     "budget_exhausted": "Đã đạt giới hạn câu hỏi hôm nay (đặt lại lúc 00:00)",
     "consulting_db": "Đang tra cứu dữ liệu bài tập & công thức...",
     "gemini_error": "Không thể kết nối với dịch vụ Gemini AI. Vui lòng kiểm tra kết nối mạng.",
-    "welcome_message": "Chào mừng bạn đến với Phân tích Huấn luyện AI! Tôi đã phân tích các nhật ký tập luyện và mức dinh dưỡng gần đây của bạn. Bạn đang trong quỹ đạo tăng tải tiến bộ tích cực với mức mệt mỏi tích lũy thấp."
+    "welcome_message": "Chào mừng bạn đến với Phân tích Huấn luyện AI! Hãy hỏi tôi bất kỳ điều gì về tăng tải tiến bộ, lịch tập luyện, phục hồi hoặc tối ưu hóa dinh dưỡng theo mục tiêu của bạn."
   },
   "copilot": {
     "title": "FitTrack Gemini AI Coach",
@@ -350,6 +350,10 @@
     "input_placeholder": "Hỏi Gemini về set tập, 1RM, macro...",
     "limit_reached": "Đã đạt giới hạn hôm nay (đặt lại lúc nửa đêm)",
     "recovery": "Phục hồi",
+    "current": "Hiện tại",
+    "target": "Mục tiêu",
+    "no_overload_tips": "Chưa có đề xuất tăng tải nào",
+    "no_overload_tips_desc": "Hoàn thành các buổi tập kèm chỉ số RPE để hệ thống tự động tính toán đề xuất mức tạ tiếp theo.",
     "load_phase_active": "Giai đoạn tải tạ tối ưu",
     "deload_advised": "Khuyên xả cơ (Deload)",
     "deload_week_recommended": "Đề xuất Tuần Xả Cơ (Deload):",

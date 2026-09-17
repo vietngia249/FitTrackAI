@@ -168,29 +168,7 @@ export class CopilotService {
       // 0 sessions = 100% (fully rested), 7+ sessions = 65% (overreaching risk)
       recoveryScore = Math.max(65, Math.min(100, 100 - recentCount * 5));
     } catch {
-      // DB not available — graceful degradation to demo data
-    }
-
-    // Fallback demo tips if user has no real data yet
-    if (overloadTips.length === 0) {
-      overloadTips = [
-        {
-          exerciseId: 'barbell-bench-press',
-          exerciseName: 'Barbell Bench Press',
-          currentWeightKg: 85.0,
-          recommendedWeightKg: 87.5,
-          increaseKg: 2.5,
-          reason: 'Demo: Log your first workouts to see personalized recommendations here.',
-        },
-        {
-          exerciseId: 'barbell-squat',
-          exerciseName: 'Barbell Back Squat',
-          currentWeightKg: 110.0,
-          recommendedWeightKg: 115.0,
-          increaseKg: 5.0,
-          reason: 'Demo: Complete push sessions and squat data will be replaced with your real PRs.',
-        },
-      ];
+      // DB not available — graceful degradation
     }
 
     const deload: DeloadRecommendation = {
@@ -199,7 +177,7 @@ export class CopilotService {
         recoveryScore < 72
           ? `Recovery score is ${recoveryScore}%. High session frequency detected — consider a 40% volume reduction deload week.`
           : `Recovery score is ${recoveryScore}%. Current training block is at optimal fatigue accumulation.`,
-      recommendedVolumeReductionPercent: 40,
+      recommendedVolumeReductionPercent: recoveryScore < 72 ? 40 : 0,
     };
 
     return {
@@ -383,6 +361,13 @@ Guidelines:
       queryLower.includes('progression')
     ) {
       const recs = await this.getRecommendations(userId);
+      if (recs.overloadTips.length === 0) {
+        return {
+          reply: `You don't have enough completed exercise sets logged yet to calculate overload targets. Complete your workout sessions with weight and rep logs to unlock personalized progressive overload recommendations!`,
+          budgetRemaining: remaining,
+        };
+      }
+
       const tipLines = recs.overloadTips
         .slice(0, 3)
         .map((t) => `• **${t.exerciseName}**: ${t.currentWeightKg} kg → **${t.recommendedWeightKg} kg** (+${t.increaseKg} kg). ${t.reason}`)

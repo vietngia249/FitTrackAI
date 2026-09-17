@@ -32,7 +32,7 @@ export const InsightsPage: React.FC = () => {
     {
       id: 'msg-init',
       sender: 'assistant',
-      text: "Welcome to your AI Coaching Insights! I've analyzed your recent workout logs and nutritional averages. You are in a positive progressive overload trajectory with low fatigue accumulation.",
+      text: "Welcome to your AI Coaching Insights! Ask me anything about progressive overload, workout routines, recovery, or nutrition optimization based on your fitness goals.",
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);

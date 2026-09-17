@@ -8,41 +8,18 @@ function getAuthHeader(): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-export const FALLBACK_RECOMMENDATIONS: CopilotRecommendationsResponse = {
-  overloadTips: [
-    {
-      exerciseId: 'barbell-bench-press',
-      exerciseName: 'Barbell Bench Press',
-      currentWeightKg: 85.0,
-      recommendedWeightKg: 87.5,
-      increaseKg: 2.5,
-      reason: 'Completed 3 sets of 8 reps at RPE 7.5 last session with solid bar velocity.',
-    },
-    {
-      exerciseId: 'barbell-squat',
-      exerciseName: 'Barbell Back Squat',
-      currentWeightKg: 110.0,
-      recommendedWeightKg: 115.0,
-      increaseKg: 5.0,
-      reason: 'Completed all 4 target sets with parallel depth and smooth cadence.',
-    },
-    {
-      exerciseId: 'overhead-press',
-      exerciseName: 'Standing Overhead Press',
-      currentWeightKg: 52.5,
-      recommendedWeightKg: 55.0,
-      increaseKg: 2.5,
-      reason: 'Hit top of rep target range (10 reps) on final working set.',
-    },
-  ],
+export const EMPTY_RECOMMENDATIONS: CopilotRecommendationsResponse = {
+  overloadTips: [],
   deload: {
     needed: false,
-    reason: 'Current 4-week training block is progressing smoothly with fatigue in optimal range.',
-    recommendedVolumeReductionPercent: 40,
+    reason: '',
+    recommendedVolumeReductionPercent: 0,
   },
-  recoveryScore: 88,
+  recoveryScore: 100,
   dailyBudgetRemaining: 15,
 };
+
+export const FALLBACK_RECOMMENDATIONS: CopilotRecommendationsResponse = EMPTY_RECOMMENDATIONS;
 
 export async function fetchCopilotRecommendations(): Promise<CopilotRecommendationsResponse> {
   try {
