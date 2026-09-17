@@ -69,3 +69,8 @@ Follow Conventional Commits:
 | Feature Auth Modal Localizations | Completed | `fb78260` | Localize inputs and refine light mode styling in auth modal |
 | Feature Body Measurements Localizations | Completed | `83f4a09` | Localize measurements and progress photo upload with light mode support |
 | Project Documentation & Gitignore | Completed | `c92c684` | Add project README and whitelist in gitignore |
+| Comprehensive Feature i18n Keys | Completed | `03a7cd4` | Add comprehensive localized keys for exercises, AI form coach, and insights |
+| Feature Exercises Filter Localization | Completed | `3b0fd44` | Localize category and equipment filters with light mode styling |
+| Feature Exercise Detail Modal Localization | Completed | `0d3f101` | Localize specs and muscle groups in ExerciseDetailModal |
+| Feature AI Form Coach Localization | Completed | `93952c5` | Localize stage, angles, badges, and exercise switcher |
+| Feature Insights Chat Localization | Completed | `3cb5596` | Localize chat suggestions, responses, and refine light mode styling |
