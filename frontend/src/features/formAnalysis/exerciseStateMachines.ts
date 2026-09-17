@@ -16,6 +16,31 @@ export interface FormEvaluation {
     stability: number;
   };
   isRepCompletedThisFrame: boolean;
+  activeFault?: string;
+}
+
+export interface RepDetail {
+  repNumber: number;
+  formScore: number;
+  minAngle: number;
+  durationSec: number;
+  status: 'clean' | 'acceptable' | 'needs_work';
+  primaryFault?: string;
+  feedback: string;
+  subScores: {
+    depth: number;
+    alignment: number;
+    stability: number;
+  };
+}
+
+export interface ExerciseDiagnostics {
+  totalReps: number;
+  avgScore: number;
+  cleanReps: number;
+  cleanPercentage: number;
+  avgDurationSec: number;
+  faultsSummary: Array<{ fault: string; count: number }>;
 }
 
 export class ExerciseEvaluator {
@@ -24,6 +49,8 @@ export class ExerciseEvaluator {
   private stage = 'ready';
   private peakReached = false;
   private minAngleInRep = 180;
+  private repStartTime = performance.now();
+  private repHistory: RepDetail[] = [];
 
   constructor(exerciseType: ExerciseType) {
     this.exerciseType = exerciseType;
@@ -35,11 +62,52 @@ export class ExerciseEvaluator {
     this.stage = 'ready';
     this.peakReached = false;
     this.minAngleInRep = 180;
+    this.repStartTime = performance.now();
+    this.repHistory = [];
   }
 
   setExercise(type: ExerciseType) {
     this.exerciseType = type;
     this.reset();
+  }
+
+  getRepHistory(): RepDetail[] {
+    return [...this.repHistory];
+  }
+
+  getDiagnostics(): ExerciseDiagnostics | null {
+    if (this.repHistory.length === 0) return null;
+
+    const totalReps = this.repHistory.length;
+    const avgScore = Math.round(
+      this.repHistory.reduce((acc, r) => acc + r.formScore, 0) / totalReps
+    );
+    const cleanReps = this.repHistory.filter((r) => r.status === 'clean').length;
+    const cleanPercentage = Math.round((cleanReps / totalReps) * 100);
+    const avgDurationSec =
+      Math.round(
+        (this.repHistory.reduce((acc, r) => acc + r.durationSec, 0) / totalReps) * 10
+      ) / 10;
+
+    const faultMap: Record<string, number> = {};
+    for (const r of this.repHistory) {
+      if (r.primaryFault) {
+        faultMap[r.primaryFault] = (faultMap[r.primaryFault] || 0) + 1;
+      }
+    }
+
+    const faultsSummary = Object.entries(faultMap)
+      .map(([fault, count]) => ({ fault, count }))
+      .sort((a, b) => b.count - a.count);
+
+    return {
+      totalReps,
+      avgScore,
+      cleanReps,
+      cleanPercentage,
+      avgDurationSec,
+      faultsSummary,
+    };
   }
 
   evaluateFrame(landmarks: Landmark[]): FormEvaluation {
@@ -54,7 +122,6 @@ export class ExerciseEvaluator {
   }
 
   private evaluateBicepCurl(landmarks: Landmark[]): FormEvaluation {
-    // Prefer right side or left side based on visibility
     const rightShoulder = landmarks[POSE_LANDMARKS.RIGHT_SHOULDER];
     const rightElbow = landmarks[POSE_LANDMARKS.RIGHT_ELBOW];
     const rightWrist = landmarks[POSE_LANDMARKS.RIGHT_WRIST];
@@ -72,7 +139,7 @@ export class ExerciseEvaluator {
     const hip = useRight ? rightHip : leftHip;
 
     if (!shoulder || !elbow || !wrist) {
-      return this.defaultEvaluation(this.stage, 0, 0, 'Detecting pose...');
+      return this.defaultEvaluation(this.stage, 0, 0, 'Detecting arm joints...');
     }
 
     // Elbow flexion angle: Shoulder - Elbow - Wrist
@@ -82,8 +149,8 @@ export class ExerciseEvaluator {
 
     let isCompleted = false;
     let feedback = 'Stand tall with elbows pinned to sides.';
+    let activeFault: string | undefined;
 
-    // Track min angle (peak contraction)
     if (elbowAngle < this.minAngleInRep) {
       this.minAngleInRep = elbowAngle;
     }
@@ -94,7 +161,7 @@ export class ExerciseEvaluator {
         feedback = 'Ready to curl. Pull upward smoothly.';
       } else if (elbowAngle <= 140) {
         this.stage = 'flexing';
-        feedback = 'Curling up... Squeeze at the top!';
+        feedback = 'Curling up... Squeeze biceps at peak!';
       }
     } else if (this.stage === 'flexing') {
       if (elbowAngle <= 45) {
@@ -107,7 +174,7 @@ export class ExerciseEvaluator {
     } else if (this.stage === 'peak') {
       if (elbowAngle > 60) {
         this.stage = 'extending';
-        feedback = 'Control the negative on the way down.';
+        feedback = 'Control the descent on the way down.';
       }
     } else if (this.stage === 'extending') {
       if (elbowAngle >= 145) {
@@ -115,17 +182,51 @@ export class ExerciseEvaluator {
           this.repCount++;
           isCompleted = true;
           feedback = 'Rep completed! Full extension.';
+
+          const depthScore = Math.min(
+            Math.max(Math.round(((160 - this.minAngleInRep) / 115) * 100), 70),
+            100
+          );
+          const stabilityScore = torsoAngle >= 80 && torsoAngle <= 100 ? 95 : 75;
+          const alignmentScore = 90;
+          const overallForm = Math.round((depthScore + stabilityScore + alignmentScore) / 3);
+
+          if (this.minAngleInRep > 55) {
+            activeFault = 'Chưa co hết biên độ đỉnh';
+          } else if (torsoAngle < 80 || torsoAngle > 100) {
+            activeFault = 'Đung đưa thân người khi cuốn tạ';
+          }
+
+          const durationSec =
+            Math.round(((performance.now() - this.repStartTime) / 1000) * 10) / 10;
+          const status =
+            overallForm >= 90 ? 'clean' : overallForm >= 78 ? 'acceptable' : 'needs_work';
+
+          this.repHistory.push({
+            repNumber: this.repCount,
+            formScore: overallForm,
+            minAngle: Math.round(this.minAngleInRep),
+            durationSec: Math.max(0.5, durationSec),
+            status,
+            primaryFault: activeFault,
+            feedback,
+            subScores: { depth: depthScore, alignment: alignmentScore, stability: stabilityScore },
+          });
+
+          this.repStartTime = performance.now();
         }
         this.stage = 'extended';
         this.peakReached = false;
         this.minAngleInRep = 180;
       } else {
-        feedback = 'Lower all the way to complete the rep.';
+        feedback = 'Lower all the way to finish rep.';
       }
     }
 
-    // Sub-scores
-    const depthScore = Math.min(Math.max(Math.round(((160 - this.minAngleInRep) / 115) * 100), 70), 100);
+    const depthScore = Math.min(
+      Math.max(Math.round(((160 - this.minAngleInRep) / 115) * 100), 70),
+      100
+    );
     const stabilityScore = torsoAngle >= 80 && torsoAngle <= 100 ? 95 : 75;
     const alignmentScore = 90;
     const overallForm = Math.round((depthScore + stabilityScore + alignmentScore) / 3);
@@ -144,6 +245,7 @@ export class ExerciseEvaluator {
         stability: stabilityScore,
       },
       isRepCompletedThisFrame: isCompleted,
+      activeFault,
     };
   }
 
@@ -151,7 +253,8 @@ export class ExerciseEvaluator {
     const hip = landmarks[POSE_LANDMARKS.RIGHT_HIP] || landmarks[POSE_LANDMARKS.LEFT_HIP];
     const knee = landmarks[POSE_LANDMARKS.RIGHT_KNEE] || landmarks[POSE_LANDMARKS.LEFT_KNEE];
     const ankle = landmarks[POSE_LANDMARKS.RIGHT_ANKLE] || landmarks[POSE_LANDMARKS.LEFT_ANKLE];
-    const shoulder = landmarks[POSE_LANDMARKS.RIGHT_SHOULDER] || landmarks[POSE_LANDMARKS.LEFT_SHOULDER];
+    const shoulder =
+      landmarks[POSE_LANDMARKS.RIGHT_SHOULDER] || landmarks[POSE_LANDMARKS.LEFT_SHOULDER];
 
     if (!hip || !knee || !ankle) {
       return this.defaultEvaluation(this.stage, 0, 0, 'Detecting lower body...');
@@ -164,6 +267,7 @@ export class ExerciseEvaluator {
 
     let isCompleted = false;
     let feedback = 'Stand upright with feet shoulder-width apart.';
+    let activeFault: string | undefined;
 
     if (kneeAngle < this.minAngleInRep) {
       this.minAngleInRep = kneeAngle;
@@ -183,7 +287,7 @@ export class ExerciseEvaluator {
         this.peakReached = true;
         feedback = 'Parallel depth reached! Drive through heels!';
       } else {
-        feedback = 'Squat deeper - get thighs parallel to floor.';
+        feedback = 'Squat deeper - thighs parallel to floor.';
       }
     } else if (this.stage === 'bottom') {
       if (kneeAngle > 105) {
@@ -196,6 +300,36 @@ export class ExerciseEvaluator {
           this.repCount++;
           isCompleted = true;
           feedback = 'Rep finished! Full hip extension.';
+
+          const depthScore =
+            this.minAngleInRep <= 90 ? 98 : this.minAngleInRep <= 105 ? 82 : 65;
+          const stabilityScore = hipAngle >= 60 ? 92 : 72;
+          const alignmentScore = 90;
+          const overallForm = Math.round((depthScore + stabilityScore + alignmentScore) / 3);
+
+          if (this.minAngleInRep > 95) {
+            activeFault = 'Chưa xuống đủ độ sâu song song';
+          } else if (hipAngle < 55) {
+            activeFault = 'Thân người gập quá mức về trước';
+          }
+
+          const durationSec =
+            Math.round(((performance.now() - this.repStartTime) / 1000) * 10) / 10;
+          const status =
+            overallForm >= 90 ? 'clean' : overallForm >= 78 ? 'acceptable' : 'needs_work';
+
+          this.repHistory.push({
+            repNumber: this.repCount,
+            formScore: overallForm,
+            minAngle: Math.round(this.minAngleInRep),
+            durationSec: Math.max(0.5, durationSec),
+            status,
+            primaryFault: activeFault,
+            feedback,
+            subScores: { depth: depthScore, alignment: alignmentScore, stability: stabilityScore },
+          });
+
+          this.repStartTime = performance.now();
         }
         this.stage = 'standing';
         this.peakReached = false;
@@ -205,8 +339,8 @@ export class ExerciseEvaluator {
       }
     }
 
-    // Sub-scores
-    const depthScore = this.minAngleInRep <= 90 ? 98 : this.minAngleInRep <= 105 ? 82 : 65;
+    const depthScore =
+      this.minAngleInRep <= 90 ? 98 : this.minAngleInRep <= 105 ? 82 : 65;
     const stabilityScore = hipAngle >= 60 ? 92 : 72;
     const alignmentScore = 90;
     const overallForm = Math.round((depthScore + stabilityScore + alignmentScore) / 3);
@@ -225,11 +359,13 @@ export class ExerciseEvaluator {
         stability: stabilityScore,
       },
       isRepCompletedThisFrame: isCompleted,
+      activeFault,
     };
   }
 
   private evaluatePushUp(landmarks: Landmark[]): FormEvaluation {
-    const shoulder = landmarks[POSE_LANDMARKS.RIGHT_SHOULDER] || landmarks[POSE_LANDMARKS.LEFT_SHOULDER];
+    const shoulder =
+      landmarks[POSE_LANDMARKS.RIGHT_SHOULDER] || landmarks[POSE_LANDMARKS.LEFT_SHOULDER];
     const elbow = landmarks[POSE_LANDMARKS.RIGHT_ELBOW] || landmarks[POSE_LANDMARKS.LEFT_ELBOW];
     const wrist = landmarks[POSE_LANDMARKS.RIGHT_WRIST] || landmarks[POSE_LANDMARKS.LEFT_WRIST];
     const hip = landmarks[POSE_LANDMARKS.RIGHT_HIP] || landmarks[POSE_LANDMARKS.LEFT_HIP];
@@ -246,6 +382,7 @@ export class ExerciseEvaluator {
 
     let isCompleted = false;
     let feedback = 'Hold solid plank, brace core and glutes.';
+    let activeFault: string | undefined;
 
     if (elbowAngle < this.minAngleInRep) {
       this.minAngleInRep = elbowAngle;
@@ -278,6 +415,35 @@ export class ExerciseEvaluator {
           this.repCount++;
           isCompleted = true;
           feedback = 'Rep counted! Solid lockout.';
+
+          const depthScore = this.minAngleInRep <= 90 ? 96 : 75;
+          const stabilityScore = spineAngle >= 165 && spineAngle <= 180 ? 94 : 68;
+          const alignmentScore = 88;
+          const overallForm = Math.round((depthScore + stabilityScore + alignmentScore) / 3);
+
+          if (this.minAngleInRep > 95) {
+            activeFault = 'Hạ ngực chưa đủ thấp';
+          } else if (spineAngle < 160) {
+            activeFault = 'Võng lưng / hông chùng';
+          }
+
+          const durationSec =
+            Math.round(((performance.now() - this.repStartTime) / 1000) * 10) / 10;
+          const status =
+            overallForm >= 90 ? 'clean' : overallForm >= 78 ? 'acceptable' : 'needs_work';
+
+          this.repHistory.push({
+            repNumber: this.repCount,
+            formScore: overallForm,
+            minAngle: Math.round(this.minAngleInRep),
+            durationSec: Math.max(0.5, durationSec),
+            status,
+            primaryFault: activeFault,
+            feedback,
+            subScores: { depth: depthScore, alignment: alignmentScore, stability: stabilityScore },
+          });
+
+          this.repStartTime = performance.now();
         }
         this.stage = 'top';
         this.peakReached = false;
@@ -285,7 +451,6 @@ export class ExerciseEvaluator {
       }
     }
 
-    // Spine check
     if (spineAngle < 160) {
       feedback = 'Warning: Hips sagging! Engage abs and glutes.';
     }
@@ -309,6 +474,7 @@ export class ExerciseEvaluator {
         stability: stabilityScore,
       },
       isRepCompletedThisFrame: isCompleted,
+      activeFault,
     };
   }
 

@@ -330,7 +330,22 @@
     "video_summary_desc": "Đã hoàn thành phân tích kỹ thuật cho video bài tập bạn tải lên.",
     "avg_form_score": "Điểm Kỹ Thuật Trung Bình",
     "reps_completed": "Số Rep Đạt Chuẩn",
-    "analyze_again": "Phân Tích Lại Video"
+    "analyze_again": "Phân Tích Lại Video",
+    "clean_reps_ratio": "Rep Chuẩn Form",
+    "avg_set_score": "Điểm Trung Bình",
+    "avg_tempo": "Tempo Trung Bình",
+    "target_progress": "Tiến Độ",
+    "rep_trajectory": "Tiến Trình Điểm Form Qua Từng Rep",
+    "status_clean": "Chuẩn Form",
+    "status_acceptable": "Tạm Ổn",
+    "status_warning": "Cần Khắc Phục",
+    "body_locked": "Đã Khóa Mục Tiêu Cơ Thể",
+    "position_guide_prompt": "Đứng vào trong khung",
+    "step_back_prompt": "Lùi lại để camera nhìn rõ từ đầu tới chân",
+    "tab_quality": "Tổng Quan Chất Lượng",
+    "tab_rep_history": "Chi Tiết Từng Rep",
+    "no_reps_yet": "Chưa có dữ liệu Rep",
+    "no_reps_desc": "Bắt đầu bài tập để ghi nhận thông số chi tiết từng lần lặp"
   },
   "analytics": {
     "volume_distribution": "Phân Bổ Khối Lượng",

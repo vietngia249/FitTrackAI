@@ -15,13 +15,27 @@ import {
   CheckCircle2,
   AlertCircle,
   Check,
+  ListOrdered,
+  Activity,
 } from 'lucide-react';
-import { ExerciseType, ExerciseEvaluator, FormEvaluation } from '../features/formAnalysis/exerciseStateMachines';
+import {
+  ExerciseType,
+  ExerciseEvaluator,
+  FormEvaluation,
+  RepDetail,
+  ExerciseDiagnostics,
+} from '../features/formAnalysis/exerciseStateMachines';
 import { Landmark } from '../features/formAnalysis/poseGeometry';
 import { PoseCanvasOverlay } from '../features/formAnalysis/PoseCanvasOverlay';
+import { PositioningGuide } from '../features/formAnalysis/PositioningGuide';
+import { RepHistoryTable } from '../features/formAnalysis/RepHistoryTable';
 import { generateSimulatedPose } from '../features/formAnalysis/simulatedPose';
 import { audioFeedback } from '../features/formAnalysis/audioFeedback';
-import { getPoseLandmarker, detectPoseFromVideo } from '../features/formAnalysis/poseDetector';
+import {
+  getPoseLandmarker,
+  detectPoseFromVideo,
+  PoseSmoother,
+} from '../features/formAnalysis/poseDetector';
 import type { PoseLandmarker } from '@mediapipe/tasks-vision';
 
 type FormSourceMode = 'camera' | 'video_upload' | 'simulated';
@@ -33,6 +47,7 @@ export const AiFormPage: React.FC = () => {
   const [selectedExercise, setSelectedExercise] = useState<ExerciseType>('squat');
   const [targetReps, setTargetReps] = useState<number>(10);
   const [sourceMode, setSourceMode] = useState<FormSourceMode>('camera');
+  const [sidebarTab, setSidebarTab] = useState<'overview' | 'reps'>('overview');
 
   // Control & audio state
   const [isRunning, setIsRunning] = useState<boolean>(false);
@@ -54,12 +69,17 @@ export const AiFormPage: React.FC = () => {
   const [videoAnalysisComplete, setVideoAnalysisComplete] = useState<boolean>(false);
   const [collectedScores, setCollectedScores] = useState<number[]>([]);
 
+  // Rep history & diagnostics
+  const [repHistory, setRepHistory] = useState<RepDetail[]>([]);
+  const [diagnostics, setDiagnostics] = useState<ExerciseDiagnostics | null>(null);
+
   // Video & Stream refs
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const animFrameRef = useRef<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const landmarkerRef = useRef<PoseLandmarker | null>(null);
+  const smootherRef = useRef<PoseSmoother>(new PoseSmoother(0.65));
 
   // Evaluator singleton ref
   const evaluatorRef = useRef<ExerciseEvaluator>(new ExerciseEvaluator('squat'));
@@ -149,11 +169,14 @@ export const AiFormPage: React.FC = () => {
     stopCameraStream();
     if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
 
+    smootherRef.current.reset();
     setSourceMode(mode);
     setCameraError(null);
     setVideoAnalysisComplete(false);
     setLandmarks([]);
     evaluatorRef.current.reset();
+    setRepHistory([]);
+    setDiagnostics(null);
     setCollectedScores([]);
 
     // If switching to video mode with an existing video, pause it
@@ -168,8 +191,11 @@ export const AiFormPage: React.FC = () => {
   const handleSelectExercise = (type: ExerciseType) => {
     setSelectedExercise(type);
     evaluatorRef.current.setExercise(type);
+    smootherRef.current.reset();
     setLandmarks([]);
     setCollectedScores([]);
+    setRepHistory([]);
+    setDiagnostics(null);
     setEvaluation({
       exerciseType: type,
       repCount: 0,
@@ -186,7 +212,10 @@ export const AiFormPage: React.FC = () => {
   // Reset exercise session
   const handleReset = () => {
     evaluatorRef.current.reset();
+    smootherRef.current.reset();
     setCollectedScores([]);
+    setRepHistory([]);
+    setDiagnostics(null);
     setVideoAnalysisComplete(false);
     setEvaluation((prev) => ({
       ...prev,
@@ -217,7 +246,10 @@ export const AiFormPage: React.FC = () => {
     setUploadedVideoName(file.name);
     setVideoAnalysisComplete(false);
     setCollectedScores([]);
+    setRepHistory([]);
+    setDiagnostics(null);
     evaluatorRef.current.reset();
+    smootherRef.current.reset();
 
     if (videoRef.current) {
       videoRef.current.src = objectUrl;
@@ -255,11 +287,12 @@ export const AiFormPage: React.FC = () => {
       currentLandmarks = generateSimulatedPose(selectedExercise, timeSec);
       setIsPersonDetected(true);
     } else if (sourceMode === 'camera' && videoRef.current && landmarkerRef.current) {
-      // Real MediaPipe detection on webcam stream
+      // Real MediaPipe detection on webcam stream with EMA smoothing and sanity filter
       currentLandmarks = detectPoseFromVideo(
         landmarkerRef.current,
         videoRef.current,
-        performance.now()
+        performance.now(),
+        smootherRef.current
       );
       setIsPersonDetected(Boolean(currentLandmarks));
     } else if (sourceMode === 'video_upload' && videoRef.current && landmarkerRef.current) {
@@ -267,7 +300,8 @@ export const AiFormPage: React.FC = () => {
       currentLandmarks = detectPoseFromVideo(
         landmarkerRef.current,
         videoRef.current,
-        videoRef.current.currentTime * 1000
+        videoRef.current.currentTime * 1000,
+        smootherRef.current
       );
       setIsPersonDetected(Boolean(currentLandmarks));
     }
@@ -282,14 +316,18 @@ export const AiFormPage: React.FC = () => {
         setCollectedScores((prev) => [...prev.slice(-100), evalResult.formScore]);
       }
 
-      // Audio feedback when rep completed
-      if (evalResult.isRepCompletedThisFrame && isAudioEnabled) {
-        audioFeedback.playRepSuccess();
-        audioFeedback.speakCue(`${evalResult.repCount} reps!`);
-      }
-
-      // Save to localStorage for dashboard widget
+      // If rep completed this frame, sync rep history & diagnostics
       if (evalResult.isRepCompletedThisFrame) {
+        setRepHistory(evaluatorRef.current.getRepHistory());
+        setDiagnostics(evaluatorRef.current.getDiagnostics());
+
+        // Audio feedback
+        if (isAudioEnabled) {
+          audioFeedback.playRepSuccess();
+          audioFeedback.speakCue(`${evalResult.repCount} reps!`);
+        }
+
+        // Save to localStorage for dashboard widget
         try {
           localStorage.setItem(
             'fittrack_last_form_score',
@@ -377,6 +415,8 @@ export const AiFormPage: React.FC = () => {
     setIsRunning(false);
     setIsVideoPlaying(false);
     setVideoAnalysisComplete(true);
+    setRepHistory(evaluatorRef.current.getRepHistory());
+    setDiagnostics(evaluatorRef.current.getDiagnostics());
     if (isAudioEnabled) {
       audioFeedback.speakCue('Video analysis completed!');
     }
@@ -522,7 +562,7 @@ export const AiFormPage: React.FC = () => {
                 )}
               </button>
               <span className="text-xs text-slate-400 bg-black/60 px-2.5 py-1 rounded-lg backdrop-blur-md font-mono hidden sm:inline">
-                {isModelReady ? 'MediaPipe • GPU' : 'CPU • Fallback'}
+                {isModelReady ? 'MediaPipe Full • GPU' : 'CPU • Fallback'}
               </span>
             </div>
           </div>
@@ -552,6 +592,11 @@ export const AiFormPage: React.FC = () => {
             height={360}
             isMirrored={sourceMode === 'camera'}
           />
+
+          {/* Silhouette Positioning Guide for Webcam */}
+          {sourceMode === 'camera' && (
+            <PositioningGuide isPersonDetected={isPersonDetected} isRunning={isRunning} />
+          )}
 
           {/* Camera Permission Error Overlay */}
           {cameraError && (
@@ -600,14 +645,6 @@ export const AiFormPage: React.FC = () => {
               >
                 {t('ai_form.select_video_btn')}
               </button>
-            </div>
-          )}
-
-          {/* Person Detection Warning Pill */}
-          {isRunning && !isPersonDetected && sourceMode !== 'simulated' && (
-            <div className="absolute top-16 left-1/2 -translate-x-1/2 z-30 px-3 py-1.5 rounded-full bg-amber-500/90 text-black font-bold text-xs backdrop-blur-md shadow-lg flex items-center gap-1.5 animate-pulse">
-              <AlertCircle className="w-3.5 h-3.5" />
-              <span>{t('ai_form.no_person_detected')}</span>
             </div>
           )}
 
@@ -716,117 +753,157 @@ export const AiFormPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Rep & Form Quality Sidebar */}
-        <div className="glass-panel p-6 rounded-3xl flex flex-col justify-between space-y-6 border border-slate-200 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/60 shadow-lg">
-          {/* Active Rep Count */}
-          <div>
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                {t('ai_form.active_rep_count')}
-              </span>
-              <div className="flex items-center gap-1.5 text-xs">
-                <span className="text-slate-500 dark:text-slate-400 font-medium">{t('ai_form.target')}:</span>
-                <input
-                  type="number"
-                  min="1"
-                  max="100"
-                  value={targetReps}
-                  onChange={(e) => setTargetReps(Number(e.target.value))}
-                  className="w-12 px-1.5 py-0.5 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-center text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
-                />
-              </div>
-            </div>
+        {/* Rep & Form Quality Sidebar with Tabs */}
+        <div className="glass-panel p-6 rounded-3xl flex flex-col justify-between space-y-5 border border-slate-200 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/60 shadow-lg">
+          {/* Sidebar Tab Header */}
+          <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800/70 rounded-xl border border-slate-200 dark:border-slate-800">
+            <button
+              onClick={() => setSidebarTab('overview')}
+              className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                sidebarTab === 'overview'
+                  ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
+                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <Activity className="w-3.5 h-3.5" />
+              <span>{t('ai_form.tab_quality')}</span>
+            </button>
 
-            <div className="flex items-baseline gap-2 mt-3">
-              <span className="text-5xl sm:text-6xl font-black text-slate-900 dark:text-white font-mono tracking-tight">
-                {evaluation.repCount}
+            <button
+              onClick={() => setSidebarTab('reps')}
+              className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                sidebarTab === 'reps'
+                  ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
+                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              <ListOrdered className="w-3.5 h-3.5" />
+              <span>
+                {t('ai_form.tab_rep_history')} {repHistory.length > 0 && `(${repHistory.length})`}
               </span>
-              <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 font-mono">
-                {t('ai_form.reps_count', { target: targetReps })}
-              </span>
-            </div>
-
-            {/* Target Progress Bar */}
-            <div className="mt-3 w-full bg-slate-100 dark:bg-slate-800/80 rounded-full h-2 overflow-hidden">
-              <div
-                className="bg-emerald-500 h-full rounded-full transition-all duration-300"
-                style={{
-                  width: `${Math.min(
-                    Math.round((evaluation.repCount / targetReps) * 100),
-                    100
-                  )}%`,
-                }}
-              />
-            </div>
+            </button>
           </div>
 
-          {/* Form Quality Sub-Scores */}
-          <div className="space-y-3.5">
-            <div className="flex items-center justify-between">
-              <h4 className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider">
-                {t('ai_form.quality_breakdown')}
-              </h4>
-              <span className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400">
-                {t('ai_form.overall_score', { score: evaluation.formScore })}
-              </span>
-            </div>
+          {sidebarTab === 'overview' ? (
+            <div className="space-y-5">
+              {/* Active Rep Count */}
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    {t('ai_form.active_rep_count')}
+                  </span>
+                  <div className="flex items-center gap-1.5 text-xs">
+                    <span className="text-slate-500 dark:text-slate-400 font-medium">{t('ai_form.target')}:</span>
+                    <input
+                      type="number"
+                      min="1"
+                      max="100"
+                      value={targetReps}
+                      onChange={(e) => setTargetReps(Number(e.target.value))}
+                      className="w-12 px-1.5 py-0.5 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-center text-xs font-bold text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                </div>
 
-            <div>
-              <div className="flex justify-between text-xs font-medium mb-1">
-                <span className="text-slate-700 dark:text-slate-300">{t('ai_form.depth_rom')}</span>
-                <span className="text-emerald-600 dark:text-emerald-400 font-mono font-bold">
-                  {evaluation.subScores.depth}/100
-                </span>
-              </div>
-              <div className="w-full bg-slate-100 dark:bg-slate-800/80 rounded-full h-1.5">
-                <div
-                  className="bg-emerald-500 h-full rounded-full transition-all duration-300"
-                  style={{ width: `${evaluation.subScores.depth}%` }}
-                />
-              </div>
-            </div>
+                <div className="flex items-baseline gap-2 mt-2">
+                  <span className="text-5xl sm:text-6xl font-black text-slate-900 dark:text-white font-mono tracking-tight">
+                    {evaluation.repCount}
+                  </span>
+                  <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 font-mono">
+                    {t('ai_form.reps_count', { target: targetReps })}
+                  </span>
+                </div>
 
-            <div>
-              <div className="flex justify-between text-xs font-medium mb-1">
-                <span className="text-slate-700 dark:text-slate-300">{t('ai_form.joint_alignment')}</span>
-                <span className="text-cyan-600 dark:text-cyan-400 font-mono font-bold">
-                  {evaluation.subScores.alignment}/100
-                </span>
+                {/* Target Progress Bar */}
+                <div className="mt-3 w-full bg-slate-100 dark:bg-slate-800/80 rounded-full h-2 overflow-hidden">
+                  <div
+                    className="bg-emerald-500 h-full rounded-full transition-all duration-300"
+                    style={{
+                      width: `${Math.min(
+                        Math.round((evaluation.repCount / targetReps) * 100),
+                        100
+                      )}%`,
+                    }}
+                  />
+                </div>
               </div>
-              <div className="w-full bg-slate-100 dark:bg-slate-800/80 rounded-full h-1.5">
-                <div
-                  className="bg-cyan-500 h-full rounded-full transition-all duration-300"
-                  style={{ width: `${evaluation.subScores.alignment}%` }}
-                />
-              </div>
-            </div>
 
-            <div>
-              <div className="flex justify-between text-xs font-medium mb-1">
-                <span className="text-slate-700 dark:text-slate-300">{t('ai_form.torso_stability')}</span>
-                <span className="text-amber-600 dark:text-amber-400 font-mono font-bold">
-                  {evaluation.subScores.stability}/100
-                </span>
-              </div>
-              <div className="w-full bg-slate-100 dark:bg-slate-800/80 rounded-full h-1.5">
-                <div
-                  className="bg-amber-500 h-full rounded-full transition-all duration-300"
-                  style={{ width: `${evaluation.subScores.stability}%` }}
-                />
-              </div>
-            </div>
-          </div>
+              {/* Form Quality Sub-Scores */}
+              <div className="space-y-3.5">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400 tracking-wider">
+                    {t('ai_form.quality_breakdown')}
+                  </h4>
+                  <span className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                    {t('ai_form.overall_score', { score: evaluation.formScore })}
+                  </span>
+                </div>
 
-          {/* Real-time Coaching Feedback Card */}
-          <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-800 dark:text-emerald-300 space-y-1">
-            <div className="flex items-center gap-1.5 font-bold uppercase text-[11px] text-emerald-600 dark:text-emerald-400">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>{t('ai_form.realtime_feedback')}</span>
+                <div>
+                  <div className="flex justify-between text-xs font-medium mb-1">
+                    <span className="text-slate-700 dark:text-slate-300">{t('ai_form.depth_rom')}</span>
+                    <span className="text-emerald-600 dark:text-emerald-400 font-mono font-bold">
+                      {evaluation.subScores.depth}/100
+                    </span>
+                  </div>
+                  <div className="w-full bg-slate-100 dark:bg-slate-800/80 rounded-full h-1.5">
+                    <div
+                      className="bg-emerald-500 h-full rounded-full transition-all duration-300"
+                      style={{ width: `${evaluation.subScores.depth}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-xs font-medium mb-1">
+                    <span className="text-slate-700 dark:text-slate-300">{t('ai_form.joint_alignment')}</span>
+                    <span className="text-cyan-600 dark:text-cyan-400 font-mono font-bold">
+                      {evaluation.subScores.alignment}/100
+                    </span>
+                  </div>
+                  <div className="w-full bg-slate-100 dark:bg-slate-800/80 rounded-full h-1.5">
+                    <div
+                      className="bg-cyan-500 h-full rounded-full transition-all duration-300"
+                      style={{ width: `${evaluation.subScores.alignment}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between text-xs font-medium mb-1">
+                    <span className="text-slate-700 dark:text-slate-300">{t('ai_form.torso_stability')}</span>
+                    <span className="text-amber-600 dark:text-amber-400 font-mono font-bold">
+                      {evaluation.subScores.stability}/100
+                    </span>
+                  </div>
+                  <div className="w-full bg-slate-100 dark:bg-slate-800/80 rounded-full h-1.5">
+                    <div
+                      className="bg-amber-500 h-full rounded-full transition-all duration-300"
+                      style={{ width: `${evaluation.subScores.stability}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Real-time Coaching Feedback Card */}
+              <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-800 dark:text-emerald-300 space-y-1">
+                <div className="flex items-center gap-1.5 font-bold uppercase text-[11px] text-emerald-600 dark:text-emerald-400">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>{t('ai_form.realtime_feedback')}</span>
+                </div>
+                <p className="text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
+                  {evaluation.feedback}
+                </p>
+              </div>
             </div>
-            <p className="text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
-              {evaluation.feedback}
-            </p>
-          </div>
+          ) : (
+            /* Sidebar Tab 2: Compact Reps History */
+            <RepHistoryTable
+              repHistory={repHistory}
+              diagnostics={diagnostics}
+              targetReps={targetReps}
+            />
+          )}
 
           {/* Session Controls */}
           <div className="flex items-center gap-2 pt-2">
@@ -861,6 +938,39 @@ export const AiFormPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Expansive Per-Rep Analytics Section below the viewport (when reps recorded) */}
+      {repHistory.length > 0 && (
+        <div className="glass-panel p-6 rounded-3xl border border-slate-200 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/60 shadow-lg space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-xl bg-emerald-500/15 text-emerald-500">
+                <ListOrdered className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-extrabold text-slate-900 dark:text-white">
+                  {t('ai_form.tab_rep_history', 'Chi Tiết Từng Lần Lặp (Per-Rep Analytics)')}
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Phân tích thông số kỹ thuật, góc uốn khớp và thời gian nhịp điệu của từng rep
+                </p>
+              </div>
+            </div>
+
+            {diagnostics && (
+              <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                {diagnostics.cleanPercentage}% Reps Đạt Chuẩn
+              </span>
+            )}
+          </div>
+
+          <RepHistoryTable
+            repHistory={repHistory}
+            diagnostics={diagnostics}
+            targetReps={targetReps}
+          />
+        </div>
+      )}
 
       {/* Video Analysis Complete Summary Banner */}
       {videoAnalysisComplete && sourceMode === 'video_upload' && (

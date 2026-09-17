@@ -330,7 +330,22 @@
     "video_summary_desc": "Analysis completed for your uploaded workout video.",
     "avg_form_score": "Average Form Score",
     "reps_completed": "Reps Completed",
-    "analyze_again": "Re-analyze Video"
+    "analyze_again": "Re-analyze Video",
+    "clean_reps_ratio": "Clean Reps",
+    "avg_set_score": "Avg Score",
+    "avg_tempo": "Avg Tempo",
+    "target_progress": "Progress",
+    "rep_trajectory": "Form Score Trajectory Per Rep",
+    "status_clean": "Clean Rep",
+    "status_acceptable": "Acceptable",
+    "status_warning": "Needs Work",
+    "body_locked": "Body Locked",
+    "position_guide_prompt": "Align body inside frame",
+    "step_back_prompt": "Step back so camera sees head to feet",
+    "tab_quality": "Quality Overview",
+    "tab_rep_history": "Rep Breakdown",
+    "no_reps_yet": "No Reps Recorded",
+    "no_reps_desc": "Perform reps to see real-time per-rep scores and faults"
   },
   "analytics": {
     "volume_distribution": "Volume Distribution",
