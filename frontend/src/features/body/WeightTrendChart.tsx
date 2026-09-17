@@ -32,8 +32,8 @@ export const WeightTrendChart: React.FC = () => {
 
   // Calculate min and max for chart domain with 1kg margin
   const weights = data.points.flatMap((p) => [p.weightKg, p.movingAverageKg]);
-  const minWeight = Math.floor(Math.min(...weights) - 1);
-  const maxWeight = Math.ceil(Math.max(...weights) + 1);
+  const minWeight = weights.length > 0 ? Math.floor(Math.min(...weights) - 1) : 40;
+  const maxWeight = weights.length > 0 ? Math.ceil(Math.max(...weights) + 1) : 100;
 
   return (
     <div className="bg-white dark:bg-[#0e131f]/90 border border-slate-200/80 dark:border-slate-800/80 rounded-3xl p-6 shadow-sm dark:shadow-xl space-y-5">
@@ -57,13 +57,17 @@ export const WeightTrendChart: React.FC = () => {
           <div className="text-right">
             <div className="flex items-baseline justify-end gap-1">
               <span className="text-2xl font-black text-slate-900 dark:text-white font-mono">
-                {data.stats.currentSevenDayAvgKg}
+                {data.stats.currentSevenDayAvgKg ? data.stats.currentSevenDayAvgKg : '—'}
               </span>
               <span className="text-xs text-slate-400">kg 7d-avg</span>
             </div>
             <div className="flex items-center justify-end gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
               <TrendingDown className="w-3 h-3" />
-              <span>{data.stats.totalChangeKg} kg overall</span>
+              <span>
+                {data.stats.totalEntries > 0
+                  ? `${data.stats.totalChangeKg > 0 ? '+' : ''}${data.stats.totalChangeKg} kg overall`
+                  : '—'}
+              </span>
             </div>
           </div>
 
@@ -77,76 +81,97 @@ export const WeightTrendChart: React.FC = () => {
         </div>
       </div>
 
-      {/* Chart */}
-      <div className="h-64 w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={data.points} margin={{ top: 10, right: 10, bottom: 0, left: -20 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" opacity={0.6} />
-            <XAxis
-              dataKey="date"
-              stroke="#64748b"
-              fontSize={11}
-              tickLine={false}
-              tickFormatter={(val: string) => {
-                const parts = val.split('-');
-                return `${parts[1]}/${parts[2]}`;
-              }}
-            />
-            <YAxis
-              stroke="#64748b"
-              fontSize={11}
-              domain={[minWeight, maxWeight]}
-              tickLine={false}
-              unit="kg"
-            />
-            <Tooltip
-              content={({ active, payload }) => {
-                if (!active || !payload || !payload.length) return null;
-                const point = payload[0]?.payload;
-                return (
-                  <div className="bg-slate-900/95 border border-slate-700/80 p-3 rounded-xl shadow-2xl text-xs space-y-1">
-                    <p className="font-bold text-slate-200">{point.date}</p>
-                    <p className="text-slate-400">
-                      Raw Weigh-in:{' '}
-                      <span className="text-white font-mono font-bold">
-                        {point.weightKg} kg
-                      </span>
-                    </p>
-                    <p className="text-emerald-400">
-                      7-Day Average:{' '}
-                      <span className="font-mono font-bold">
-                        {point.movingAverageKg} kg
-                      </span>
-                    </p>
-                    {point.notes && (
-                      <p className="text-[10px] text-slate-500 italic pt-1 border-t border-slate-800">
-                        {point.notes}
+      {/* Chart or Empty State */}
+      {data.points.length === 0 ? (
+        <div className="h-64 w-full flex flex-col items-center justify-center text-center p-6 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50/50 dark:bg-slate-900/30">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center mb-3">
+            <Scale className="w-6 h-6" />
+          </div>
+          <h4 className="font-bold text-sm text-slate-800 dark:text-slate-200 mb-1">
+            {t('progress.no_weight_logs', 'No weight entries logged yet')}
+          </h4>
+          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mb-4">
+            {t('progress.no_weight_logs_desc', 'Log your weight consistently to view your true 7-day moving average and body composition trends.')}
+          </p>
+          <button
+            onClick={() => setIsLogModalOpen(true)}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold transition-all shadow-sm keep-white cursor-pointer active:scale-95"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>{t('progress.log_weight', 'Log Weight')}</span>
+          </button>
+        </div>
+      ) : (
+        <div className="h-64 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <ComposedChart data={data.points} margin={{ top: 10, right: 10, bottom: 0, left: -20 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" opacity={0.6} />
+              <XAxis
+                dataKey="date"
+                stroke="#64748b"
+                fontSize={11}
+                tickLine={false}
+                tickFormatter={(val: string) => {
+                  const parts = val.split('-');
+                  return `${parts[1]}/${parts[2]}`;
+                }}
+              />
+              <YAxis
+                stroke="#64748b"
+                fontSize={11}
+                domain={[minWeight, maxWeight]}
+                tickLine={false}
+                unit="kg"
+              />
+              <Tooltip
+                content={({ active, payload }) => {
+                  if (!active || !payload || !payload.length) return null;
+                  const point = payload[0]?.payload;
+                  return (
+                    <div className="bg-slate-900/95 border border-slate-700/80 p-3 rounded-xl shadow-2xl text-xs space-y-1">
+                      <p className="font-bold text-slate-200">{point.date}</p>
+                      <p className="text-slate-400">
+                        Raw Weigh-in:{' '}
+                        <span className="text-white font-mono font-bold">
+                          {point.weightKg} kg
+                        </span>
                       </p>
-                    )}
-                  </div>
-                );
-              }}
-            />
-            <Bar
-              dataKey="weightKg"
-              fill="#334155"
-              radius={[4, 4, 0, 0]}
-              maxBarSize={18}
-              opacity={0.7}
-              name="Raw Daily Weight"
-            />
-            <Line
-              type="monotone"
-              dataKey="movingAverageKg"
-              stroke="#10b981"
-              strokeWidth={3}
-              dot={{ r: 3, fill: '#10b981' }}
-              activeDot={{ r: 5, fill: '#34d399' }}
-              name="7-Day Moving Avg"
-            />
-          </ComposedChart>
-        </ResponsiveContainer>
-      </div>
+                      <p className="text-emerald-400">
+                        7-Day Average:{' '}
+                        <span className="font-mono font-bold">
+                          {point.movingAverageKg} kg
+                        </span>
+                      </p>
+                      {point.notes && (
+                        <p className="text-[10px] text-slate-500 italic pt-1 border-t border-slate-800">
+                          {point.notes}
+                        </p>
+                      )}
+                    </div>
+                  );
+                }}
+              />
+              <Bar
+                dataKey="weightKg"
+                fill="#334155"
+                radius={[4, 4, 0, 0]}
+                maxBarSize={18}
+                opacity={0.7}
+                name="Raw Daily Weight"
+              />
+              <Line
+                type="monotone"
+                dataKey="movingAverageKg"
+                stroke="#10b981"
+                strokeWidth={3}
+                dot={{ r: 3, fill: '#10b981' }}
+                activeDot={{ r: 5, fill: '#34d399' }}
+                name="7-Day Moving Avg"
+              />
+            </ComposedChart>
+          </ResponsiveContainer>
+        </div>
+      )}
 
       <LogWeightModal
         isOpen={isLogModalOpen}

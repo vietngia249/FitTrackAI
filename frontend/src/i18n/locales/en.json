@@ -177,6 +177,8 @@
     "log_weight": "Log Weight",
     "log_weight_title": "Log Body Weight",
     "log_weight_ph": "e.g. Fasted morning weigh-in",
+    "no_weight_logs": "No weight entries logged yet",
+    "no_weight_logs_desc": "Log your weight consistently to view your true 7-day moving average and body composition trends.",
     "circumference_title": "Circumference Measurements",
     "circumference_subtitle": "All measurements stored canonically in cm",
     "update_measurements": "Update Measurements",

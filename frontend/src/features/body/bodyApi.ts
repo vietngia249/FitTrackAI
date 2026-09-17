@@ -18,55 +18,15 @@ function getAuthHeader(): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-export const SAMPLE_WEIGHT_HISTORY: WeightHistoryResponse = {
-  points: [
-    { date: '2026-08-25', weightKg: 78.8, movingAverageKg: 78.8 },
-    { date: '2026-08-27', weightKg: 78.4, movingAverageKg: 78.6 },
-    { date: '2026-08-29', weightKg: 78.1, movingAverageKg: 78.43 },
-    { date: '2026-08-31', weightKg: 77.9, movingAverageKg: 78.3 },
-    { date: '2026-09-02', weightKg: 77.5, movingAverageKg: 78.14 },
-    { date: '2026-09-04', weightKg: 77.8, movingAverageKg: 77.92 },
-    { date: '2026-09-06', weightKg: 77.2, movingAverageKg: 77.68 },
-    { date: '2026-09-08', weightKg: 77.0, movingAverageKg: 77.49 },
-    { date: '2026-09-10', weightKg: 76.8, movingAverageKg: 77.26 },
-    { date: '2026-09-12', weightKg: 76.5, movingAverageKg: 77.03 },
-    { date: '2026-09-14', weightKg: 76.2, movingAverageKg: 76.8 },
-    { date: '2026-09-15', weightKg: 76.0, movingAverageKg: 76.58 },
-  ],
+const EMPTY_WEIGHT_HISTORY: WeightHistoryResponse = {
+  points: [],
   stats: {
-    currentWeightKg: 76.0,
-    currentSevenDayAvgKg: 76.58,
-    totalChangeKg: -2.8,
-    totalEntries: 12,
+    currentWeightKg: null,
+    currentSevenDayAvgKg: null,
+    totalChangeKg: 0,
+    totalEntries: 0,
   },
 };
-
-export const SAMPLE_MEASUREMENTS: BodyMeasurement[] = [
-  {
-    id: 'sm-1',
-    loggedDate: '2026-09-15',
-    chestCm: 104.5,
-    waistCm: 81.0,
-    bicepsRightCm: 38.5,
-    thighRightCm: 60.2,
-    hipsCm: 98.0,
-    neckCm: 39.0,
-    calvesCm: 37.5,
-    notes: 'Morning tape measurement',
-  },
-  {
-    id: 'sm-2',
-    loggedDate: '2026-08-15',
-    chestCm: 103.0,
-    waistCm: 83.0,
-    bicepsRightCm: 37.7,
-    thighRightCm: 59.0,
-    hipsCm: 99.5,
-    neckCm: 39.2,
-    calvesCm: 37.2,
-    notes: 'Baseline check',
-  },
-];
 
 export async function fetchWeightHistoryApi(): Promise<WeightHistoryResponse> {
   try {
@@ -79,7 +39,7 @@ export async function fetchWeightHistoryApi(): Promise<WeightHistoryResponse> {
 
     if (res.ok) {
       const data = await res.json();
-      if (data && data.points && data.points.length > 0) {
+      if (data && data.points) {
         localStorage.setItem(WEIGHT_CACHE_KEY, JSON.stringify(data));
         return data;
       }
@@ -95,7 +55,7 @@ export async function fetchWeightHistoryApi(): Promise<WeightHistoryResponse> {
     // Ignore
   }
 
-  return SAMPLE_WEIGHT_HISTORY;
+  return EMPTY_WEIGHT_HISTORY;
 }
 
 export async function logWeightApi(payload: LogWeightPayload): Promise<any> {
@@ -116,6 +76,61 @@ export async function logWeightApi(payload: LogWeightPayload): Promise<any> {
     // Fallback
   }
 
+  // Update local cache so real user weigh-ins persist
+  try {
+    const cachedRaw = localStorage.getItem(WEIGHT_CACHE_KEY);
+    const currentData: WeightHistoryResponse = cachedRaw
+      ? JSON.parse(cachedRaw)
+      : { ...EMPTY_WEIGHT_HISTORY };
+
+    const newPoint = {
+      date: payload.loggedDate,
+      weightKg: payload.weightKg,
+      movingAverageKg: payload.weightKg,
+      notes: payload.notes,
+    };
+
+    const updatedPoints = [...currentData.points, newPoint].sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+
+    const pointsWithAvg = updatedPoints.map((pt, _idx, arr) => {
+      const ptDate = new Date(pt.date).getTime();
+      const sevenDaysBefore = ptDate - 7 * 24 * 60 * 60 * 1000;
+      const windowPts = arr.filter((p) => {
+        const d = new Date(p.date).getTime();
+        return d >= sevenDaysBefore && d <= ptDate;
+      });
+      const avg =
+        windowPts.reduce((sum, p) => sum + p.weightKg, 0) / windowPts.length;
+      return {
+        ...pt,
+        movingAverageKg: Math.round(avg * 100) / 100,
+      };
+    });
+
+    const latest = pointsWithAvg[pointsWithAvg.length - 1];
+    const first = pointsWithAvg[0];
+    const totalChange =
+      first && latest
+        ? Math.round((latest.weightKg - first.weightKg) * 10) / 10
+        : 0;
+
+    const updatedData: WeightHistoryResponse = {
+      points: pointsWithAvg,
+      stats: {
+        currentWeightKg: latest?.weightKg ?? null,
+        currentSevenDayAvgKg: latest?.movingAverageKg ?? null,
+        totalChangeKg: totalChange,
+        totalEntries: pointsWithAvg.length,
+      },
+    };
+
+    localStorage.setItem(WEIGHT_CACHE_KEY, JSON.stringify(updatedData));
+  } catch {
+    // Ignore cache error
+  }
+
   return {
     id: `local-weight-${Date.now()}`,
     ...payload,
@@ -133,7 +148,7 @@ export async function fetchMeasurementsApi(): Promise<BodyMeasurement[]> {
 
     if (res.ok) {
       const data = await res.json();
-      if (data && data.length > 0) {
+      if (data && Array.isArray(data)) {
         localStorage.setItem(MEASURE_CACHE_KEY, JSON.stringify(data));
         return data;
       }
@@ -149,7 +164,7 @@ export async function fetchMeasurementsApi(): Promise<BodyMeasurement[]> {
     // Ignore
   }
 
-  return SAMPLE_MEASUREMENTS;
+  return [];
 }
 
 export async function logMeasurementApi(payload: LogMeasurementPayload): Promise<BodyMeasurement> {

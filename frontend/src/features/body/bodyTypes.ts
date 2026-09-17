@@ -7,8 +7,8 @@ export interface WeightHistoryPoint {
 }
 
 export interface WeightStats {
-  currentWeightKg: number;
-  currentSevenDayAvgKg: number;
+  currentWeightKg: number | null;
+  currentSevenDayAvgKg: number | null;
   totalChangeKg: number;
   totalEntries: number;
 }

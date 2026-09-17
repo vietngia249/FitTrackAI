@@ -177,6 +177,8 @@
     "log_weight": "Ghi nhận cân nặng",
     "log_weight_title": "Nhập Số Cân Nặng",
     "log_weight_ph": "Ví dụ: Cân vào buổi sáng khi thức dậy, chưa ăn",
+    "no_weight_logs": "Chưa có bản ghi cân nặng nào",
+    "no_weight_logs_desc": "Ghi nhận cân nặng thường xuyên để theo dõi xu hướng trung bình động 7 ngày và sự thay đổi cơ thể.",
     "circumference_title": "Số Đo Các Vòng Cơ Thể",
     "circumference_subtitle": "Tất cả số đo được lưu trữ chuẩn xác theo đơn vị cm",
     "update_measurements": "Cập nhật số đo",

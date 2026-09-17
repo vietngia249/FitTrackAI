@@ -10,12 +10,12 @@ export const BodyMeasurementsSection: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Form states
-  const [chestCm, setChestCm] = useState<number>(104.5);
-  const [waistCm, setWaistCm] = useState<number>(81.0);
-  const [bicepsRightCm, setBicepsRightCm] = useState<number>(38.5);
-  const [thighRightCm, setThighRightCm] = useState<number>(60.2);
-  const [hipsCm, setHipsCm] = useState<number>(98.0);
-  const [calvesCm, setCalvesCm] = useState<number>(37.5);
+  const [chestCm, setChestCm] = useState<number | ''>('');
+  const [waistCm, setWaistCm] = useState<number | ''>('');
+  const [bicepsRightCm, setBicepsRightCm] = useState<number | ''>('');
+  const [thighRightCm, setThighRightCm] = useState<number | ''>('');
+  const [hipsCm, setHipsCm] = useState<number | ''>('');
+  const [calvesCm, setCalvesCm] = useState<number | ''>('');
   const [notes, setNotes] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -30,6 +30,27 @@ export const BodyMeasurementsSection: React.FC = () => {
   const latest = measurements[0] || null;
   const previous = measurements[1] || null;
 
+  const handleOpenModal = () => {
+    if (latest) {
+      setChestCm(latest.chestCm ?? '');
+      setWaistCm(latest.waistCm ?? '');
+      setBicepsRightCm(latest.bicepsRightCm ?? '');
+      setThighRightCm(latest.thighRightCm ?? '');
+      setHipsCm(latest.hipsCm ?? '');
+      setCalvesCm(latest.calvesCm ?? '');
+      setNotes(latest.notes ?? '');
+    } else {
+      setChestCm('');
+      setWaistCm('');
+      setBicepsRightCm('');
+      setThighRightCm('');
+      setHipsCm('');
+      setCalvesCm('');
+      setNotes('');
+    }
+    setIsModalOpen(true);
+  };
+
   const getDiff = (currentVal?: number | null, prevVal?: number | null) => {
     if (!currentVal || !prevVal) return null;
     const diff = Math.round((currentVal - prevVal) * 10) / 10;
@@ -43,12 +64,12 @@ export const BodyMeasurementsSection: React.FC = () => {
     try {
       await logMeasurementApi({
         loggedDate: new Date().toISOString().split('T')[0],
-        chestCm,
-        waistCm,
-        bicepsRightCm,
-        thighRightCm,
-        hipsCm,
-        calvesCm,
+        chestCm: chestCm !== '' ? Number(chestCm) : undefined,
+        waistCm: waistCm !== '' ? Number(waistCm) : undefined,
+        bicepsRightCm: bicepsRightCm !== '' ? Number(bicepsRightCm) : undefined,
+        thighRightCm: thighRightCm !== '' ? Number(thighRightCm) : undefined,
+        hipsCm: hipsCm !== '' ? Number(hipsCm) : undefined,
+        calvesCm: calvesCm !== '' ? Number(calvesCm) : undefined,
         notes: notes.trim() || undefined,
       });
       loadMeasurements();
@@ -104,7 +125,7 @@ export const BodyMeasurementsSection: React.FC = () => {
           </div>
         </div>
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={handleOpenModal}
           className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
         >
           <Plus className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
@@ -168,8 +189,9 @@ export const BodyMeasurementsSection: React.FC = () => {
                   <input
                     type="number"
                     step="0.1"
+                    placeholder="—"
                     value={chestCm}
-                    onChange={(e) => setChestCm(Number(e.target.value))}
+                    onChange={(e) => setChestCm(e.target.value === '' ? '' : Number(e.target.value))}
                     className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:border-teal-500"
                   />
                 </div>
@@ -178,8 +200,9 @@ export const BodyMeasurementsSection: React.FC = () => {
                   <input
                     type="number"
                     step="0.1"
+                    placeholder="—"
                     value={waistCm}
-                    onChange={(e) => setWaistCm(Number(e.target.value))}
+                    onChange={(e) => setWaistCm(e.target.value === '' ? '' : Number(e.target.value))}
                     className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:border-teal-500"
                   />
                 </div>
@@ -188,8 +211,9 @@ export const BodyMeasurementsSection: React.FC = () => {
                   <input
                     type="number"
                     step="0.1"
+                    placeholder="—"
                     value={bicepsRightCm}
-                    onChange={(e) => setBicepsRightCm(Number(e.target.value))}
+                    onChange={(e) => setBicepsRightCm(e.target.value === '' ? '' : Number(e.target.value))}
                     className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:border-teal-500"
                   />
                 </div>
@@ -198,8 +222,9 @@ export const BodyMeasurementsSection: React.FC = () => {
                   <input
                     type="number"
                     step="0.1"
+                    placeholder="—"
                     value={thighRightCm}
-                    onChange={(e) => setThighRightCm(Number(e.target.value))}
+                    onChange={(e) => setThighRightCm(e.target.value === '' ? '' : Number(e.target.value))}
                     className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:border-teal-500"
                   />
                 </div>
@@ -208,8 +233,9 @@ export const BodyMeasurementsSection: React.FC = () => {
                   <input
                     type="number"
                     step="0.1"
+                    placeholder="—"
                     value={hipsCm}
-                    onChange={(e) => setHipsCm(Number(e.target.value))}
+                    onChange={(e) => setHipsCm(e.target.value === '' ? '' : Number(e.target.value))}
                     className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:border-teal-500"
                   />
                 </div>
@@ -218,8 +244,9 @@ export const BodyMeasurementsSection: React.FC = () => {
                   <input
                     type="number"
                     step="0.1"
+                    placeholder="—"
                     value={calvesCm}
-                    onChange={(e) => setCalvesCm(Number(e.target.value))}
+                    onChange={(e) => setCalvesCm(e.target.value === '' ? '' : Number(e.target.value))}
                     className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-sm font-bold text-slate-900 dark:text-white focus:outline-none focus:border-teal-500"
                   />
                 </div>
