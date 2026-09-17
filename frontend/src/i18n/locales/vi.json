@@ -95,7 +95,9 @@
     "total_sessions": "tổng số buổi tập",
     "start_streak": "Bắt đầu chuỗi tập của bạn!",
     "overload_note_desc": "Bạn đã hoàn thành {{count}} buổi tập với tổng khối lượng {{volume}} kg trong tuần này. Tiếp tục duy trì nguyên tắc tăng tải tạ đều đặn nhé!",
-    "overload_empty_desc": "Hãy bắt đầu ghi nhật ký buổi tập để nhận các gợi ý tăng mức tạ cá nhân hóa từ AI."
+    "overload_empty_desc": "Hãy bắt đầu ghi nhật ký buổi tập để nhận các gợi ý tăng mức tạ cá nhân hóa từ AI.",
+    "no_routine_scheduled": "Hôm nay chưa có lịch tập nào",
+    "no_routine_scheduled_desc": "Bắt đầu buổi tập tự do hoặc tạo giáo án bài tập cá nhân."
   },
   "workouts": {
     "title": "Quản Lý Lịch Tập",
@@ -105,6 +107,8 @@
     "start_empty": "Bắt đầu buổi tập tự do",
     "start_routine": "Bắt đầu theo giáo án",
     "no_completed": "Chưa có buổi tập nào hoàn thành",
+    "no_routines": "Chưa có giáo án tập luyện nào",
+    "no_routines_desc": "Tạo lịch tập luyện cá nhân đầu tiên hoặc bắt đầu một buổi tập tự do.",
     "add_set": "Thêm Set",
     "add_exercise": "Thêm bài tập",
     "add_exercise_to_workout": "Thêm bài tập vào buổi tập",

@@ -223,7 +223,7 @@ export const DashboardPage: React.FC = () => {
             <div className="flex items-center gap-2">
               <Calendar className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               <h2 className="font-bold text-lg text-slate-900 dark:text-white">
-                {currentPlan ? `${t('dashboard.focus_today', "Today's Focus")}: ${currentPlan.name}` : `${t('dashboard.focus_today', "Today's Focus")}: Push Session A`}
+                {currentPlan ? `${t('dashboard.focus_today', "Today's Focus")}: ${currentPlan.name}` : t('dashboard.focus_today', "Today's Focus")}
               </h2>
             </div>
             <span className="text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 font-semibold">
@@ -245,22 +245,14 @@ export const DashboardPage: React.FC = () => {
                 </div>
               ))
             ) : (
-              <>
-                <div className="py-3 flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-slate-800 dark:text-slate-200">{t('dashboard.bench_press', 'Barbell Bench Press')}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">4 sets × 6-8 reps • 85 kg target</p>
-                  </div>
-                  <span className="text-xs text-slate-400 dark:text-slate-500 font-mono">{t('dashboard.rest', 'Rest')} 180s</span>
-                </div>
-                <div className="py-3 flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-slate-800 dark:text-slate-200">{t('dashboard.incline_press', 'Incline Dumbbell Press')}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">3 sets × 8-10 reps • 30 kg target</p>
-                  </div>
-                  <span className="text-xs text-slate-400 dark:text-slate-500 font-mono">{t('dashboard.rest', 'Rest')} 120s</span>
-                </div>
-              </>
+              <div className="py-8 text-center">
+                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  {t('dashboard.no_routine_scheduled', 'No routine scheduled for today')}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  {t('dashboard.no_routine_scheduled_desc', 'Launch an empty tracker session or create a custom workout routine.')}
+                </p>
+              </div>
             )}
           </div>
 

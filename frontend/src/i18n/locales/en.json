@@ -95,7 +95,9 @@
     "total_sessions": "total sessions",
     "start_streak": "Start your streak!",
     "overload_note_desc": "You've logged {{count}} sessions totaling {{volume}} kg volume this week. Keep your progressive overload consistent!",
-    "overload_empty_desc": "Start logging workouts to receive personalized overload recommendations."
+    "overload_empty_desc": "Start logging workouts to receive personalized overload recommendations.",
+    "no_routine_scheduled": "No routine scheduled for today",
+    "no_routine_scheduled_desc": "Launch an empty tracker session or create a custom workout routine."
   },
   "workouts": {
     "title": "Workout Management",
@@ -105,6 +107,8 @@
     "start_empty": "Start Empty Workout",
     "start_routine": "Start Routine",
     "no_completed": "No completed workouts yet",
+    "no_routines": "No Routines Created Yet",
+    "no_routines_desc": "Create your first customized workout routine or start an empty training session.",
     "add_set": "Add Set",
     "add_exercise": "Add Exercise",
     "add_exercise_to_workout": "Add Exercise to Workout",

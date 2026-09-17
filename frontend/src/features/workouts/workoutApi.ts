@@ -3,132 +3,28 @@ import { CURATED_FALLBACK_EXERCISES } from '../exercises/exerciseApi';
 
 const API_BASE = '/api/v1/workouts';
 
-export const STARTER_ROUTINES: WorkoutPlan[] = [
-  {
-    id: 'starter-push-a',
-    userId: 'system',
-    name: 'Push Hypertrophy A',
-    description: 'Chest, Shoulders & Triceps foundation routine',
-    targetMuscles: ['chest', 'shoulders', 'triceps'],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    exercises: [
-      {
-        id: 'spe-1',
-        planId: 'starter-push-a',
-        exerciseId: 'barbell-bench-press',
-        order: 0,
-        targetSets: 4,
-        targetReps: 8,
-        restSeconds: 120,
-        notes: 'Pyramid up to working weight',
-        exercise: CURATED_FALLBACK_EXERCISES[0],
-      },
-      {
-        id: 'spe-2',
-        planId: 'starter-push-a',
-        exerciseId: 'dumbbell-shoulder-press',
-        order: 1,
-        targetSets: 3,
-        targetReps: 10,
-        restSeconds: 90,
-        notes: 'Full range of motion',
-        exercise: CURATED_FALLBACK_EXERCISES[6],
-      },
-      {
-        id: 'spe-3',
-        planId: 'starter-push-a',
-        exerciseId: 'standard-push-up',
-        order: 2,
-        targetSets: 3,
-        targetReps: 15,
-        restSeconds: 60,
-        notes: 'Burnout to failure on last set',
-        exercise: CURATED_FALLBACK_EXERCISES[2],
-      },
-    ],
-  },
-  {
-    id: 'starter-pull-b',
-    userId: 'system',
-    name: 'Pull Power & Width B',
-    description: 'Back, Rear Delts & Biceps mass builder',
-    targetMuscles: ['lower back', 'lats', 'biceps'],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    exercises: [
-      {
-        id: 'spe-4',
-        planId: 'starter-pull-b',
-        exerciseId: 'barbell-deadlift',
-        order: 0,
-        targetSets: 4,
-        targetReps: 6,
-        restSeconds: 150,
-        notes: 'Maintain neutral spine throughout pull',
-        exercise: CURATED_FALLBACK_EXERCISES[4],
-      },
-      {
-        id: 'spe-5',
-        planId: 'starter-pull-b',
-        exerciseId: 'pull-up',
-        order: 1,
-        targetSets: 3,
-        targetReps: 8,
-        restSeconds: 90,
-        notes: 'Controlled eccentric descent',
-        exercise: CURATED_FALLBACK_EXERCISES[5],
-      },
-      {
-        id: 'spe-6',
-        planId: 'starter-pull-b',
-        exerciseId: 'dumbbell-bicep-curl',
-        order: 2,
-        targetSets: 3,
-        targetReps: 12,
-        restSeconds: 60,
-        notes: 'Supinate at top of contraction',
-        exercise: CURATED_FALLBACK_EXERCISES[3],
-      },
-    ],
-  },
-  {
-    id: 'starter-legs-c',
-    userId: 'system',
-    name: 'Leg Day Fundamentals C',
-    description: 'Quads, Hamstrings & Glutes athletic strength',
-    targetMuscles: ['quadriceps', 'glutes', 'hamstrings'],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    exercises: [
-      {
-        id: 'spe-7',
-        planId: 'starter-legs-c',
-        exerciseId: 'bodyweight-squat',
-        order: 0,
-        targetSets: 4,
-        targetReps: 15,
-        restSeconds: 90,
-        notes: 'Hit parallel depth on every repetition',
-        exercise: CURATED_FALLBACK_EXERCISES[1],
-      },
-      {
-        id: 'spe-8',
-        planId: 'starter-legs-c',
-        exerciseId: 'walking-lunges',
-        order: 1,
-        targetSets: 3,
-        targetReps: 12,
-        restSeconds: 75,
-        notes: 'Keep torso upright and core engaged',
-        exercise: CURATED_FALLBACK_EXERCISES[7],
-      },
-    ],
-  },
-];
-
 const LOCAL_STORAGE_ACTIVE_KEY = 'fittrack_active_workout_session';
 const LOCAL_STORAGE_HISTORY_KEY = 'fittrack_workout_history';
+const LOCAL_STORAGE_PLANS_KEY = 'fittrack_workout_plans';
+
+export function getLocalPlans(): WorkoutPlan[] {
+  try {
+    const raw = localStorage.getItem(LOCAL_STORAGE_PLANS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveLocalPlan(plan: WorkoutPlan): void {
+  try {
+    const plans = getLocalPlans();
+    plans.unshift(plan);
+    localStorage.setItem(LOCAL_STORAGE_PLANS_KEY, JSON.stringify(plans));
+  } catch {
+    // Ignore storage quota
+  }
+}
 
 export function getLocalActiveSession(): WorkoutSession | null {
   try {
@@ -181,13 +77,13 @@ export async function fetchPlans(token?: string | null): Promise<WorkoutPlan[]> 
       });
       if (res.ok) {
         const plans = await res.json();
-        if (plans.length > 0) return plans;
+        if (Array.isArray(plans)) return plans;
       }
     } catch {
       // Fallback
     }
   }
-  return STARTER_ROUTINES;
+  return getLocalPlans();
 }
 
 export async function createPlan(
@@ -239,6 +135,7 @@ export async function createPlan(
     })),
   };
 
+  saveLocalPlan(newPlan);
   return newPlan;
 }
 
@@ -295,36 +192,26 @@ export async function startSessionApi(
   }
 
   // Create local session instance if offline/unauthenticated
+  const localPlans = getLocalPlans();
   const plan = payload.planId
-    ? STARTER_ROUTINES.find((r) => r.id === payload.planId)
+    ? localPlans.find((r) => r.id === payload.planId)
     : null;
 
   const sessionId = `local-session-${Date.now()}`;
-  const exercises = (plan?.exercises || [
-    {
-      id: 'default-ex',
-      planId: '',
-      exerciseId: 'barbell-bench-press',
-      order: 0,
-      targetSets: 3,
-      targetReps: 10,
-      restSeconds: 90,
-      exercise: CURATED_FALLBACK_EXERCISES[0],
-    },
-  ]).map((pe, exIdx) => ({
+  const exercises = (plan?.exercises || []).map((pe, exIdx) => ({
     id: `se-${exIdx}-${Date.now()}`,
     sessionId,
     exerciseId: pe.exerciseId,
     order: pe.order,
     notes: pe.notes,
     exercise: pe.exercise,
-    sets: Array.from({ length: pe.targetSets }).map((_, sIdx) => ({
+    sets: Array.from({ length: pe.targetSets || 3 }).map((_, sIdx) => ({
       id: `set-${exIdx}-${sIdx}-${Date.now()}`,
       sessionExerciseId: `se-${exIdx}-${Date.now()}`,
       setNumber: sIdx + 1,
       setType: 'normal' as const,
-      weightKg: 60,
-      reps: pe.targetReps,
+      weightKg: 0,
+      reps: pe.targetReps || 10,
       rpe: 8,
       isCompleted: false,
     })),

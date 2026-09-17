@@ -152,69 +152,89 @@ export const WorkoutsPage: React.FC = () => {
 
       {/* Tab 1: Routines */}
       {activeTab === 'routines' && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {plans.map((plan) => (
-            <div
-              key={plan.id}
-              className="bg-white dark:bg-[#0e131f]/90 hover:bg-slate-50 dark:hover:bg-[#13192a] border border-slate-200/80 dark:border-slate-800/80 hover:border-emerald-500/40 rounded-3xl p-5 sm:p-6 shadow-sm dark:shadow-xl transition-all duration-300 flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex items-center justify-between gap-2 mb-2">
-                  <span className="px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider rounded-md bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
-                    {t('workouts.template', 'Template')}
-                  </span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                    {plan.exercises.length} {t('workouts.movements', 'movements')}
-                  </span>
-                </div>
-
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">{plan.name}</h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mb-4">
-                  {plan.description || 'Targeted hypertrophy & progressive overload routine'}
-                </p>
-
-                {/* Target Muscle Pills */}
-                <div className="flex flex-wrap gap-1.5 mb-4">
-                  {plan.targetMuscles.map((muscle) => (
-                    <span
-                      key={muscle}
-                      className="px-2 py-0.5 text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-md capitalize"
-                    >
-                      {muscle}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Exercise list preview */}
-                <div className="space-y-1.5 pt-2 border-t border-slate-200 dark:border-slate-800/60 mb-5">
-                  {plan.exercises.slice(0, 3).map((pe, idx) => (
-                    <div
-                      key={pe.id || idx}
-                      className="text-xs text-slate-700 dark:text-slate-300 flex items-center justify-between"
-                    >
-                      <span className="truncate pr-2">{pe.exercise.name}</span>
-                      <span className="text-slate-500 dark:text-slate-400 font-mono text-[11px] shrink-0">
-                        {pe.targetSets}×{pe.targetReps}
+        <div>
+          {plans.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              {plans.map((plan) => (
+                <div
+                  key={plan.id}
+                  className="bg-white dark:bg-[#0e131f]/90 hover:bg-slate-50 dark:hover:bg-[#13192a] border border-slate-200/80 dark:border-slate-800/80 hover:border-emerald-500/40 rounded-3xl p-5 sm:p-6 shadow-sm dark:shadow-xl transition-all duration-300 flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className="px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider rounded-md bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                        {t('workouts.template', 'Template')}
+                      </span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                        {plan.exercises.length} {t('workouts.movements', 'movements')}
                       </span>
                     </div>
-                  ))}
-                  {plan.exercises.length > 3 && (
-                    <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium block">
-                      +{plan.exercises.length - 3} {t('workouts.more_exercises', 'more exercises')}
-                    </span>
-                  )}
-                </div>
-              </div>
 
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">{plan.name}</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mb-4">
+                      {plan.description || 'Targeted hypertrophy & progressive overload routine'}
+                    </p>
+
+                    {/* Target Muscle Pills */}
+                    <div className="flex flex-wrap gap-1.5 mb-4">
+                      {plan.targetMuscles.map((muscle) => (
+                        <span
+                          key={muscle}
+                          className="px-2 py-0.5 text-[10px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-md capitalize"
+                        >
+                          {muscle}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Exercise list preview */}
+                    <div className="space-y-1.5 pt-2 border-t border-slate-200 dark:border-slate-800/60 mb-5">
+                      {plan.exercises.slice(0, 3).map((pe, idx) => (
+                        <div
+                          key={pe.id || idx}
+                          className="text-xs text-slate-700 dark:text-slate-300 flex items-center justify-between"
+                        >
+                          <span className="truncate pr-2">{pe.exercise?.name || 'Exercise'}</span>
+                          <span className="text-slate-500 dark:text-slate-400 font-mono text-[11px] shrink-0">
+                            {pe.targetSets}×{pe.targetReps}
+                          </span>
+                        </div>
+                      ))}
+                      {plan.exercises.length > 3 && (
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400 font-medium block">
+                          +{plan.exercises.length - 3} {t('workouts.more_exercises', 'more exercises')}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => handleStartRoutine(plan)}
+                    className="w-full py-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Play className="w-3.5 h-3.5 fill-current" />
+                    <span>{t('workouts.start_routine')}</span>
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="p-12 text-center rounded-3xl bg-white dark:bg-[#0e131f] border border-slate-200/80 dark:border-slate-800/80 max-w-md mx-auto shadow-sm">
+              <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800/60 text-slate-400 flex items-center justify-center mx-auto mb-3">
+                <Layers className="w-6 h-6" />
+              </div>
+              <h3 className="font-bold text-slate-800 dark:text-slate-200 text-base mb-1">{t('workouts.no_routines', 'No Routines Created Yet')}</h3>
+              <p className="text-slate-500 dark:text-slate-400 text-xs mb-4">
+                {t('workouts.no_routines_desc', 'Create your first customized workout routine or start an empty training session.')}
+              </p>
               <button
-                onClick={() => handleStartRoutine(plan)}
-                className="w-full py-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer"
+                onClick={() => setIsCreatePlanOpen(true)}
+                className="px-4 py-2 rounded-xl bg-emerald-500 text-white text-xs font-bold hover:bg-emerald-600 transition cursor-pointer keep-white active:scale-95 shadow"
               >
-                <Play className="w-3.5 h-3.5 fill-current" />
-                <span>{t('workouts.start_routine')}</span>
+                {t('workouts.new_plan')}
               </button>
             </div>
-          ))}
+          )}
         </div>
       )}
 
