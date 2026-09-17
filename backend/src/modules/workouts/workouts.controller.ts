@@ -308,8 +308,8 @@ export async function completeSessionHandler(
         userId: user.id,
         status: 'completed',
         completedAt: new Date(),
-        totalVolumeKg: 1000,
-        durationSeconds: 3600,
+        totalVolumeKg: 0,
+        durationSeconds: 0,
       });
     }
     throw err;

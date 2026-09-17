@@ -15,17 +15,11 @@ export async function getOverviewHandler(
   } catch (err: any) {
     if (err?.code === 'P1001' || err?.name === 'PrismaClientInitializationError') {
       return reply.status(200).send({
-        weeklyVolumeKg: 4200,
-        monthlyVolumeKg: 18500,
-        totalCompletedSessions: 5,
-        streakDays: 4,
-        muscleDistribution: [
-          { muscle: 'chest', volumeKg: 4800 },
-          { muscle: 'quadriceps', volumeKg: 5200 },
-          { muscle: 'back', volumeKg: 4600 },
-          { muscle: 'shoulders', volumeKg: 2400 },
-          { muscle: 'biceps', volumeKg: 1500 },
-        ],
+        weeklyVolumeKg: 0,
+        monthlyVolumeKg: 0,
+        totalCompletedSessions: 0,
+        streakDays: 0,
+        muscleDistribution: [],
         lastUpdated: new Date().toISOString(),
       });
     }
@@ -55,18 +49,14 @@ export async function getExerciseAnalyticsHandler(
     if (err?.code === 'P1001' || err?.name === 'PrismaClientInitializationError') {
       return reply.status(200).send({
         exerciseId,
-        progression: [
-          { date: '2026-09-01', sessionName: 'Push A', maxWeightKg: 80, estimated1RM: 93.3, totalVolumeKg: 1920 },
-          { date: '2026-09-05', sessionName: 'Push A', maxWeightKg: 82.5, estimated1RM: 96.25, totalVolumeKg: 2060 },
-          { date: '2026-09-09', sessionName: 'Push A', maxWeightKg: 85, estimated1RM: 99.1, totalVolumeKg: 2210 },
-        ],
+        progression: [],
         prs: {
-          maxWeightKg: 85,
-          maxEstimated1RM: 99.1,
-          maxSetVolumeKg: 680,
-          bestRepsAtMaxWeight: 5,
+          maxWeightKg: 0,
+          maxEstimated1RM: 0,
+          maxSetVolumeKg: 0,
+          bestRepsAtMaxWeight: 0,
         },
-        totalSessions: 3,
+        totalSessions: 0,
       });
     }
     throw err;
@@ -84,33 +74,9 @@ export async function getPersonalRecordsHandler(
     return reply.status(200).send(data);
   } catch (err: any) {
     if (err?.code === 'P1001' || err?.name === 'PrismaClientInitializationError') {
-      return reply.status(200).send([
-        {
-          exerciseId: 'barbell-bench-press',
-          exerciseName: 'Barbell Bench Press',
-          category: 'strength',
-          primaryMuscle: 'chest',
-          prs: {
-            maxWeightKg: 100,
-            maxEstimated1RM: 115,
-            maxSetVolumeKg: 800,
-            bestRepsAtMaxWeight: 5,
-          },
-        },
-        {
-          exerciseId: 'barbell-deadlift',
-          exerciseName: 'Conventional Barbell Deadlift',
-          category: 'strength',
-          primaryMuscle: 'lower back',
-          prs: {
-            maxWeightKg: 140,
-            maxEstimated1RM: 160,
-            maxSetVolumeKg: 900,
-            bestRepsAtMaxWeight: 4,
-          },
-        },
-      ]);
+      return reply.status(200).send([]);
     }
     throw err;
   }
 }
+
