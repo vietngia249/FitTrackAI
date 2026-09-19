@@ -416,6 +416,234 @@ const wall_sit: ExerciseDefinition = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Exercise Definitions — Upper Body
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Push-up — elbow angle (Shoulder→Elbow→Wrist), spine secondary (Shoulder→Hip→Ankle) */
+const push_up: ExerciseDefinition = {
+  id: 'push_up',
+  displayName: 'Push-up',
+  displayNameVi: 'Hít đất',
+  muscleGroup: 'upper_body',
+  targetMuscles: ['Chest', 'Triceps', 'Shoulders', 'Core'],
+  targetMusclesVi: ['Ngực', 'Triceps', 'Vai', 'Core'],
+  equipment: 'Bodyweight',
+  equipmentVi: 'Trọng lượng cơ thể',
+  difficulty: 'beginner',
+  defaultReps: 10,
+  description: 'Classic push-up for upper body strength.',
+  descriptionVi: 'Hít đất cơ bản tăng sức mạnh phần trên cơ thể.',
+  primaryAngle: { a: L.RIGHT_SHOULDER, b: L.RIGHT_ELBOW, c: L.RIGHT_WRIST },
+  secondaryAngle: { a: L.RIGHT_SHOULDER, b: L.RIGHT_HIP, c: L.RIGHT_ANKLE },
+  isPeakContraction: false,
+  fsm: {
+    startAngle: 155,
+    descendAngle: 145,
+    bottomAngle: 90,
+    ascendAngle: 105,
+    lockoutAngle: 155,
+  },
+  depthScoring: {
+    excellent: 90, excellentScore: 96,
+    good: 110, goodScore: 78,
+    poorScore: 60,
+    faultThreshold: 95,
+  },
+  stabilityScoring: {
+    goodRangeMin: 165, goodRangeMax: 180,
+    goodScore: 94, poorScore: 68,
+    faultLabelVi: 'Võng lưng / hông chùng',
+    faultLabel: 'Sagging hips',
+    warningBelow: 160,
+    warningFeedback: 'Warning: Hips sagging! Engage abs and glutes.',
+  },
+  feedback: {
+    ready: 'Top plank lockout. Lower chest smoothly.',
+    descending: 'Descending... Keep elbows at 45 degrees.',
+    bottom: 'Chest to deck depth! Press upward!',
+    ascending: 'Pressing up... keep body rigid like a plank.',
+    completed: 'Rep counted! Solid lockout.',
+    detecting: 'Detecting plank position...',
+  },
+};
+
+/** Bicep curl — elbow angle (Shoulder→Elbow→Wrist), torso secondary */
+const bicep_curl: ExerciseDefinition = {
+  id: 'bicep_curl',
+  displayName: 'Bicep Curl',
+  displayNameVi: 'Curl tay',
+  muscleGroup: 'upper_body',
+  targetMuscles: ['Biceps', 'Brachialis'],
+  targetMusclesVi: ['Nhị đầu cánh tay', 'Brachialis'],
+  equipment: 'Dumbbells',
+  equipmentVi: 'Tạ đơn',
+  difficulty: 'beginner',
+  defaultReps: 12,
+  description: 'Classic bicep curl with controlled tempo.',
+  descriptionVi: 'Curl tay kinh điển với tempo kiểm soát.',
+  primaryAngle: { a: L.RIGHT_SHOULDER, b: L.RIGHT_ELBOW, c: L.RIGHT_WRIST },
+  // Torso: artificial vertical reference using hip → shoulder alignment
+  isPeakContraction: true,
+  fsm: {
+    startAngle: 145,
+    descendAngle: 140,
+    bottomAngle: 45,  // "bottom" for curl = peak flexion (top of curl)
+    ascendAngle: 60,
+    lockoutAngle: 145,
+  },
+  depthScoring: {
+    excellent: 50, excellentScore: 98,
+    good: 65, goodScore: 82,
+    poorScore: 70,
+    faultThreshold: 55,
+  },
+  stabilityScoring: {
+    goodRangeMin: 80, goodRangeMax: 100,
+    goodScore: 95, poorScore: 75,
+    faultLabelVi: 'Đung đưa thân người khi cuốn tạ',
+    faultLabel: 'Body swinging during curl',
+  },
+  feedback: {
+    ready: 'Stand tall with elbows pinned to sides.',
+    descending: 'Curling up... Squeeze biceps at peak!',
+    bottom: 'Peak contraction reached! Excellent!',
+    ascending: 'Control the descent on the way down.',
+    completed: 'Rep completed! Full extension.',
+    detecting: 'Detecting arm joints...',
+  },
+};
+
+/** Shoulder Press — elbow angle (Hip→Shoulder→Elbow), using shoulder joint as vertex */
+const shoulder_press: ExerciseDefinition = {
+  id: 'shoulder_press',
+  displayName: 'Shoulder Press',
+  displayNameVi: 'Đẩy vai',
+  muscleGroup: 'upper_body',
+  targetMuscles: ['Shoulders', 'Triceps', 'Upper Back'],
+  targetMusclesVi: ['Vai', 'Triceps', 'Lưng trên'],
+  equipment: 'Dumbbells or Barbell',
+  equipmentVi: 'Tạ đơn hoặc tạ đòn',
+  difficulty: 'beginner',
+  defaultReps: 10,
+  description: 'Overhead press for shoulder development.',
+  descriptionVi: 'Đẩy tay lên cao phát triển cơ vai.',
+  primaryAngle: { a: L.LEFT_HIP, b: L.LEFT_SHOULDER, c: L.LEFT_ELBOW },
+  secondaryAngle: { a: L.LEFT_SHOULDER, b: L.LEFT_ELBOW, c: L.LEFT_WRIST },
+  isPeakContraction: false,
+  fsm: {
+    startAngle: 50,     // arms at 90° at sides = ~50° shoulder angle from hip
+    descendAngle: 60,
+    bottomAngle: 80,    // fully lowered = elbows at ear height
+    ascendAngle: 70,
+    lockoutAngle: 55,
+  },
+  depthScoring: {
+    excellent: 90, excellentScore: 95,
+    good: 110, goodScore: 78,
+    poorScore: 62,
+    faultThreshold: 100,
+  },
+  stabilityScoring: {
+    goodRangeMin: 160, goodRangeMax: 180,
+    goodScore: 92, poorScore: 72,
+    faultLabelVi: 'Khuỷu tay không duỗi thẳng hoàn toàn',
+    faultLabel: 'Incomplete elbow extension',
+  },
+  feedback: {
+    ready: 'Dumbbells at shoulder height, elbows at 90°.',
+    descending: 'Lowering... keep core braced.',
+    bottom: 'Full range — press overhead now!',
+    ascending: 'Pressing up... extend arms fully.',
+    completed: 'Rep counted! Arms locked out overhead.',
+    detecting: 'Detecting shoulders and arms...',
+  },
+};
+
+/** Lateral Raise — shoulder abduction angle */
+const lateral_raise: ExerciseDefinition = {
+  id: 'lateral_raise',
+  displayName: 'Lateral Raise',
+  displayNameVi: 'Giơ tạ ngang',
+  muscleGroup: 'upper_body',
+  targetMuscles: ['Lateral Deltoid', 'Supraspinatus'],
+  targetMusclesVi: ['Cơ tam giác giữa', 'Supraspinatus'],
+  equipment: 'Dumbbells',
+  equipmentVi: 'Tạ đơn',
+  difficulty: 'beginner',
+  defaultReps: 12,
+  description: 'Lateral raise for shoulder width.',
+  descriptionVi: 'Giơ tạ ngang tăng bề rộng vai.',
+  primaryAngle: { a: L.LEFT_HIP, b: L.LEFT_SHOULDER, c: L.LEFT_ELBOW },
+  isPeakContraction: true,
+  fsm: {
+    startAngle: 40,
+    descendAngle: 50,
+    bottomAngle: 75,    // arms parallel to floor ~90° abduction
+    ascendAngle: 65,
+    lockoutAngle: 45,
+  },
+  depthScoring: {
+    excellent: 80, excellentScore: 95,
+    good: 95, goodScore: 80,
+    poorScore: 65,
+    faultThreshold: 85,
+  },
+  feedback: {
+    ready: 'Arms at sides, slight bend in elbows.',
+    descending: 'Raising arms laterally...',
+    bottom: 'Arms parallel — slight pause at top!',
+    ascending: 'Lower slowly with control.',
+    completed: 'Rep counted! Controlled descent.',
+    detecting: 'Detecting shoulders...',
+  },
+};
+
+/** Hammer Curl — same as bicep curl but with neutral grip emphasis */
+const hammer_curl: ExerciseDefinition = {
+  id: 'hammer_curl',
+  displayName: 'Hammer Curl',
+  displayNameVi: 'Hammer Curl',
+  muscleGroup: 'upper_body',
+  targetMuscles: ['Biceps', 'Brachialis', 'Forearms'],
+  targetMusclesVi: ['Nhị đầu cánh tay', 'Brachialis', 'Cơ cẳng tay'],
+  equipment: 'Dumbbells',
+  equipmentVi: 'Tạ đơn',
+  difficulty: 'beginner',
+  defaultReps: 12,
+  description: 'Hammer curl with neutral grip for brachialis.',
+  descriptionVi: 'Hammer curl tư thế trung tính tăng brachialis.',
+  primaryAngle: { a: L.RIGHT_SHOULDER, b: L.RIGHT_ELBOW, c: L.RIGHT_WRIST },
+  isPeakContraction: true,
+  fsm: {
+    startAngle: 150,
+    descendAngle: 145,
+    bottomAngle: 50,
+    ascendAngle: 65,
+    lockoutAngle: 145,
+  },
+  depthScoring: {
+    excellent: 55, excellentScore: 97,
+    good: 70, goodScore: 82,
+    poorScore: 70,
+    faultThreshold: 60,
+  },
+  stabilityScoring: {
+    goodRangeMin: 80, goodRangeMax: 100,
+    goodScore: 93, poorScore: 73,
+    faultLabelVi: 'Đung đưa thân người',
+    faultLabel: 'Body swinging',
+  },
+  feedback: {
+    ready: 'Stand tall, thumbs facing up.',
+    descending: 'Curling up with neutral grip...',
+    bottom: 'Peak squeeze! Excellent contraction.',
+    ascending: 'Lower with control.',
+    completed: 'Rep counted! Full extension.',
+    detecting: 'Detecting arms...',
+  },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Catalog Map & Ordering
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -426,16 +654,19 @@ export const EXERCISE_CATALOG: Record<string, ExerciseDefinition> = {
   glute_bridge,
   calf_raise,
   wall_sit,
+  push_up,
+  bicep_curl,
+  hammer_curl,
+  shoulder_press,
+  lateral_raise,
 };
 
 /** Ordered list for UI rendering, grouped by muscle group */
 export const EXERCISE_LIST: ExerciseDefinition[] = [
-  squat,
-  lunge,
-  deadlift,
-  glute_bridge,
-  calf_raise,
-  wall_sit,
+  // Lower Body
+  squat, lunge, deadlift, glute_bridge, calf_raise, wall_sit,
+  // Upper Body
+  push_up, bicep_curl, hammer_curl, shoulder_press, lateral_raise,
 ];
 
 export type ExerciseId = keyof typeof EXERCISE_CATALOG;
