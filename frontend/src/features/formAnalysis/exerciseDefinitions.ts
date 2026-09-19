@@ -644,21 +644,238 @@ const hammer_curl: ExerciseDefinition = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Exercise Definitions — Core
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Leg Raise — hip flexion angle (Shoulder→Hip→Knee) in lying position */
+const leg_raise: ExerciseDefinition = {
+  id: 'leg_raise',
+  displayName: 'Leg Raise',
+  displayNameVi: 'Nâng chân nằm',
+  muscleGroup: 'core',
+  targetMuscles: ['Lower Abs', 'Hip Flexors'],
+  targetMusclesVi: ['Bụng dưới', 'Gấp hông'],
+  equipment: 'Bodyweight',
+  equipmentVi: 'Trọng lượng cơ thể',
+  difficulty: 'beginner',
+  defaultReps: 12,
+  description: 'Leg raise for lower abdominal strength.',
+  descriptionVi: 'Nâng chân nằm tăng cường cơ bụng dưới.',
+  primaryAngle: { a: L.RIGHT_SHOULDER, b: L.RIGHT_HIP, c: L.RIGHT_KNEE },
+  isPeakContraction: true,
+  fsm: {
+    startAngle: 170,
+    descendAngle: 160,
+    bottomAngle: 90,    // legs at 90° = peak
+    ascendAngle: 100,
+    lockoutAngle: 165,
+  },
+  depthScoring: {
+    excellent: 92, excellentScore: 96,
+    good: 110, goodScore: 78,
+    poorScore: 62,
+    faultThreshold: 100,
+  },
+  feedback: {
+    ready: 'Lie flat, legs straight together.',
+    descending: 'Raising legs upward...',
+    bottom: 'Legs at 90°! Core tight.',
+    ascending: 'Lower with control, don\'t drop!',
+    completed: 'Rep counted!',
+    detecting: 'Detecting hips and legs...',
+  },
+};
+
+/** Plank — spine alignment angle (Shoulder→Hip→Ankle) for duration hold */
+const plank: ExerciseDefinition = {
+  id: 'plank',
+  displayName: 'Plank',
+  displayNameVi: 'Plank',
+  muscleGroup: 'core',
+  targetMuscles: ['Core', 'Shoulders', 'Glutes'],
+  targetMusclesVi: ['Core', 'Vai', 'Mông'],
+  equipment: 'Bodyweight',
+  equipmentVi: 'Trọng lượng cơ thể',
+  difficulty: 'beginner',
+  defaultReps: 3,
+  description: 'Static plank hold for core stability.',
+  descriptionVi: 'Giữ plank tĩnh tăng cường sức bền core.',
+  primaryAngle: { a: L.RIGHT_SHOULDER, b: L.RIGHT_HIP, c: L.RIGHT_ANKLE },
+  isPeakContraction: false,
+  // For plank, FSM is simplified — "rep" = sustained hold
+  fsm: {
+    startAngle: 160,
+    descendAngle: 150,
+    bottomAngle: 160,    // maintained alignment IS the "bottom"
+    ascendAngle: 150,
+    lockoutAngle: 160,
+  },
+  depthScoring: {
+    excellent: 165, excellentScore: 98,
+    good: 155, goodScore: 80,
+    poorScore: 60,
+    faultThreshold: 155,
+  },
+  stabilityScoring: {
+    goodRangeMin: 165, goodRangeMax: 180,
+    goodScore: 96, poorScore: 65,
+    faultLabelVi: 'Hông không thẳng hàng',
+    faultLabel: 'Hips misaligned',
+    warningBelow: 160,
+    warningFeedback: 'Hips sagging! Brace core and glutes.',
+  },
+  feedback: {
+    ready: 'Get into push-up position. Brace everything.',
+    descending: 'Holding plank...',
+    bottom: 'Excellent alignment! Hold steady.',
+    ascending: 'Maintain neutral spine!',
+    completed: 'Hold complete!',
+    detecting: 'Detecting body in side-plank view...',
+  },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Exercise Definitions — Cardio
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Mountain Climber — knee drive angle (Hip→Shoulder→Knee) */
+const mountain_climber: ExerciseDefinition = {
+  id: 'mountain_climber',
+  displayName: 'Mountain Climber',
+  displayNameVi: 'Leo núi',
+  muscleGroup: 'cardio',
+  targetMuscles: ['Core', 'Hip Flexors', 'Chest', 'Shoulders'],
+  targetMusclesVi: ['Core', 'Gấp hông', 'Ngực', 'Vai'],
+  equipment: 'Bodyweight',
+  equipmentVi: 'Trọng lượng cơ thể',
+  difficulty: 'intermediate',
+  defaultReps: 20,
+  description: 'Mountain climbers for cardio and core.',
+  descriptionVi: 'Leo núi kết hợp cardio và core.',
+  primaryAngle: { a: L.RIGHT_HIP, b: L.RIGHT_KNEE, c: L.RIGHT_ANKLE },
+  isPeakContraction: true,
+  fsm: {
+    startAngle: 160,
+    descendAngle: 150,
+    bottomAngle: 70,    // knee driven to chest
+    ascendAngle: 80,
+    lockoutAngle: 155,
+  },
+  depthScoring: {
+    excellent: 75, excellentScore: 95,
+    good: 90, goodScore: 78,
+    poorScore: 62,
+    faultThreshold: 85,
+  },
+  feedback: {
+    ready: 'Start in plank position. Core tight.',
+    descending: 'Driving knee toward chest...',
+    bottom: 'Knee tucked! Switch leg!',
+    ascending: 'Extending leg back.',
+    completed: 'Rep counted!',
+    detecting: 'Detecting plank and knees...',
+  },
+};
+
+/** Jumping Jack — arm abduction angle */
+const jumping_jack: ExerciseDefinition = {
+  id: 'jumping_jack',
+  displayName: 'Jumping Jack',
+  displayNameVi: 'Nhảy chân dang',
+  muscleGroup: 'cardio',
+  targetMuscles: ['Full Body', 'Cardiovascular System'],
+  targetMusclesVi: ['Toàn thân', 'Hệ tim mạch'],
+  equipment: 'Bodyweight',
+  equipmentVi: 'Trọng lượng cơ thể',
+  difficulty: 'beginner',
+  defaultReps: 20,
+  description: 'Jumping jacks for cardio warm-up.',
+  descriptionVi: 'Nhảy chân dang khởi động tim mạch.',
+  primaryAngle: { a: L.LEFT_HIP, b: L.LEFT_SHOULDER, c: L.LEFT_ELBOW },
+  isPeakContraction: true,
+  fsm: {
+    startAngle: 40,
+    descendAngle: 50,
+    bottomAngle: 80,    // arms raised to shoulder height
+    ascendAngle: 70,
+    lockoutAngle: 45,
+  },
+  depthScoring: {
+    excellent: 82, excellentScore: 95,
+    good: 95, goodScore: 80,
+    poorScore: 65,
+    faultThreshold: 88,
+  },
+  feedback: {
+    ready: 'Stand tall, arms at sides.',
+    descending: 'Jump and spread arms and legs!',
+    bottom: 'Full spread! Arms up, legs wide.',
+    ascending: 'Return to center.',
+    completed: 'Rep counted!',
+    detecting: 'Detecting arms...',
+  },
+};
+
+/** High Knees — knee raise (Hip→Knee→Ankle angle inverse = knee height) */
+const high_knees: ExerciseDefinition = {
+  id: 'high_knees',
+  displayName: 'High Knees',
+  displayNameVi: 'Chạy bộ nâng cao gối',
+  muscleGroup: 'cardio',
+  targetMuscles: ['Hip Flexors', 'Quadriceps', 'Calves', 'Core'],
+  targetMusclesVi: ['Gấp hông', 'Tứ đầu đùi', 'Cơ bắp chân', 'Core'],
+  equipment: 'Bodyweight',
+  equipmentVi: 'Trọng lượng cơ thể',
+  difficulty: 'beginner',
+  defaultReps: 20,
+  description: 'High knees cardio exercise.',
+  descriptionVi: 'Chạy bộ nâng cao gối tăng nhịp tim.',
+  primaryAngle: { a: L.LEFT_HIP, b: L.LEFT_KNEE, c: L.LEFT_ANKLE },
+  isPeakContraction: true,
+  fsm: {
+    startAngle: 160,
+    descendAngle: 150,
+    bottomAngle: 70,    // knee driven up past 90°
+    ascendAngle: 80,
+    lockoutAngle: 155,
+  },
+  depthScoring: {
+    excellent: 75, excellentScore: 96,
+    good: 90, goodScore: 78,
+    poorScore: 60,
+    faultThreshold: 85,
+  },
+  feedback: {
+    ready: 'Stand tall, ready to run in place.',
+    descending: 'Driving knee upward!',
+    bottom: 'High knee! Hip flexor engaged.',
+    ascending: 'Lower foot, switch knees!',
+    completed: 'Rep counted!',
+    detecting: 'Detecting legs...',
+  },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Catalog Map & Ordering
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const EXERCISE_CATALOG: Record<string, ExerciseDefinition> = {
   squat,
-  lunge,
-  deadlift,
-  glute_bridge,
-  calf_raise,
-  wall_sit,
   push_up,
   bicep_curl,
-  hammer_curl,
+  lunge,
   shoulder_press,
   lateral_raise,
+  hammer_curl,
+  calf_raise,
+  glute_bridge,
+  leg_raise,
+  plank,
+  mountain_climber,
+  jumping_jack,
+  high_knees,
+  wall_sit,
+  deadlift,
 };
 
 /** Ordered list for UI rendering, grouped by muscle group */
@@ -667,6 +884,10 @@ export const EXERCISE_LIST: ExerciseDefinition[] = [
   squat, lunge, deadlift, glute_bridge, calf_raise, wall_sit,
   // Upper Body
   push_up, bicep_curl, hammer_curl, shoulder_press, lateral_raise,
+  // Core
+  plank, leg_raise,
+  // Cardio
+  mountain_climber, jumping_jack, high_knees,
 ];
 
 export type ExerciseId = keyof typeof EXERCISE_CATALOG;
