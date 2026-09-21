@@ -1,6 +1,29 @@
-import { Landmark, POSE_LANDMARKS, calculateAngle } from './poseGeometry';
+/**
+ * exerciseStateMachines.ts
+ *
+ * Generic, config-driven exercise FSM evaluator.
+ * Previously hardcoded per-exercise logic (squat / push_up / bicep_curl only).
+ * Now reads ExerciseDefinition configs from exerciseDefinitions.ts to support
+ * 16+ exercises without per-exercise code duplication.
+ *
+ * Architecture:
+ *   ExerciseEvaluator.evaluateFrame(landmarks)
+ *     → resolves primaryAngle + secondaryAngle from ExerciseDefinition
+ *     → drives FSM states (ready → descending → bottom → ascending → rep counted)
+ *     → scores depth + stability from config thresholds
+ *     → emits FormEvaluation with repCount, stage, formScore, feedback, activeFault
+ */
 
-export type ExerciseType = 'bicep_curl' | 'squat' | 'push_up';
+import { Landmark, POSE_LANDMARKS, calculateAngle } from './poseGeometry';
+import {
+  ExerciseDefinition,
+  ExerciseId,
+  EXERCISE_CATALOG,
+  AnglePoints,
+} from './exerciseDefinitions';
+
+// Re-export ExerciseId as ExerciseType for backwards compatibility with AiFormPage
+export type ExerciseType = ExerciseId;
 
 export interface FormEvaluation {
   exerciseType: ExerciseType;
@@ -43,8 +66,51 @@ export interface ExerciseDiagnostics {
   faultsSummary: Array<{ fault: string; count: number }>;
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Helpers
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Resolves an AnglePoints triplet against the landmark array.
+ * Returns the angle in degrees, or null if any landmark is missing.
+ */
+function resolveAngle(
+  landmarks: Landmark[],
+  points: AnglePoints
+): number | null {
+  const a = landmarks[points.a];
+  const b = landmarks[points.b];
+  const c = landmarks[points.c];
+  if (!a || !b || !c) return null;
+  return calculateAngle(a, b, c);
+}
+
+/**
+ * For bilateral exercises (bicep curl, hammer curl) we auto-select
+ * the more visible arm to track.
+ */
+function selectBestArmAngle(landmarks: Landmark[], def: ExerciseDefinition): number | null {
+  // Try right arm first (default primary), then left
+  const rightAngle = resolveAngle(landmarks, def.primaryAngle);
+  if (rightAngle !== null) return rightAngle;
+
+  // Fallback: mirror primary to left side (swap R↔L indices by -1 offset for arm landmarks)
+  // LEFT elbow = 13, RIGHT elbow = 14 → diff is +1 for right.
+  // For arms: left = right - 1. We remap dynamically:
+  const leftPoints: AnglePoints = {
+    a: def.primaryAngle.a === POSE_LANDMARKS.RIGHT_SHOULDER ? POSE_LANDMARKS.LEFT_SHOULDER : def.primaryAngle.a,
+    b: def.primaryAngle.b === POSE_LANDMARKS.RIGHT_ELBOW ? POSE_LANDMARKS.LEFT_ELBOW : def.primaryAngle.b,
+    c: def.primaryAngle.c === POSE_LANDMARKS.RIGHT_WRIST ? POSE_LANDMARKS.LEFT_WRIST : def.primaryAngle.c,
+  };
+  return resolveAngle(landmarks, leftPoints);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ExerciseEvaluator — generic config-driven evaluator
+// ─────────────────────────────────────────────────────────────────────────────
+
 export class ExerciseEvaluator {
-  private exerciseType: ExerciseType;
+  private def: ExerciseDefinition;
   private repCount = 0;
   private stage = 'ready';
   private peakReached = false;
@@ -53,7 +119,11 @@ export class ExerciseEvaluator {
   private repHistory: RepDetail[] = [];
 
   constructor(exerciseType: ExerciseType) {
-    this.exerciseType = exerciseType;
+    const def = EXERCISE_CATALOG[exerciseType];
+    if (!def) {
+      throw new Error(`Unknown exercise type: ${exerciseType}`);
+    }
+    this.def = def;
     this.reset();
   }
 
@@ -67,7 +137,11 @@ export class ExerciseEvaluator {
   }
 
   setExercise(type: ExerciseType) {
-    this.exerciseType = type;
+    const def = EXERCISE_CATALOG[type];
+    if (!def) {
+      throw new Error(`Unknown exercise type: ${type}`);
+    }
+    this.def = def;
     this.reset();
   }
 
@@ -110,93 +184,86 @@ export class ExerciseEvaluator {
     };
   }
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // Main evaluation entry point
+  // ─────────────────────────────────────────────────────────────────────────
+
   evaluateFrame(landmarks: Landmark[]): FormEvaluation {
-    switch (this.exerciseType) {
-      case 'bicep_curl':
-        return this.evaluateBicepCurl(landmarks);
-      case 'squat':
-        return this.evaluateSquat(landmarks);
-      case 'push_up':
-        return this.evaluatePushUp(landmarks);
-    }
-  }
+    const def = this.def;
 
-  private evaluateBicepCurl(landmarks: Landmark[]): FormEvaluation {
-    const rightShoulder = landmarks[POSE_LANDMARKS.RIGHT_SHOULDER];
-    const rightElbow = landmarks[POSE_LANDMARKS.RIGHT_ELBOW];
-    const rightWrist = landmarks[POSE_LANDMARKS.RIGHT_WRIST];
-    const rightHip = landmarks[POSE_LANDMARKS.RIGHT_HIP];
+    // Resolve primary angle — arm exercises get bilateral fallback
+    const isArmExercise = [
+      'bicep_curl', 'hammer_curl', 'shoulder_press', 'lateral_raise',
+    ].includes(def.id);
 
-    const leftShoulder = landmarks[POSE_LANDMARKS.LEFT_SHOULDER];
-    const leftElbow = landmarks[POSE_LANDMARKS.LEFT_ELBOW];
-    const leftWrist = landmarks[POSE_LANDMARKS.LEFT_WRIST];
-    const leftHip = landmarks[POSE_LANDMARKS.LEFT_HIP];
+    let primaryAngle: number | null = isArmExercise
+      ? selectBestArmAngle(landmarks, def)
+      : resolveAngle(landmarks, def.primaryAngle);
 
-    const useRight = (rightElbow?.visibility ?? 1) >= (leftElbow?.visibility ?? 0);
-    const shoulder = useRight ? rightShoulder : leftShoulder;
-    const elbow = useRight ? rightElbow : leftElbow;
-    const wrist = useRight ? rightWrist : leftWrist;
-    const hip = useRight ? rightHip : leftHip;
-
-    if (!shoulder || !elbow || !wrist) {
-      return this.defaultEvaluation(this.stage, 0, 0, 'Detecting arm joints...');
+    if (primaryAngle === null) {
+      return this.defaultEvaluation(this.stage, 0, 0, def.feedback.detecting);
     }
 
-    // Elbow flexion angle: Shoulder - Elbow - Wrist
-    const elbowAngle = calculateAngle(shoulder, elbow, wrist);
-    // Torso angle: Shoulder - Hip - Vertical
-    const torsoAngle = hip ? calculateAngle({ x: hip.x, y: hip.y - 0.5 }, hip, shoulder) : 90;
+    // Resolve secondary angle (optional)
+    let secondaryAngle = 90;
+    if (def.secondaryAngle) {
+      secondaryAngle = resolveAngle(landmarks, def.secondaryAngle) ?? 90;
+    }
 
+    // Track min angle in this rep
+    if (primaryAngle < this.minAngleInRep) {
+      this.minAngleInRep = primaryAngle;
+    }
+
+    // ── FSM state machine ──────────────────────────────────────────────────
+    const { fsm } = def;
+    let feedback = def.feedback.ready;
     let isCompleted = false;
-    let feedback = 'Stand tall with elbows pinned to sides.';
     let activeFault: string | undefined;
 
-    if (elbowAngle < this.minAngleInRep) {
-      this.minAngleInRep = elbowAngle;
-    }
-
-    if (this.stage === 'ready' || this.stage === 'extended') {
-      if (elbowAngle > 145) {
-        this.stage = 'extended';
-        feedback = 'Ready to curl. Pull upward smoothly.';
-      } else if (elbowAngle <= 140) {
-        this.stage = 'flexing';
-        feedback = 'Curling up... Squeeze biceps at peak!';
+    if (this.stage === 'ready' || this.stage === 'top' || this.stage === 'standing' || this.stage === 'extended') {
+      // Normalise stage name to 'start'
+      if (primaryAngle >= fsm.startAngle) {
+        this.stage = 'start';
+        feedback = def.feedback.ready;
+      } else if (primaryAngle < fsm.descendAngle) {
+        this.stage = 'descending';
+        feedback = def.feedback.descending;
       }
-    } else if (this.stage === 'flexing') {
-      if (elbowAngle <= 45) {
-        this.stage = 'peak';
+    } else if (this.stage === 'start') {
+      if (primaryAngle < fsm.descendAngle) {
+        this.stage = 'descending';
+        feedback = def.feedback.descending;
+      }
+    } else if (this.stage === 'descending') {
+      if (primaryAngle <= fsm.bottomAngle) {
+        this.stage = 'bottom';
         this.peakReached = true;
-        feedback = 'Peak contraction reached! Excellent!';
+        feedback = def.feedback.bottom;
       } else {
-        feedback = 'Curl higher for full range of motion.';
+        feedback = def.feedback.descending;
       }
-    } else if (this.stage === 'peak') {
-      if (elbowAngle > 60) {
-        this.stage = 'extending';
-        feedback = 'Control the descent on the way down.';
+    } else if (this.stage === 'bottom') {
+      if (primaryAngle > fsm.ascendAngle) {
+        this.stage = 'ascending';
+        feedback = def.feedback.ascending;
+      } else {
+        feedback = def.feedback.bottom;
       }
-    } else if (this.stage === 'extending') {
-      if (elbowAngle >= 145) {
+    } else if (this.stage === 'ascending') {
+      if (primaryAngle >= fsm.lockoutAngle) {
         if (this.peakReached) {
+          // ── Rep completion & scoring ──────────────────────────────────
           this.repCount++;
           isCompleted = true;
-          feedback = 'Rep completed! Full extension.';
+          feedback = def.feedback.completed;
 
-          const depthScore = Math.min(
-            Math.max(Math.round(((160 - this.minAngleInRep) / 115) * 100), 70),
-            100
-          );
-          const stabilityScore = torsoAngle >= 80 && torsoAngle <= 100 ? 95 : 75;
-          const alignmentScore = 90;
+          const { depthScore, stabilityScore, alignmentScore, fault } =
+            this.computeScores(primaryAngle, secondaryAngle);
+
+          activeFault = fault;
+
           const overallForm = Math.round((depthScore + stabilityScore + alignmentScore) / 3);
-
-          if (this.minAngleInRep > 55) {
-            activeFault = 'Chưa co hết biên độ đỉnh';
-          } else if (torsoAngle < 80 || torsoAngle > 100) {
-            activeFault = 'Đung đưa thân người khi cuốn tạ';
-          }
-
           const durationSec =
             Math.round(((performance.now() - this.repStartTime) / 1000) * 10) / 10;
           const status =
@@ -215,268 +282,102 @@ export class ExerciseEvaluator {
 
           this.repStartTime = performance.now();
         }
-        this.stage = 'extended';
+        this.stage = 'start';
         this.peakReached = false;
         this.minAngleInRep = 180;
       } else {
-        feedback = 'Lower all the way to finish rep.';
+        feedback = def.feedback.ascending;
       }
     }
 
-    const depthScore = Math.min(
-      Math.max(Math.round(((160 - this.minAngleInRep) / 115) * 100), 70),
-      100
+    // ── Real-time stability warning override ──────────────────────────────
+    if (
+      def.stabilityScoring?.warningBelow !== undefined &&
+      def.stabilityScoring?.warningFeedback &&
+      secondaryAngle < def.stabilityScoring.warningBelow
+    ) {
+      feedback = def.stabilityScoring.warningFeedback;
+    }
+
+    // ── Live scores for HUD ───────────────────────────────────────────────
+    const { depthScore, stabilityScore, alignmentScore } = this.computeScores(
+      primaryAngle,
+      secondaryAngle
     );
-    const stabilityScore = torsoAngle >= 80 && torsoAngle <= 100 ? 95 : 75;
+    const overallForm = Math.round((depthScore + stabilityScore + alignmentScore) / 3);
+
+    return {
+      exerciseType: def.id as ExerciseType,
+      repCount: this.repCount,
+      stage: this.stage,
+      primaryAngle,
+      secondaryAngle,
+      feedback,
+      formScore: overallForm,
+      subScores: {
+        depth: depthScore,
+        alignment: alignmentScore,
+        stability: stabilityScore,
+      },
+      isRepCompletedThisFrame: isCompleted,
+      activeFault,
+    };
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Score computation from config thresholds
+  // ─────────────────────────────────────────────────────────────────────────
+
+  private computeScores(
+    _primaryAngle: number,
+    secondaryAngle: number
+  ): {
+    depthScore: number;
+    stabilityScore: number;
+    alignmentScore: number;
+    fault?: string;
+  } {
+    const { depthScoring, stabilityScoring } = this.def;
+    let fault: string | undefined;
+
+    // Depth — scored from minAngleInRep accumulated this rep
+    let depthScore: number;
+    if (this.minAngleInRep <= depthScoring.excellent) {
+      depthScore = depthScoring.excellentScore;
+    } else if (this.minAngleInRep <= depthScoring.good) {
+      depthScore = depthScoring.goodScore;
+    } else {
+      depthScore = depthScoring.poorScore;
+    }
+
+    if (this.minAngleInRep > depthScoring.faultThreshold && this.stage !== 'start') {
+      fault = this.def.depthScoring.faultThreshold > 100
+        ? `Insufficient range of motion`
+        : `Insufficient depth`;
+    }
+
+    // Stability — from secondary angle
+    let stabilityScore = 85;
+    if (stabilityScoring) {
+      const inRange =
+        secondaryAngle >= stabilityScoring.goodRangeMin &&
+        secondaryAngle <= stabilityScoring.goodRangeMax;
+      stabilityScore = inRange ? stabilityScoring.goodScore : stabilityScoring.poorScore;
+
+      if (!inRange && stabilityScoring.faultLabelVi && !fault) {
+        fault = stabilityScoring.faultLabelVi;
+      }
+    }
+
+    // Alignment is a constant baseline (form symmetry, not angle-derived)
     const alignmentScore = 90;
-    const overallForm = Math.round((depthScore + stabilityScore + alignmentScore) / 3);
 
-    return {
-      exerciseType: 'bicep_curl',
-      repCount: this.repCount,
-      stage: this.stage,
-      primaryAngle: elbowAngle,
-      secondaryAngle: torsoAngle,
-      feedback,
-      formScore: overallForm,
-      subScores: {
-        depth: depthScore,
-        alignment: alignmentScore,
-        stability: stabilityScore,
-      },
-      isRepCompletedThisFrame: isCompleted,
-      activeFault,
-    };
+    return { depthScore, stabilityScore, alignmentScore, fault };
   }
 
-  private evaluateSquat(landmarks: Landmark[]): FormEvaluation {
-    const hip = landmarks[POSE_LANDMARKS.RIGHT_HIP] || landmarks[POSE_LANDMARKS.LEFT_HIP];
-    const knee = landmarks[POSE_LANDMARKS.RIGHT_KNEE] || landmarks[POSE_LANDMARKS.LEFT_KNEE];
-    const ankle = landmarks[POSE_LANDMARKS.RIGHT_ANKLE] || landmarks[POSE_LANDMARKS.LEFT_ANKLE];
-    const shoulder =
-      landmarks[POSE_LANDMARKS.RIGHT_SHOULDER] || landmarks[POSE_LANDMARKS.LEFT_SHOULDER];
-
-    if (!hip || !knee || !ankle) {
-      return this.defaultEvaluation(this.stage, 0, 0, 'Detecting lower body...');
-    }
-
-    // Knee angle: Hip - Knee - Ankle (180 = standing straight, <= 90 = parallel squat)
-    const kneeAngle = calculateAngle(hip, knee, ankle);
-    // Torso angle: Shoulder - Hip - Knee
-    const hipAngle = shoulder ? calculateAngle(shoulder, hip, knee) : 90;
-
-    let isCompleted = false;
-    let feedback = 'Stand upright with feet shoulder-width apart.';
-    let activeFault: string | undefined;
-
-    if (kneeAngle < this.minAngleInRep) {
-      this.minAngleInRep = kneeAngle;
-    }
-
-    if (this.stage === 'ready' || this.stage === 'standing') {
-      if (kneeAngle >= 165) {
-        this.stage = 'standing';
-        feedback = 'Standing tall. Begin descent with hip hinge.';
-      } else if (kneeAngle < 155) {
-        this.stage = 'descending';
-        feedback = 'Descending... Keep knees tracking outwards.';
-      }
-    } else if (this.stage === 'descending') {
-      if (kneeAngle <= 90) {
-        this.stage = 'bottom';
-        this.peakReached = true;
-        feedback = 'Parallel depth reached! Drive through heels!';
-      } else {
-        feedback = 'Squat deeper - thighs parallel to floor.';
-      }
-    } else if (this.stage === 'bottom') {
-      if (kneeAngle > 105) {
-        this.stage = 'ascending';
-        feedback = 'Push up through mid-foot and squeeze glutes.';
-      }
-    } else if (this.stage === 'ascending') {
-      if (kneeAngle >= 160) {
-        if (this.peakReached) {
-          this.repCount++;
-          isCompleted = true;
-          feedback = 'Rep finished! Full hip extension.';
-
-          const depthScore =
-            this.minAngleInRep <= 90 ? 98 : this.minAngleInRep <= 105 ? 82 : 65;
-          const stabilityScore = hipAngle >= 60 ? 92 : 72;
-          const alignmentScore = 90;
-          const overallForm = Math.round((depthScore + stabilityScore + alignmentScore) / 3);
-
-          if (this.minAngleInRep > 95) {
-            activeFault = 'Chưa xuống đủ độ sâu song song';
-          } else if (hipAngle < 55) {
-            activeFault = 'Thân người gập quá mức về trước';
-          }
-
-          const durationSec =
-            Math.round(((performance.now() - this.repStartTime) / 1000) * 10) / 10;
-          const status =
-            overallForm >= 90 ? 'clean' : overallForm >= 78 ? 'acceptable' : 'needs_work';
-
-          this.repHistory.push({
-            repNumber: this.repCount,
-            formScore: overallForm,
-            minAngle: Math.round(this.minAngleInRep),
-            durationSec: Math.max(0.5, durationSec),
-            status,
-            primaryFault: activeFault,
-            feedback,
-            subScores: { depth: depthScore, alignment: alignmentScore, stability: stabilityScore },
-          });
-
-          this.repStartTime = performance.now();
-        }
-        this.stage = 'standing';
-        this.peakReached = false;
-        this.minAngleInRep = 180;
-      } else {
-        feedback = 'Lockout standing tall at the top.';
-      }
-    }
-
-    const depthScore =
-      this.minAngleInRep <= 90 ? 98 : this.minAngleInRep <= 105 ? 82 : 65;
-    const stabilityScore = hipAngle >= 60 ? 92 : 72;
-    const alignmentScore = 90;
-    const overallForm = Math.round((depthScore + stabilityScore + alignmentScore) / 3);
-
-    return {
-      exerciseType: 'squat',
-      repCount: this.repCount,
-      stage: this.stage,
-      primaryAngle: kneeAngle,
-      secondaryAngle: hipAngle,
-      feedback,
-      formScore: overallForm,
-      subScores: {
-        depth: depthScore,
-        alignment: alignmentScore,
-        stability: stabilityScore,
-      },
-      isRepCompletedThisFrame: isCompleted,
-      activeFault,
-    };
-  }
-
-  private evaluatePushUp(landmarks: Landmark[]): FormEvaluation {
-    const shoulder =
-      landmarks[POSE_LANDMARKS.RIGHT_SHOULDER] || landmarks[POSE_LANDMARKS.LEFT_SHOULDER];
-    const elbow = landmarks[POSE_LANDMARKS.RIGHT_ELBOW] || landmarks[POSE_LANDMARKS.LEFT_ELBOW];
-    const wrist = landmarks[POSE_LANDMARKS.RIGHT_WRIST] || landmarks[POSE_LANDMARKS.LEFT_WRIST];
-    const hip = landmarks[POSE_LANDMARKS.RIGHT_HIP] || landmarks[POSE_LANDMARKS.LEFT_HIP];
-    const ankle = landmarks[POSE_LANDMARKS.RIGHT_ANKLE] || landmarks[POSE_LANDMARKS.LEFT_ANKLE];
-
-    if (!shoulder || !elbow || !wrist) {
-      return this.defaultEvaluation(this.stage, 0, 0, 'Detecting plank position...');
-    }
-
-    // Elbow angle: Shoulder - Elbow - Wrist
-    const elbowAngle = calculateAngle(shoulder, elbow, wrist);
-    // Spine alignment: Shoulder - Hip - Ankle (170-180 is straight plank)
-    const spineAngle = hip && ankle ? calculateAngle(shoulder, hip, ankle) : 175;
-
-    let isCompleted = false;
-    let feedback = 'Hold solid plank, brace core and glutes.';
-    let activeFault: string | undefined;
-
-    if (elbowAngle < this.minAngleInRep) {
-      this.minAngleInRep = elbowAngle;
-    }
-
-    if (this.stage === 'ready' || this.stage === 'top') {
-      if (elbowAngle >= 155) {
-        this.stage = 'top';
-        feedback = 'Top plank lockout. Lower chest smoothly.';
-      } else if (elbowAngle < 145) {
-        this.stage = 'descending';
-        feedback = 'Descending... Keep elbows at 45 degrees.';
-      }
-    } else if (this.stage === 'descending') {
-      if (elbowAngle <= 90) {
-        this.stage = 'bottom';
-        this.peakReached = true;
-        feedback = 'Chest to deck depth! Press upward!';
-      } else {
-        feedback = 'Lower chest closer to the floor.';
-      }
-    } else if (this.stage === 'bottom') {
-      if (elbowAngle > 105) {
-        this.stage = 'ascending';
-        feedback = 'Pressing up... keep body rigid like a plank.';
-      }
-    } else if (this.stage === 'ascending') {
-      if (elbowAngle >= 155) {
-        if (this.peakReached) {
-          this.repCount++;
-          isCompleted = true;
-          feedback = 'Rep counted! Solid lockout.';
-
-          const depthScore = this.minAngleInRep <= 90 ? 96 : 75;
-          const stabilityScore = spineAngle >= 165 && spineAngle <= 180 ? 94 : 68;
-          const alignmentScore = 88;
-          const overallForm = Math.round((depthScore + stabilityScore + alignmentScore) / 3);
-
-          if (this.minAngleInRep > 95) {
-            activeFault = 'Hạ ngực chưa đủ thấp';
-          } else if (spineAngle < 160) {
-            activeFault = 'Võng lưng / hông chùng';
-          }
-
-          const durationSec =
-            Math.round(((performance.now() - this.repStartTime) / 1000) * 10) / 10;
-          const status =
-            overallForm >= 90 ? 'clean' : overallForm >= 78 ? 'acceptable' : 'needs_work';
-
-          this.repHistory.push({
-            repNumber: this.repCount,
-            formScore: overallForm,
-            minAngle: Math.round(this.minAngleInRep),
-            durationSec: Math.max(0.5, durationSec),
-            status,
-            primaryFault: activeFault,
-            feedback,
-            subScores: { depth: depthScore, alignment: alignmentScore, stability: stabilityScore },
-          });
-
-          this.repStartTime = performance.now();
-        }
-        this.stage = 'top';
-        this.peakReached = false;
-        this.minAngleInRep = 180;
-      }
-    }
-
-    if (spineAngle < 160) {
-      feedback = 'Warning: Hips sagging! Engage abs and glutes.';
-    }
-
-    const depthScore = this.minAngleInRep <= 90 ? 96 : 75;
-    const stabilityScore = spineAngle >= 165 && spineAngle <= 180 ? 94 : 68;
-    const alignmentScore = 88;
-    const overallForm = Math.round((depthScore + stabilityScore + alignmentScore) / 3);
-
-    return {
-      exerciseType: 'push_up',
-      repCount: this.repCount,
-      stage: this.stage,
-      primaryAngle: elbowAngle,
-      secondaryAngle: spineAngle,
-      feedback,
-      formScore: overallForm,
-      subScores: {
-        depth: depthScore,
-        alignment: alignmentScore,
-        stability: stabilityScore,
-      },
-      isRepCompletedThisFrame: isCompleted,
-      activeFault,
-    };
-  }
+  // ─────────────────────────────────────────────────────────────────────────
+  // Fallback evaluation when landmarks are missing
+  // ─────────────────────────────────────────────────────────────────────────
 
   private defaultEvaluation(
     stage: string,
@@ -485,7 +386,7 @@ export class ExerciseEvaluator {
     feedback: string
   ): FormEvaluation {
     return {
-      exerciseType: this.exerciseType,
+      exerciseType: this.def.id as ExerciseType,
       repCount: this.repCount,
       stage,
       primaryAngle,

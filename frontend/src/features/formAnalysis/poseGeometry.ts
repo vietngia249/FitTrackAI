@@ -41,6 +41,9 @@ export const POSE_LANDMARKS = {
   RIGHT_FOOT_INDEX: 32,
 } as const;
 
+// Convenience alias so exerciseDefinitions.ts can reference L.RIGHT_FOOT_INDEX
+// (already present above — this comment serves as a guard note).
+
 export const SKELETON_CONNECTIONS: Array<[number, number]> = [
   // Upper body
   [POSE_LANDMARKS.LEFT_SHOULDER, POSE_LANDMARKS.RIGHT_SHOULDER],
