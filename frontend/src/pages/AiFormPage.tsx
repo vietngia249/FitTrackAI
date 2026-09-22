@@ -25,6 +25,11 @@ import {
   RepDetail,
   ExerciseDiagnostics,
 } from '../features/formAnalysis/exerciseStateMachines';
+import {
+  EXERCISE_LIST,
+  EXERCISE_CATALOG,
+  MuscleGroup,
+} from '../features/formAnalysis/exerciseDefinitions';
 import { Landmark } from '../features/formAnalysis/poseGeometry';
 import { PoseCanvasOverlay } from '../features/formAnalysis/PoseCanvasOverlay';
 import { PositioningGuide } from '../features/formAnalysis/PositioningGuide';
@@ -48,6 +53,7 @@ export const AiFormPage: React.FC = () => {
   const [targetReps, setTargetReps] = useState<number>(10);
   const [sourceMode, setSourceMode] = useState<FormSourceMode>('camera');
   const [sidebarTab, setSidebarTab] = useState<'overview' | 'reps'>('overview');
+  const [isExercisePickerOpen, setIsExercisePickerOpen] = useState<boolean>(false);
 
   // Control & audio state
   const [isRunning, setIsRunning] = useState<boolean>(false);
@@ -92,7 +98,7 @@ export const AiFormPage: React.FC = () => {
     stage: 'ready',
     primaryAngle: 172,
     secondaryAngle: 88,
-    feedback: 'Stand tall with feet shoulder-width apart to begin.',
+    feedback: EXERCISE_CATALOG['squat']?.feedback.ready ?? 'Ready. Position camera to view full body.',
     formScore: 92,
     subScores: { depth: 95, alignment: 90, stability: 92 },
     isRepCompletedThisFrame: false,
@@ -202,7 +208,7 @@ export const AiFormPage: React.FC = () => {
       stage: 'ready',
       primaryAngle: 0,
       secondaryAngle: 0,
-      feedback: `Ready for ${type.replace('_', ' ')}. Position camera to view full body.`,
+      feedback: EXERCISE_CATALOG[type]?.feedback.ready ?? `Ready for ${type.replace('_', ' ')}.`,
       formScore: 90,
       subScores: { depth: 90, alignment: 90, stability: 90 },
       isRepCompletedThisFrame: false,
@@ -469,25 +475,85 @@ export const AiFormPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Exercise Switcher */}
-        <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl self-start sm:self-auto">
-          {[
-            { id: 'squat', labelKey: 'ai_form.ex_squat' },
-            { id: 'bicep_curl', labelKey: 'ai_form.ex_bicep_curl' },
-            { id: 'push_up', labelKey: 'ai_form.ex_push_up' },
-          ].map((ex) => (
-            <button
-              key={ex.id}
-              onClick={() => handleSelectExercise(ex.id as ExerciseType)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold capitalize transition-all cursor-pointer ${
-                selectedExercise === ex.id
-                  ? 'bg-emerald-500 text-white shadow-md shadow-emerald-500/20 keep-white'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-slate-800'
-              }`}
-            >
-              {t(ex.labelKey)}
-            </button>
-          ))}
+        {/* Exercise Picker — grouped dropdown */}
+        <div className="relative self-start sm:self-auto">
+          <button
+            id="exercise-picker-btn"
+            onClick={() => setIsExercisePickerOpen((o) => !o)}
+            className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-700 dark:text-slate-200 hover:border-emerald-500/50 transition-all cursor-pointer shadow-sm"
+          >
+            <Activity className="w-3.5 h-3.5 text-emerald-500" />
+            <span className="capitalize">{EXERCISE_CATALOG[selectedExercise]?.displayName ?? selectedExercise.replace('_', ' ')}</span>
+            <span className="ml-1 text-slate-400 dark:text-slate-500 text-[10px]">▾</span>
+          </button>
+
+          {isExercisePickerOpen && (
+            <>
+              {/* Backdrop */}
+              <div
+                className="fixed inset-0 z-40"
+                onClick={() => setIsExercisePickerOpen(false)}
+              />
+              {/* Dropdown panel */}
+              <div className="absolute right-0 top-full mt-2 z-50 w-72 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-2xl overflow-hidden">
+                <div className="p-2 max-h-96 overflow-y-auto">
+                  {([
+                    ['lower_body', t('ai_form.muscle_lower_body', 'Lower Body')],
+                    ['upper_body', t('ai_form.muscle_upper_body', 'Upper Body')],
+                    ['core', t('ai_form.muscle_core', 'Core')],
+                    ['cardio', t('ai_form.muscle_cardio', 'Cardio')],
+                  ] as [MuscleGroup, string][]).map(([group, groupLabel]) => {
+                    const groupExercises = EXERCISE_LIST.filter((e) => e.muscleGroup === group);
+                    if (groupExercises.length === 0) return null;
+                    return (
+                      <div key={group} className="mb-2">
+                        <div className="px-2 pt-1 pb-0.5 text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">
+                          {groupLabel}
+                        </div>
+                        {groupExercises.map((ex) => (
+                          <button
+                            key={ex.id}
+                            onClick={() => {
+                              handleSelectExercise(ex.id as ExerciseType);
+                              setIsExercisePickerOpen(false);
+                            }}
+                            className={`w-full text-left flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-xs transition-all cursor-pointer ${
+                              selectedExercise === ex.id
+                                ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 font-bold'
+                                : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                            }`}
+                          >
+                            <div>
+                              <div className="font-semibold">{ex.displayName}</div>
+                              <div className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
+                                {ex.targetMuscles.slice(0, 2).join(' · ')}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1 shrink-0">
+                              <span className={`px-1.5 py-0.5 rounded-md text-[9px] font-bold uppercase ${
+                                ex.difficulty === 'beginner'
+                                  ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                                  : ex.difficulty === 'intermediate'
+                                  ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                                  : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                              }`}>
+                                {ex.difficulty === 'beginner' ? t('ai_form.diff_beginner', 'Easy') :
+                                  ex.difficulty === 'intermediate' ? t('ai_form.diff_intermediate', 'Med') :
+                                  t('ai_form.diff_advanced', 'Hard')}
+                              </span>
+                              {selectedExercise === ex.id && (
+                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                              )}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
