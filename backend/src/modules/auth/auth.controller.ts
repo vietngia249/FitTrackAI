@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { authService } from './auth.service.js';
-import { LoginInput, RegisterInput, GoogleAuthInput, UpdateProfileInput, updateProfileSchema } from './auth.schemas.js';
+import { LoginInput, RegisterInput, GoogleAuthInput, updateProfileSchema } from './auth.schemas.js';
 import { env } from '../../config/env.js';
 import { AppError } from '../../shared/errors/app-error.js';
 

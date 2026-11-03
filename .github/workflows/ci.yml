@@ -31,6 +31,11 @@ jobs:
           cd backend
           npx prisma generate
 
+      - name: Lint Backend
+        run: |
+          cd backend
+          npm run lint
+
       - name: Typecheck Backend
         run: |
           cd backend
@@ -64,6 +69,11 @@ jobs:
         run: |
           cd frontend
           npm ci
+
+      - name: Lint Frontend
+        run: |
+          cd frontend
+          npm run lint
 
       - name: Typecheck Frontend
         run: |

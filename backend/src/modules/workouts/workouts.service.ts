@@ -2,7 +2,6 @@ import { PrismaClient } from '@prisma/client';
 import { prisma } from '../../infrastructure/database/prisma.js';
 import {
   CreateWorkoutPlanInput,
-  UpdateWorkoutPlanInput,
   StartWorkoutSessionInput,
   UpdateSessionSetInput,
   CompleteSessionInput,

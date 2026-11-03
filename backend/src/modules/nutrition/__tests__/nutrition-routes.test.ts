@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { buildApp } from '../../../app.js';
-import { NutritionService, STAPLE_FOODS } from '../nutrition.service.js';
+import { NutritionService } from '../nutrition.service.js';
 
 describe('Nutrition Module API Routes & Guardrails', () => {
   const app = buildApp();
