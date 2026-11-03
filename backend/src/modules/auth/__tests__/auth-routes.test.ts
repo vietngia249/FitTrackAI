@@ -1,7 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { buildApp } from '../../../app.js';
-import { env } from '../../../config/env.js';
 
 describe('Auth API Routes & Guardrails', () => {
   const app = buildApp();
